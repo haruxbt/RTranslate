@@ -1,0 +1,11 @@
+{
+  "version": "2.5.0",
+  "license": "BSD-3-Clause",
+  "integrity": "sha512-AK5FQsN5aD2m91HuCGPlRDomDhGxK0o4F8ZVyAbAfcMWBW2QlhZvE0S7v9lBq0Ib4eONq7mT1SBVdrnnIrn4pw==",
+  "repository": "https://github.com/gpac/mp4box.js",
+  "runtime_sha256": {
+    "mp4box.all.mjs": "5405aa417dd3215044b37139f825e6524f67f218ee7fa36493f95446f132d975",
+    "styp-BV5G3FS-.mjs": "759de3eafca965eef4380068589b405b0790473864fd5e6f71085c7e748e1dae",
+    "rolldown-runtime-CNh9ExCG.mjs": "be065d52a250755063b5b89dfa6786ad988b57ba020cb91c415afd1b15fdf635"
+  }
+}

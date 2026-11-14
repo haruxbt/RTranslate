@@ -1,0 +1,111 @@
+{
+  "version": 1,
+  "files": [
+    {
+      "path": "plamo-3-translate-0.8b-MLX-4bit/LICENSE/en",
+      "sha256": "d9979039b8f1a96fa81e1be61c4550d06f8542b25119e3f765c7c011a68597fb",
+      "support": true
+    },
+    {
+      "path": "plamo-3-translate-0.8b-MLX-4bit/LICENSE/ja",
+      "sha256": "988b37b0b21ca130ad84a092429e4e5bceec5f86dfe85a8ca3e06ea703b960ca",
+      "support": true
+    },
+    {
+      "path": "plamo-3-translate-0.8b-MLX-4bit/LICENSE.mlx-lm",
+      "sha256": "ccfab7ccb2ea306f71531c8ca77bb55507606cd90768b1e32b8b52ab5b48cf01",
+      "support": true
+    },
+    {
+      "path": "plamo-3-translate-0.8b-MLX-4bit/chat_template.jinja",
+      "sha256": "633ae24b5166d2c958d9b0a39523f2cc5bd6832752ec2ab0285793cab6415323",
+      "support": true
+    },
+    {
+      "path": "plamo-3-translate-0.8b-MLX-4bit/config.json",
+      "sha256": "5175a9cd6ba7bab7eecafc508aa3278e58ece44d8edafa4a175ca067c4ed8c69",
+      "support": true
+    },
+    {
+      "path": "plamo-3-translate-0.8b-MLX-4bit/generation_config.json",
+      "sha256": "0410d30499cd9db0a83ecbd59a2811b1c4f63f7c9412126a43e8d2b96ec44a85",
+      "support": true
+    },
+    {
+      "path": "plamo-3-translate-0.8b-MLX-4bit/model.safetensors",
+      "sha256": "4769685905d03c7f5ceaef316cbef245c9099f548f8dea00ecfdf980d698b29f",
+      "url": "https://huggingface.co/pfnet/plamo-3-translate-0.8b-MLX-4bit/resolve/ee182122320e3c7778950a9fab26fc28dfe0eff3/model.safetensors"
+    },
+    {
+      "path": "plamo-3-translate-0.8b-MLX-4bit/modeling_plamo_mlx.py",
+      "sha256": "eb6a576df1c20e9d40653671c8e63ded584661aa3f858ff5bee620357b479367",
+      "support": true
+    },
+    {
+      "path": "plamo-3-translate-0.8b-MLX-4bit/requirements-mlx.txt",
+      "sha256": "76435a701711159400d43dcb79a3fc26f2596e85fb79e5364c1b405ab1956fa6",
+      "support": true
+    },
+    {
+      "path": "plamo-3-translate-0.8b-MLX-4bit/special_tokens_map.json",
+      "sha256": "1004b03ad5c184693765d25d8d682e831727b43b84e321fc9dc14d9ef3d1466a",
+      "support": true
+    },
+    {
+      "path": "plamo-3-translate-0.8b-MLX-4bit/tokenization_plamo.py",
+      "sha256": "68b769d516541603857ce9d2813e48193efe41abb64c1091311b973d491724d9",
+      "support": true
+    },
+    {
+      "path": "plamo-3-translate-0.8b-MLX-4bit/tokenizer.jsonl",
+      "sha256": "bdce9e430e65931b28c56de2054f52b4cf8ed59b322db125e016d724d06dbb0e",
+      "support": true
+    },
+    {
+      "path": "plamo-3-translate-0.8b-MLX-4bit/tokenizer_config.json",
+      "sha256": "5468ed5c68b5cf4cf971bcb34be6bfbfd749fe30cc5bc65ace5835ae3bff65b3",
+      "support": true
+    },
+    {
+      "path": "voicevox/models/README.txt",
+      "sha256": "5f22fc4a915a3fa07eff3422bfc36ee4ecdd7cdc8aa34b4970c4b9cf8c109354",
+      "support": true
+    },
+    {
+      "path": "voicevox/models/TERMS.txt",
+      "sha256": "9c0caf98b31ef82e3686e8fca39d53c85965059d2206be3c83efc3751d32c83a",
+      "support": true
+    },
+    {
+      "path": "voicevox/models/vvms/0.vvm",
+      "sha256": "ecd35374d4182cd883cba5040376f7f888cc6ba248b1c2f4cea07cdb34bb1318",
+      "url": "https://github.com/VOICEVOX/voicevox_vvm/releases/download/0.17.1/0.vvm"
+    },
+    {
+      "path": "voicevox/models/vvms/1.vvm",
+      "sha256": "e16ffb6fc3e13e1be4ebc3831cc39df019cbac96b28bbed7653a4bb51c4d7d5d",
+      "url": "https://github.com/VOICEVOX/voicevox_vvm/releases/download/0.17.1/1.vvm"
+    },
+    {
+      "path": "voicevox/models/vvms/12.vvm",
+      "sha256": "894464a6cbf59bdf930b8406097f44d2f25bb762db5bc71c9e9c31e1f904c715",
+      "url": "https://github.com/VOICEVOX/voicevox_vvm/releases/download/0.17.1/12.vvm"
+    },
+    {
+      "path": "open-jtalk-1.11.tar.gz",
+      "sha256": "33e9cd251bc41aa2bd7ca36f57abbf61eae3543ca25ca892ae345e394cb10549",
+      "url": "https://downloads.sourceforge.net/project/open-jtalk/Dictionary/open_jtalk_dic-1.11/open_jtalk_dic_utf_8-1.11.tar.gz"
+    }
+  ],
+  "dictionary": {
+    "open_jtalk_dic_utf_8-1.11/COPYING": "f4eca42ebd930e2c6e57fca58319d989bebcd1510cb7714b149c50f5425135ea",
+    "open_jtalk_dic_utf_8-1.11/char.bin": "888ee94c5a8a7a26d24ab3f1b7155441351954fd51ea06b4a2f78bd742492b2f",
+    "open_jtalk_dic_utf_8-1.11/left-id.def": "db1adac8a7f9e5854cd82ea044c85115249206c8181b9d88cf92ae2ee5e87b84",
+    "open_jtalk_dic_utf_8-1.11/matrix.bin": "62fd16b4f64c851d5dc352ef0d5740c5fc83ddc7c203b2b0b1fc5271969a14ce",
+    "open_jtalk_dic_utf_8-1.11/pos-id.def": "3460aa742053085af47cdfc889a1e0e6f557e89b406e501ba81c9ccc286de0c7",
+    "open_jtalk_dic_utf_8-1.11/rewrite.def": "7f7c8dfbfe24092e8a149a9b6e0a3a7f1c2cf37d6c3dc29d1cccc6c004da9c1c",
+    "open_jtalk_dic_utf_8-1.11/right-id.def": "db1adac8a7f9e5854cd82ea044c85115249206c8181b9d88cf92ae2ee5e87b84",
+    "open_jtalk_dic_utf_8-1.11/sys.dic": "ca57d9029691a70a5dfb99afc2844180256161d7130da65b1a867510e129b9a6",
+    "open_jtalk_dic_utf_8-1.11/unk.dic": "ce97851ecda075914fa3ffe7294a1ab34ee4f6d56ba6bf9197d74143b5dffbfe"
+  }
+}

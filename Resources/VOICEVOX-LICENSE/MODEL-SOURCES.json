@@ -1,0 +1,9 @@
+{
+  "version": "0.17.1",
+  "source": "https://github.com/VOICEVOX/voicevox_vvm/releases/tag/0.17.1",
+  "files": {
+    "0.vvm": "ecd35374d4182cd883cba5040376f7f888cc6ba248b1c2f4cea07cdb34bb1318",
+    "1.vvm": "e16ffb6fc3e13e1be4ebc3831cc39df019cbac96b28bbed7653a4bb51c4d7d5d",
+    "12.vvm": "894464a6cbf59bdf930b8406097f44d2f25bb762db5bc71c9e9c31e1f904c715"
+  }
+}

@@ -1,0 +1,45 @@
+import test from 'node:test';import assert from 'node:assert/strict';import vm from 'node:vm';import fs from 'node:fs/promises';
+async function fixture(){
+ class Element{constructor(){this.value='';this.checked=false;this.disabled=false;this.attributes={};this.children=[];this.textContent='';}focus(){this.focused=true;}append(...x){this.children.push(...x);}replaceChildren(){this.children=[];}setAttribute(k,v){this.attributes[k]=v;}}
+ const elements=new Map(),calls=[];let dictionary={glossary:'SOC = SOC',readings:'Square = スクエア',displayTerms:''};const get=id=>{if(!elements.has(id))elements.set(id,new Element());return elements.get(id);};
+ let model={running:false,voiceEnabled:false,timelineVisible:false,host:'example.test',effectiveSpeed:1.75};
+ const context=vm.createContext({document:{getElementById:get,createElement:()=>new Element(),body:{dataset:{}}},setInterval(){},console,browser:{storage:{local:{get:async()=>({settings:{speaker:14,volume:80,speed:1.25,autoSpeed:false}})}},runtime:{sendMessage:async request=>{
+  calls.push(request);if(request.type==='start')Object.assign(model,{running:true,voiceEnabled:true,timelineVisible:true});
+  if(request.type==='stop')Object.assign(model,{running:false,voiceEnabled:false});
+  if(request.type==='voice')model.voiceEnabled=request.enabled;if(request.type==='timeline')model.timelineVisible=request.visible;
+  if(request.type==='dictionaryGet')return {ok:true,dictionary:{...dictionary}};
+  if(request.type==='dictionarySave'){dictionary={...request.dictionary};return {ok:true};}
+  if(request.type==='preview')return {ok:true,message:'試聴しています'};
+  return {ok:true,...model};
+ }}}});
+ const protocol=new vm.SourceTextModule(await fs.readFile(new URL('../../SafariExtension/Resources/protocol.mjs',import.meta.url),'utf8'),{context});await protocol.link(()=>{});await protocol.evaluate();
+ const popup=new vm.SourceTextModule(await fs.readFile(new URL('../../SafariExtension/Resources/popup.js',import.meta.url),'utf8'),{context});await popup.link(()=>protocol);await popup.evaluate();return {get,calls};
+}
+test('popup restores settings and one start enables speech and timeline independently',async()=>{
+ const f=await fixture(),g=f.get;assert.equal(Number(g('speaker').value),14);assert.equal(g('speed-value').textContent,'1.25×');assert.equal(g('voice').disabled,true);
+ await g('translate').onclick();assert.equal(g('voice').attributes['aria-checked'],'true');assert.equal(g('timeline').attributes['aria-checked'],'true');
+ await g('voice').onclick();await g('timeline').onclick();assert.equal(g('voice').attributes['aria-checked'],'false');assert.equal(g('timeline').attributes['aria-checked'],'false');assert.equal(g('translate-label').textContent,'翻訳停止');
+ await g('translate').onclick();assert.equal(g('translate-label').textContent,'翻訳開始');
+});
+test('volume numeric entry and preset speed reach settings; preview uses the current choice',async()=>{
+ const f=await fixture(),g=f.get;g('volume-number').value='25';g('volume-number').oninput();assert.equal(Number(g('volume').value),25);
+ g('speed').value='5';g('speaker').value='52';g('speed').onchange();await new Promise(resolve=>setImmediate(resolve));
+ const last=f.calls.filter(x=>x.type==='settings').at(-1);assert.equal(last.value.volume,25);assert.equal(last.value.speed,2);assert.equal(last.value.speaker,52);assert.equal(last.value.autoSpeed,false);
+ await g('preview').onclick();assert.equal(g('preview-status').textContent,'試聴しています');assert.ok(f.calls.some(x=>x.type==='preview'));
+});
+
+test('dictionary form saves a reading without changing the translation glossary',async()=>{
+ const f=await fixture(),g=f.get;g('dict-kind').value='readings';g('dictionary-panel').open=true;g('dictionary-panel').ontoggle();await new Promise(resolve=>setImmediate(resolve));
+ assert.equal(g('dict-target-title').textContent,'読み');g('dict-source').value='OpenAI';g('dict-target').value='オープンエーアイ';await g('dict-add').onclick();
+ const saved=f.calls.filter(x=>x.type==='dictionarySave').at(-1).dictionary;assert.equal(saved.glossary,'SOC = SOC');assert.match(saved.readings,/Square = スクエア/);assert.match(saved.readings,/OpenAI = オープンエーアイ/);
+});
+test('gear opens separate settings and back restores the popup',async()=>{
+ const f=await fixture(),g=f.get;g('open-settings').onclick();assert.equal(g('main-page').hidden,true);assert.equal(g('settings-page').hidden,false);
+ await new Promise(resolve=>setImmediate(resolve));assert.ok(f.calls.some(x=>x.type==='assetsStatus'));
+ g('close-settings').onclick();assert.equal(g('settings-page').hidden,true);assert.equal(g('main-page').hidden,false);
+ assert.equal(f.calls.filter(x=>x.type==='uninstall').length,0);
+});
+
+test('opening the popup uses a neutral root instead of focusing details',async()=>{
+ const f=await fixture();assert.equal(f.get('popup-root').focused,true);assert.notEqual(f.get('details').focused,true);
+});

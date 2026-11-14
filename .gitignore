@@ -1,0 +1,14 @@
+.build/
+build/
+dist/
+work/
+models/
+.local/
+.env*
+*.log
+*.p12
+*.key
+*.pem
+**/xcuserdata/
+*.xcuserstate
+.DS_Store

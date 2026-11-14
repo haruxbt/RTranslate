@@ -1,0 +1,700 @@
+{
+  "architectures": [
+    "Plamo3ForCausalLM"
+  ],
+  "bos_token_id": 1,
+  "dtype": "bfloat16",
+  "eos_token_id": 1,
+  "head_dim": 128,
+  "hidden_size": 1536,
+  "image_feature_size": null,
+  "image_proj_type": "linear",
+  "image_token_id": null,
+  "initial_context_length": 4096,
+  "intermediate_size": 6144,
+  "linear_type": "normal",
+  "max_position_embeddings": 262144,
+  "model_type": "plamo3",
+  "num_attention_heads": 16,
+  "num_hidden_layers": 16,
+  "num_key_value_heads": 1,
+  "pad_token_id": 3,
+  "rms_norm_eps": 1e-06,
+  "rope_local_theta": 10000,
+  "rope_scaling_factor": 256.0,
+  "rope_theta": 1000000,
+  "scale_embedding": false,
+  "sliding_window_pattern": 8,
+  "tie_word_embeddings": false,
+  "tokenizer_class": "Plamo3Tokenizer",
+  "transformers_version": "4.57.1",
+  "use_cache": true,
+  "vocab_size": 107520,
+  "window_size": 2048,
+  "quantization": {
+    "group_size": 64,
+    "bits": 4,
+    "model.embed_tokens": false,
+    "model.layers.layers.0.mixer.qkv_proj": {
+      "group_size": 64,
+      "bits": 4
+    },
+    "model.layers.layers.0.mixer.o_proj": {
+      "group_size": 64,
+      "bits": 4
+    },
+    "model.layers.layers.0.mlp.gate_up_proj": {
+      "group_size": 64,
+      "bits": 4
+    },
+    "model.layers.layers.0.mlp.down_proj": {
+      "group_size": 64,
+      "bits": 4
+    },
+    "model.layers.layers.1.mixer.qkv_proj": {
+      "group_size": 64,
+      "bits": 4
+    },
+    "model.layers.layers.1.mixer.o_proj": {
+      "group_size": 64,
+      "bits": 4
+    },
+    "model.layers.layers.1.mlp.gate_up_proj": {
+      "group_size": 64,
+      "bits": 4
+    },
+    "model.layers.layers.1.mlp.down_proj": {
+      "group_size": 64,
+      "bits": 4
+    },
+    "model.layers.layers.2.mixer.qkv_proj": {
+      "group_size": 64,
+      "bits": 4
+    },
+    "model.layers.layers.2.mixer.o_proj": {
+      "group_size": 64,
+      "bits": 4
+    },
+    "model.layers.layers.2.mlp.gate_up_proj": {
+      "group_size": 64,
+      "bits": 4
+    },
+    "model.layers.layers.2.mlp.down_proj": {
+      "group_size": 64,
+      "bits": 4
+    },
+    "model.layers.layers.3.mixer.qkv_proj": {
+      "group_size": 64,
+      "bits": 4
+    },
+    "model.layers.layers.3.mixer.o_proj": {
+      "group_size": 64,
+      "bits": 4
+    },
+    "model.layers.layers.3.mlp.gate_up_proj": {
+      "group_size": 64,
+      "bits": 4
+    },
+    "model.layers.layers.3.mlp.down_proj": {
+      "group_size": 64,
+      "bits": 4
+    },
+    "model.layers.layers.4.mixer.qkv_proj": {
+      "group_size": 64,
+      "bits": 4
+    },
+    "model.layers.layers.4.mixer.o_proj": {
+      "group_size": 64,
+      "bits": 4
+    },
+    "model.layers.layers.4.mlp.gate_up_proj": {
+      "group_size": 64,
+      "bits": 4
+    },
+    "model.layers.layers.4.mlp.down_proj": {
+      "group_size": 64,
+      "bits": 4
+    },
+    "model.layers.layers.5.mixer.qkv_proj": {
+      "group_size": 64,
+      "bits": 4
+    },
+    "model.layers.layers.5.mixer.o_proj": {
+      "group_size": 64,
+      "bits": 4
+    },
+    "model.layers.layers.5.mlp.gate_up_proj": {
+      "group_size": 64,
+      "bits": 4
+    },
+    "model.layers.layers.5.mlp.down_proj": {
+      "group_size": 64,
+      "bits": 4
+    },
+    "model.layers.layers.6.mixer.qkv_proj": {
+      "group_size": 64,
+      "bits": 4
+    },
+    "model.layers.layers.6.mixer.o_proj": {
+      "group_size": 64,
+      "bits": 4
+    },
+    "model.layers.layers.6.mlp.gate_up_proj": {
+      "group_size": 64,
+      "bits": 4
+    },
+    "model.layers.layers.6.mlp.down_proj": {
+      "group_size": 64,
+      "bits": 4
+    },
+    "model.layers.layers.7.mixer.qkv_proj": {
+      "group_size": 64,
+      "bits": 4
+    },
+    "model.layers.layers.7.mixer.o_proj": {
+      "group_size": 64,
+      "bits": 4
+    },
+    "model.layers.layers.7.mlp.gate_up_proj": {
+      "group_size": 64,
+      "bits": 4
+    },
+    "model.layers.layers.7.mlp.down_proj": {
+      "group_size": 64,
+      "bits": 4
+    },
+    "model.layers.layers.8.mixer.qkv_proj": {
+      "group_size": 64,
+      "bits": 4
+    },
+    "model.layers.layers.8.mixer.o_proj": {
+      "group_size": 64,
+      "bits": 4
+    },
+    "model.layers.layers.8.mlp.gate_up_proj": {
+      "group_size": 64,
+      "bits": 4
+    },
+    "model.layers.layers.8.mlp.down_proj": {
+      "group_size": 64,
+      "bits": 4
+    },
+    "model.layers.layers.9.mixer.qkv_proj": {
+      "group_size": 64,
+      "bits": 4
+    },
+    "model.layers.layers.9.mixer.o_proj": {
+      "group_size": 64,
+      "bits": 4
+    },
+    "model.layers.layers.9.mlp.gate_up_proj": {
+      "group_size": 64,
+      "bits": 4
+    },
+    "model.layers.layers.9.mlp.down_proj": {
+      "group_size": 64,
+      "bits": 4
+    },
+    "model.layers.layers.10.mixer.qkv_proj": {
+      "group_size": 64,
+      "bits": 4
+    },
+    "model.layers.layers.10.mixer.o_proj": {
+      "group_size": 64,
+      "bits": 4
+    },
+    "model.layers.layers.10.mlp.gate_up_proj": {
+      "group_size": 64,
+      "bits": 4
+    },
+    "model.layers.layers.10.mlp.down_proj": {
+      "group_size": 64,
+      "bits": 4
+    },
+    "model.layers.layers.11.mixer.qkv_proj": {
+      "group_size": 64,
+      "bits": 4
+    },
+    "model.layers.layers.11.mixer.o_proj": {
+      "group_size": 64,
+      "bits": 4
+    },
+    "model.layers.layers.11.mlp.gate_up_proj": {
+      "group_size": 64,
+      "bits": 4
+    },
+    "model.layers.layers.11.mlp.down_proj": {
+      "group_size": 64,
+      "bits": 4
+    },
+    "model.layers.layers.12.mixer.qkv_proj": {
+      "group_size": 64,
+      "bits": 4
+    },
+    "model.layers.layers.12.mixer.o_proj": {
+      "group_size": 64,
+      "bits": 4
+    },
+    "model.layers.layers.12.mlp.gate_up_proj": {
+      "group_size": 64,
+      "bits": 4
+    },
+    "model.layers.layers.12.mlp.down_proj": {
+      "group_size": 64,
+      "bits": 4
+    },
+    "model.layers.layers.13.mixer.qkv_proj": {
+      "group_size": 64,
+      "bits": 4
+    },
+    "model.layers.layers.13.mixer.o_proj": {
+      "group_size": 64,
+      "bits": 4
+    },
+    "model.layers.layers.13.mlp.gate_up_proj": {
+      "group_size": 64,
+      "bits": 4
+    },
+    "model.layers.layers.13.mlp.down_proj": {
+      "group_size": 64,
+      "bits": 4
+    },
+    "model.layers.layers.14.mixer.qkv_proj": {
+      "group_size": 64,
+      "bits": 4
+    },
+    "model.layers.layers.14.mixer.o_proj": {
+      "group_size": 64,
+      "bits": 4
+    },
+    "model.layers.layers.14.mlp.gate_up_proj": {
+      "group_size": 64,
+      "bits": 4
+    },
+    "model.layers.layers.14.mlp.down_proj": {
+      "group_size": 64,
+      "bits": 4
+    },
+    "model.layers.layers.15.mixer.qkv_proj": {
+      "group_size": 64,
+      "bits": 4
+    },
+    "model.layers.layers.15.mixer.o_proj": {
+      "group_size": 64,
+      "bits": 4
+    },
+    "model.layers.layers.15.mlp.gate_up_proj": {
+      "group_size": 64,
+      "bits": 4
+    },
+    "model.layers.layers.15.mlp.down_proj": {
+      "group_size": 64,
+      "bits": 4
+    },
+    "lm_head": false
+  },
+  "quantization_config": {
+    "group_size": 64,
+    "bits": 4,
+    "model.embed_tokens": false,
+    "model.layers.layers.0.mixer.qkv_proj": {
+      "group_size": 64,
+      "bits": 4
+    },
+    "model.layers.layers.0.mixer.o_proj": {
+      "group_size": 64,
+      "bits": 4
+    },
+    "model.layers.layers.0.mlp.gate_up_proj": {
+      "group_size": 64,
+      "bits": 4
+    },
+    "model.layers.layers.0.mlp.down_proj": {
+      "group_size": 64,
+      "bits": 4
+    },
+    "model.layers.layers.1.mixer.qkv_proj": {
+      "group_size": 64,
+      "bits": 4
+    },
+    "model.layers.layers.1.mixer.o_proj": {
+      "group_size": 64,
+      "bits": 4
+    },
+    "model.layers.layers.1.mlp.gate_up_proj": {
+      "group_size": 64,
+      "bits": 4
+    },
+    "model.layers.layers.1.mlp.down_proj": {
+      "group_size": 64,
+      "bits": 4
+    },
+    "model.layers.layers.2.mixer.qkv_proj": {
+      "group_size": 64,
+      "bits": 4
+    },
+    "model.layers.layers.2.mixer.o_proj": {
+      "group_size": 64,
+      "bits": 4
+    },
+    "model.layers.layers.2.mlp.gate_up_proj": {
+      "group_size": 64,
+      "bits": 4
+    },
+    "model.layers.layers.2.mlp.down_proj": {
+      "group_size": 64,
+      "bits": 4
+    },
+    "model.layers.layers.3.mixer.qkv_proj": {
+      "group_size": 64,
+      "bits": 4
+    },
+    "model.layers.layers.3.mixer.o_proj": {
+      "group_size": 64,
+      "bits": 4
+    },
+    "model.layers.layers.3.mlp.gate_up_proj": {
+      "group_size": 64,
+      "bits": 4
+    },
+    "model.layers.layers.3.mlp.down_proj": {
+      "group_size": 64,
+      "bits": 4
+    },
+    "model.layers.layers.4.mixer.qkv_proj": {
+      "group_size": 64,
+      "bits": 4
+    },
+    "model.layers.layers.4.mixer.o_proj": {
+      "group_size": 64,
+      "bits": 4
+    },
+    "model.layers.layers.4.mlp.gate_up_proj": {
+      "group_size": 64,
+      "bits": 4
+    },
+    "model.layers.layers.4.mlp.down_proj": {
+      "group_size": 64,
+      "bits": 4
+    },
+    "model.layers.layers.5.mixer.qkv_proj": {
+      "group_size": 64,
+      "bits": 4
+    },
+    "model.layers.layers.5.mixer.o_proj": {
+      "group_size": 64,
+      "bits": 4
+    },
+    "model.layers.layers.5.mlp.gate_up_proj": {
+      "group_size": 64,
+      "bits": 4
+    },
+    "model.layers.layers.5.mlp.down_proj": {
+      "group_size": 64,
+      "bits": 4
+    },
+    "model.layers.layers.6.mixer.qkv_proj": {
+      "group_size": 64,
+      "bits": 4
+    },
+    "model.layers.layers.6.mixer.o_proj": {
+      "group_size": 64,
+      "bits": 4
+    },
+    "model.layers.layers.6.mlp.gate_up_proj": {
+      "group_size": 64,
+      "bits": 4
+    },
+    "model.layers.layers.6.mlp.down_proj": {
+      "group_size": 64,
+      "bits": 4
+    },
+    "model.layers.layers.7.mixer.qkv_proj": {
+      "group_size": 64,
+      "bits": 4
+    },
+    "model.layers.layers.7.mixer.o_proj": {
+      "group_size": 64,
+      "bits": 4
+    },
+    "model.layers.layers.7.mlp.gate_up_proj": {
+      "group_size": 64,
+      "bits": 4
+    },
+    "model.layers.layers.7.mlp.down_proj": {
+      "group_size": 64,
+      "bits": 4
+    },
+    "model.layers.layers.8.mixer.qkv_proj": {
+      "group_size": 64,
+      "bits": 4
+    },
+    "model.layers.layers.8.mixer.o_proj": {
+      "group_size": 64,
+      "bits": 4
+    },
+    "model.layers.layers.8.mlp.gate_up_proj": {
+      "group_size": 64,
+      "bits": 4
+    },
+    "model.layers.layers.8.mlp.down_proj": {
+      "group_size": 64,
+      "bits": 4
+    },
+    "model.layers.layers.9.mixer.qkv_proj": {
+      "group_size": 64,
+      "bits": 4
+    },
+    "model.layers.layers.9.mixer.o_proj": {
+      "group_size": 64,
+      "bits": 4
+    },
+    "model.layers.layers.9.mlp.gate_up_proj": {
+      "group_size": 64,
+      "bits": 4
+    },
+    "model.layers.layers.9.mlp.down_proj": {
+      "group_size": 64,
+      "bits": 4
+    },
+    "model.layers.layers.10.mixer.qkv_proj": {
+      "group_size": 64,
+      "bits": 4
+    },
+    "model.layers.layers.10.mixer.o_proj": {
+      "group_size": 64,
+      "bits": 4
+    },
+    "model.layers.layers.10.mlp.gate_up_proj": {
+      "group_size": 64,
+      "bits": 4
+    },
+    "model.layers.layers.10.mlp.down_proj": {
+      "group_size": 64,
+      "bits": 4
+    },
+    "model.layers.layers.11.mixer.qkv_proj": {
+      "group_size": 64,
+      "bits": 4
+    },
+    "model.layers.layers.11.mixer.o_proj": {
+      "group_size": 64,
+      "bits": 4
+    },
+    "model.layers.layers.11.mlp.gate_up_proj": {
+      "group_size": 64,
+      "bits": 4
+    },
+    "model.layers.layers.11.mlp.down_proj": {
+      "group_size": 64,
+      "bits": 4
+    },
+    "model.layers.layers.12.mixer.qkv_proj": {
+      "group_size": 64,
+      "bits": 4
+    },
+    "model.layers.layers.12.mixer.o_proj": {
+      "group_size": 64,
+      "bits": 4
+    },
+    "model.layers.layers.12.mlp.gate_up_proj": {
+      "group_size": 64,
+      "bits": 4
+    },
+    "model.layers.layers.12.mlp.down_proj": {
+      "group_size": 64,
+      "bits": 4
+    },
+    "model.layers.layers.13.mixer.qkv_proj": {
+      "group_size": 64,
+      "bits": 4
+    },
+    "model.layers.layers.13.mixer.o_proj": {
+      "group_size": 64,
+      "bits": 4
+    },
+    "model.layers.layers.13.mlp.gate_up_proj": {
+      "group_size": 64,
+      "bits": 4
+    },
+    "model.layers.layers.13.mlp.down_proj": {
+      "group_size": 64,
+      "bits": 4
+    },
+    "model.layers.layers.14.mixer.qkv_proj": {
+      "group_size": 64,
+      "bits": 4
+    },
+    "model.layers.layers.14.mixer.o_proj": {
+      "group_size": 64,
+      "bits": 4
+    },
+    "model.layers.layers.14.mlp.gate_up_proj": {
+      "group_size": 64,
+      "bits": 4
+    },
+    "model.layers.layers.14.mlp.down_proj": {
+      "group_size": 64,
+      "bits": 4
+    },
+    "model.layers.layers.15.mixer.qkv_proj": {
+      "group_size": 64,
+      "bits": 4
+    },
+    "model.layers.layers.15.mixer.o_proj": {
+      "group_size": 64,
+      "bits": 4
+    },
+    "model.layers.layers.15.mlp.gate_up_proj": {
+      "group_size": 64,
+      "bits": 4
+    },
+    "model.layers.layers.15.mlp.down_proj": {
+      "group_size": 64,
+      "bits": 4
+    },
+    "lm_head": false
+  },
+  "model_file": "modeling_plamo_mlx.py",
+  "plamo_rope_inv_freq": {
+    "full": [
+      1.0,
+      0.8058422207832336,
+      0.6493816375732422,
+      0.5232991576194763,
+      0.4216965138912201,
+      0.33982083201408386,
+      0.2738419771194458,
+      0.22067339718341827,
+      0.17782793939113617,
+      0.14330126345157623,
+      0.11547820270061493,
+      0.09305720031261444,
+      0.07498941570520401,
+      0.0604296438395977,
+      0.04858493059873581,
+      0.03671710938215256,
+      0.027626225724816322,
+      0.020681342110037804,
+      0.015391834080219269,
+      0.011376693844795227,
+      0.00834046583622694,
+      0.006054381374269724,
+      0.004341606050729752,
+      0.0030656957533210516,
+      0.0021215747110545635,
+      0.0014285019133239985,
+      0.0009245825931429863,
+      0.0005624924669973552,
+      0.0003061534371227026,
+      0.00012815040827263147,
+      7.727605407126248e-06,
+      4.847413492825581e-06,
+      3.906250185536919e-06,
+      3.1478211894864216e-06,
+      2.5366471163579263e-06,
+      2.0441370907064993e-06,
+      1.6472519064336666e-06,
+      1.3274251386974356e-06,
+      1.0696951449062908e-06,
+      8.620055496066925e-07,
+      6.946403914298571e-07,
+      5.597705694526667e-07,
+      4.5108669155524694e-07,
+      3.635047107763967e-07,
+      2.9292743874975713e-07,
+      2.3605326759934542e-07,
+      1.9022169794880028e-07,
+      1.5328866709296562e-07,
+      1.2352646194813133e-07,
+      9.95428379724217e-08,
+      8.02158197643621e-08,
+      6.464129143068931e-08,
+      5.209068021372332e-08,
+      4.197686820361923e-08,
+      3.3826733414343835e-08,
+      2.725900927202929e-08,
+      2.1966458874089767e-08,
+      1.770149893332018e-08,
+      1.4264614378589613e-08,
+      1.1495028040542365e-08,
+      9.263178668561522e-09,
+      7.464660001232915e-09,
+      6.015338005482818e-09,
+      4.847413137554213e-09
+    ],
+    "local": [
+      1.0,
+      0.8659643530845642,
+      0.7498942017555237,
+      0.6493816375732422,
+      0.5623413324356079,
+      0.486967533826828,
+      0.4216965138912201,
+      0.36517414450645447,
+      0.3162277638912201,
+      0.2738419771194458,
+      0.23713736236095428,
+      0.20535250008106232,
+      0.17782793939113617,
+      0.1539926528930664,
+      0.1333521455526352,
+      0.11547820270061493,
+      0.10000000149011612,
+      0.08659642934799194,
+      0.07498941570520401,
+      0.06493816524744034,
+      0.05623412877321243,
+      0.04869675263762474,
+      0.04216964915394783,
+      0.03651741147041321,
+      0.03162277862429619,
+      0.0273841954767704,
+      0.0237137358635664,
+      0.02053525112569332,
+      0.017782794311642647,
+      0.015399265103042126,
+      0.01333521492779255,
+      0.011547819711267948,
+      0.009999999776482582,
+      0.00865964312106371,
+      0.007498942315578461,
+      0.006493816617876291,
+      0.005623413249850273,
+      0.004869675263762474,
+      0.0042169648222625256,
+      0.003651741426438093,
+      0.003162277862429619,
+      0.0027384196873754263,
+      0.0023713738191872835,
+      0.0020535250660032034,
+      0.0017782794311642647,
+      0.0015399265103042126,
+      0.0013335214462131262,
+      0.0011547820176929235,
+      0.0010000000474974513,
+      0.0008659643353894353,
+      0.0007498941849917173,
+      0.0006493816617876291,
+      0.000562341301701963,
+      0.00048696750309318304,
+      0.00042169648804701865,
+      0.00036517411353997886,
+      0.0003162277862429619,
+      0.00027384195709601045,
+      0.0002371373848291114,
+      0.00020535249495878816,
+      0.00017782794020604342,
+      0.00015399264520965517,
+      0.0001333521504420787,
+      0.00011547819303814322
+    ]
+  },
+  "plamo_mlx_runtime": {
+    "mlx": "0.32.3",
+    "mlx_lm": "0.32.0",
+    "transformers": "5.19.0",
+    "numba": "0.68.0",
+    "runtime_sha256": "eb6a576df1c20e9d40653671c8e63ded584661aa3f858ff5bee620357b479367"
+  }
+}

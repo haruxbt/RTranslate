@@ -1,0 +1,8 @@
+{
+  "package": "hls.js",
+  "version": "1.7.4",
+  "license": "Apache-2.0",
+  "repository": "https://github.com/video-dev/hls.js",
+  "integrity": "sha512-3GlxGdPvT2YHvQYOt+yOzT/DEior/qJVNIylHA77kgeoBTdQQqi70GwefNEUmHQeNGyjC8U62+bruqW/Tpm+tg==",
+  "runtime_sha256": "cfc70cc9e9fc63d071919e087670abc760c8fd1bc889b88588026e4d22193bbe"
+}

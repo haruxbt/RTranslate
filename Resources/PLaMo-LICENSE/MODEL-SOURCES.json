@@ -1,0 +1,6 @@
+{
+  "repo": "https://huggingface.co/pfnet/plamo-3-translate-0.8b-MLX-4bit",
+  "bundled_model_revision": "ee182122320e3c7778950a9fab26fc28dfe0eff3",
+  "current_license_reference_revision": "1f9227818908350380fa576794c01f5fbcbf8569",
+  "model_sha256": "4769685905d03c7f5ceaef316cbef245c9099f548f8dea00ecfdf980d698b29f"
+}

@@ -1,0 +1,68 @@
+{
+  "add_bos_token": true,
+  "add_eos_token": false,
+  "added_tokens_decoder": {
+    "0": {
+      "content": "<|plamo:unk|>",
+      "lstrip": false,
+      "normalized": false,
+      "rstrip": false,
+      "single_word": false,
+      "special": true
+    },
+    "1": {
+      "content": "<|plamo:bos|>",
+      "lstrip": false,
+      "normalized": false,
+      "rstrip": false,
+      "single_word": false,
+      "special": true
+    },
+    "16": {
+      "content": "<|plamo:tag|>",
+      "lstrip": false,
+      "normalized": false,
+      "rstrip": false,
+      "single_word": false,
+      "special": true
+    },
+    "2": {
+      "content": "<|plamo:eos|>",
+      "lstrip": false,
+      "normalized": false,
+      "rstrip": false,
+      "single_word": false,
+      "special": true
+    },
+    "3": {
+      "content": "<|plamo:pad|>",
+      "lstrip": false,
+      "normalized": false,
+      "rstrip": false,
+      "single_word": false,
+      "special": true
+    }
+  },
+  "auto_map": {
+    "AutoTokenizer": [
+      "tokenization_plamo.Plamo3Tokenizer",
+      null
+    ]
+  },
+  "bos_token": "<|plamo:bos|>",
+  "break_around_consecutive_spaces_threshold": 2,
+  "break_around_repeated_chars_threshold": 4,
+  "clean_up_tokenization_spaces": false,
+  "cls_token": null,
+  "eos_token": "<|plamo:bos|>",
+  "additional_special_tokens": [
+    "<|plamo:tag|>"
+  ],
+  "mask_token": null,
+  "model_max_length": 1000000000000000019884624838656,
+  "pad_token": "<|plamo:pad|>",
+  "padding_side": "left",
+  "sep_token": null,
+  "tokenizer_class": "Plamo3Tokenizer",
+  "unk_token": "<|plamo:unk|>"
+}

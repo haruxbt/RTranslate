@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0"><dict>
+<key>CFBundleIdentifier</key><string>local.webinarnihongo.app</string>
+<key>CFBundleName</key><string>Webinar Nihongo</string>
+<key>CFBundleExecutable</key><string>WebinarNihongo</string>
+<key>CFBundlePackageType</key><string>APPL</string>
+<key>CFBundleShortVersionString</key><string>0.1.0</string>
+<key>CFBundleVersion</key><string>8</string>
+<key>LSMinimumSystemVersion</key><string>26.0</string>
+<key>LSUIElement</key><true/>
+<key>NSHighResolutionCapable</key><true/>
+<key>NSAudioCaptureUsageDescription</key><string>開始した間だけ、選択したSafariの英語音声を日本語に翻訳します。</string>
+<key>NSScreenCaptureUsageDescription</key><string>選択したSafariウィンドウを取得し、指定したスライド領域の英語を翻訳します。</string>
+<key>NSSpeechRecognitionUsageDescription</key><string>取得した英語音声をMac内で文字起こしします。</string>
+</dict></plist>
