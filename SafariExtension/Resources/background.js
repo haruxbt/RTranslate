@@ -9,7 +9,7 @@ async function save() { await api.storage.local.set({activeSession:active,lastTa
 async function native(command, payload = {}) {
   let result;
   try { result = await api.runtime.sendNativeMessage(NATIVE_APP, {command, ...payload}); }
-  catch { throw new Error('Mac側のWebinar Nihongoと拡張の連携を確認してください。'); }
+  catch { throw new Error('Mac側のR翻訳と拡張の連携を確認してください。'); }
   if (!result?.ok) throw new Error(result?.error || 'Macとの接続に失敗しました。');
   return result;
 }
@@ -101,11 +101,24 @@ async function prepareCapture(target) {
   // captureReady will confirm the audio route after any required page click.
 }
 api.runtime.onMessage.addListener((request,sender) => (async()=>{
-  await restored;
+  // Read-only timeline lookup is independent of capture-state restoration.
+  if(request.type!=='timelineData')await restored;
   try {
     if (sender.tab) {
       const target=active || lastTarget;
-      if (!target && request.type==='timelineData') return {ok:true,rows:[],cursor:0,pending:false};
+      if(request.type==='timelineData') {
+        const tab=sender.tab.url?sender.tab:await api.tabs.get(sender.tab.id);
+        const url=webURL(tab.url);
+        const top=sender.frameId===0 || (sender.frameId==null && url && webURL(sender.url)===url);
+        if(!top || !url)throw new Error('タイムラインは翻訳ページの最上位フレームで表示してください。');
+        const payload={url,cursor:Math.max(0,Number(request.cursor)||0),historySession:request.historySession || ''};
+        try{return await native('timelineForPage',payload);}
+        catch(error){
+          // Compatibility with an app older than this extension; keep session checks.
+          if(target && sender.tab.id===target.tabID)return await native('timeline',{session:target.session,cursor:payload.cursor,historySession:payload.historySession});
+          throw new Error('R翻訳アプリとSafari拡張を同じ最新版に更新して、翻訳を開始し直してください。');
+        }
+      }
       if (!target || sender.tab.id!==target.tabID) throw new Error('対象外のタブです。');
       if (request.type==='pcm') {
         if (!active || sender.frameId!==active.frameID || request.session!==active.session) throw new Error('対象外の動画です。');
@@ -127,7 +140,6 @@ api.runtime.onMessage.addListener((request,sender) => (async()=>{
         if (!active || sender.frameId!==active.frameID || request.session!==active.session) throw new Error('対象外の動画です。');
         message=String(request.error || '音声取得を停止しました。').slice(0,240); await stop(); return {ok:true};
       }
-      if (request.type==='timelineData' && sender.frameId===0) return native('timeline',{session:target.session,cursor:Math.max(0,Number(request.cursor)||0),historySession:request.historySession || ''});
       throw new Error('許可されていない操作です。');
     }
     switch(request.type) {

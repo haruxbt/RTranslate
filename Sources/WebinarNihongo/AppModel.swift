@@ -26,6 +26,7 @@ final class AppModel: ObservableObject {
     private var uninstallToken: String?
     private var browserSession: String?
     private var browserHistoryID: UUID?
+    private var browserPageURL: String?
     private var browserAudio: AudioBridge?
     private var browserSequence = 0
     private var browserWatchdog = BrowserInputWatchdog(now: ProcessInfo.processInfo.systemUptime)
@@ -242,7 +243,7 @@ final class AppModel: ObservableObject {
         else if let window = windows.first(where: { $0.windowID == selected }) { filter = SCContentFilter(desktopIndependentWindow: window) }
         else { return }
         voice.enabled = true
-        browserSession = nil; browserHistoryID = nil
+        browserSession = nil; browserHistoryID = nil; browserPageURL = nil
         busy = true; generation = UUID(); let token = generation
         gate = FinalRangeGate(); assembler = ListeningAssembler(); sessionID = UUID(); beginTimelineSession(); bufferingEnglish = false
         origin = nil; partial = ""; slides = []; slideGeneration = UUID()
@@ -624,6 +625,17 @@ final class AppModel: ObservableObject {
                 }
                 voice.preview(); return ["ok": true, "message": "試聴しています"]
             }
+            if command == "timelineForPage" {
+                guard let raw = request["url"] as? String, raw.count <= 8000,
+                      let url = URL(string: raw), ["https", "http"].contains(url.scheme?.lowercased() ?? "") else {
+                    throw AppError.message("表示するページを確認してください。")
+                }
+                guard browserPageURL == pageIdentity(url), browserHistoryID == displaySessionID, browserHistoryID != nil else {
+                    return ["ok": true, "rows": [], "cursor": 0, "historySession": "", "pending": false,
+                            "emptyMessage": running && browserAudio == nil ? "Macアプリ単体の翻訳です。ブラウザ内に表示する場合は、停止してSafari拡張から翻訳を開始してください。" : "このページの翻訳はまだありません。Safari拡張の翻訳開始を押してください。"]
+                }
+                return timelineResponse(request)
+            }
             if command == "start" {
                 guard assets.ready else { throw AppError.message("設定 → モデル管理で準備状況を確認してください。" ) }
                 guard !running, !busy else { throw AppError.message("既に翻訳中です。停止してから開始してください。") }
@@ -632,7 +644,7 @@ final class AppModel: ObservableObject {
                       ["http", "https"].contains(url.scheme?.lowercased() ?? "") else { throw AppError.message("対象タブを確認してください") }
                 sharingPicker.deactivate(); selectedFilter = nil; systemTargetSelected = false; selected = 0
                 browserSession = key; browserSequence = 0
-                sessionID = UUID(); browserHistoryID = sessionID; beginTimelineSession()
+                sessionID = UUID(); browserHistoryID = sessionID; browserPageURL = pageIdentity(url); beginTimelineSession()
                 targetName = String((request["title"] as? String ?? url.host ?? "Safari").prefix(300))
                 applyBrowserSettings(request["settings"] as? [String: Any] ?? [:])
                 voice.engine = "VOICEVOX"; voice.enabled = true
@@ -702,22 +714,29 @@ final class AppModel: ObservableObject {
                 browserSequence += 1; browserWatchdog.packet(at: ProcessInfo.processInfo.systemUptime)
                 browserAudio.consumePCM16(data)
                 return ["ok": true]
-            case "timeline":
-                let entries = lines.filter { $0.sessionID == browserHistoryID && $0.japanese != nil }
-                let currentHistory = browserHistoryID?.uuidString ?? ""
-                let cursor = (request["historySession"] as? String == currentHistory) ? min(entries.count, max(0, request["cursor"] as? Int ?? 0)) : 0
-                let page = entries.dropFirst(cursor).prefix(40)
-                var result = browserState()
-                result["rows"] = page.map { ["id": $0.id.uuidString, "japanese": $0.japanese ?? "", "receivedAt": $0.createdAt?.timeIntervalSince1970 ?? 0] as [String: Any] }
-                result["cursor"] = cursor + page.count
-                result["historySession"] = currentHistory
-                result["pending"] = pendingCount > 0 || bufferingEnglish
-                result["speakingID"] = activeSpeechID?.uuidString ?? ""
-                result["current"] = entries.first(where: { $0.id == activeSpeechID })?.japanese ?? entries.last?.japanese ?? ""
-                return result
+            case "timeline": return timelineResponse(request)
             default: throw AppError.message("未対応の操作です")
             }
         } catch { return ["ok": false, "error": error.localizedDescription] }
+    }
+    private func pageIdentity(_ url: URL) -> String {
+        var value = URLComponents(url: url, resolvingAgainstBaseURL: false)
+        value?.fragment = nil
+        return value?.string ?? url.absoluteString
+    }
+    private func timelineResponse(_ request: [String: Any]) -> [String: Any] {
+        let entries = timelineLines.filter { $0.japanese != nil }
+        let current = displaySessionID?.uuidString ?? ""
+        let cursor = request["historySession"] as? String == current ? min(entries.count, max(0, request["cursor"] as? Int ?? 0)) : 0
+        let page = entries.dropFirst(cursor).prefix(40)
+        var result = browserState()
+        result["rows"] = page.map { ["id": $0.id.uuidString, "japanese": $0.japanese ?? "", "receivedAt": $0.createdAt?.timeIntervalSince1970 ?? 0] as [String: Any] }
+        result["cursor"] = cursor + page.count; result["historySession"] = current
+        result["pending"] = pendingCount > 0 || bufferingEnglish
+        result["speakingID"] = entries.first(where: { $0.id == activeSpeechID })?.id.uuidString ?? ""
+        result["current"] = entries.first(where: { $0.id == activeSpeechID })?.japanese ?? entries.last?.japanese ?? ""
+        result["emptyMessage"] = busy ? "音声認識と翻訳を準備しています…" : running ? (browserSequence == 0 ? "動画の音声を待っています…" : "音声を認識・翻訳しています…") : "この回の翻訳は停止しています。"
+        return result
     }
     private func browserState() -> [String: Any] {
         ["ok": true, "running": running && browserAudio != nil, "preparing": busy && browserSession != nil,

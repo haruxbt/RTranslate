@@ -48,3 +48,17 @@ test('a new capture session replaces displayed rows without deleting saved histo
  assert.ok(walk(articles[0]).some(e=>e.textContent==='別のページの訳'));assert.equal(walk(f.root).find(e=>e.className==='history').scrollTop,0);
  assert.ok(f.calls.every(r=>r.type==='timelineData'));
 });
+
+test('an empty timeline explains the connection state instead of staying blank',async()=>{
+ const f=await fixture();await f.send({type:'timelineVisibility',visible:true});await new Promise(resolve=>setImmediate(resolve));
+ await f.next({ok:true,rows:[],historySession:'different',cursor:0,emptyMessage:'このページの翻訳はまだありません。'});
+ assert.equal(walk(f.root).find(e=>e.className==='empty').textContent,'このページの翻訳はまだありません。');
+ await f.next({ok:false,error:'接続が終了しました'});assert.equal(walk(f.root).find(e=>e.className==='empty').textContent,'接続が終了しました');
+});
+
+test('a page without a matching capture clears the previous page rows',async()=>{
+ const f=await fixture();await f.send({type:'timelineVisibility',visible:true});await new Promise(resolve=>setImmediate(resolve));
+ await f.next({ok:true,rows:[],historySession:'',cursor:0,emptyMessage:'このページの翻訳はありません。'});
+ assert.equal(walk(f.root).filter(e=>e.tag==='article').length,0);
+ assert.equal(walk(f.root).find(e=>e.className==='empty').textContent,'このページの翻訳はありません。');
+});

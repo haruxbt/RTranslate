@@ -8,7 +8,7 @@ final class SafariWebExtensionHandler: NSObject, NSExtensionRequestHandling {
         guard let item = context.inputItems.first as? NSExtensionItem,
               let message = item.userInfo?[SFExtensionMessageKey] as? [String: Any],
               let command = message["command"] as? String,
-              ["start", "stop", "status", "timeline", "pcm", "heartbeat", "voice", "settings", "preview", "dictionaryGet", "dictionarySave", "assetsStatus", "assetsPrepare", "uninstallReview", "uninstall"].contains(command),
+              ["start", "stop", "status", "timeline", "timelineForPage", "pcm", "heartbeat", "voice", "settings", "preview", "dictionaryGet", "dictionarySave", "assetsStatus", "assetsPrepare", "uninstallReview", "uninstall"].contains(command),
               let body = try? JSONSerialization.data(withJSONObject: message), body.count <= 64_000 else {
             respond(["ok": false, "error": "未対応の操作です。"], to: context); return
         }

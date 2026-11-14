@@ -24,7 +24,7 @@
   const toolbar=document.createElement('div');toolbar.className='toolbar';const label=document.createElement('span');label.id='r-follow-label';label.textContent='自動スクロール';
   follow=document.createElement('button');follow.className='switch';follow.setAttribute('role','switch');follow.setAttribute('aria-label','自動スクロール');follow.setAttribute('aria-checked','true');follow.append(document.createElement('span'));follow.onclick=()=>setFollowing(!following);toolbar.append(label,follow);
   history=document.createElement('div');history.className='history';history.tabIndex=0;history.setAttribute('aria-label','翻訳履歴');
-  empty=document.createElement('p');empty.className='empty';empty.textContent='翻訳を開始すると、ここに会話が残ります。';history.append(empty);
+  empty=document.createElement('p');empty.className='empty';empty.textContent='翻訳の接続を確認しています…';history.append(empty);
   history.addEventListener('wheel',event=>{if(event.deltaY<0)setFollowing(false);},{passive:true});
   history.addEventListener('touchstart',()=>setFollowing(false),{passive:true});
   history.addEventListener('keydown',event=>{if(['ArrowUp','PageUp','Home'].includes(event.key))setFollowing(false);});
@@ -38,8 +38,9 @@
   if(!host?.isConnected||polling)return;polling=true;
   try{
    const result=await api.runtime.sendMessage({type:'timelineData',cursor,historySession});
-   if(!result?.ok){pending.textContent=result?.error || '接続を確認してください';return;}
-   if(result.historySession && result.historySession!==historySession){
+   if(!result?.ok){const error=result?.error || '接続を確認してください';pending.textContent=error;if(!rows.size)empty.textContent=error;return;}
+   empty.textContent=result.emptyMessage || '音声を認識・翻訳しています…';
+   if(typeof result.historySession==='string' && result.historySession!==historySession){
     for(const item of rows.values())item.element.remove();
     rows.clear();cursor=0;lastSpeaking='';anchorID='';expectedScroll=null;
     following=true;follow.setAttribute('aria-checked','true');latest.hidden=true;
@@ -54,14 +55,14 @@
     }
     if(item.text.textContent!==row.japanese)item.text.textContent=row.japanese;
    }
-   if(rows.size)empty.remove();cursor=result.cursor ?? cursor;historySession=result.historySession || historySession;
+   if(rows.size)empty.remove();cursor=result.cursor ?? cursor;historySession=typeof result.historySession==='string'?result.historySession:historySession;
    const speaking=result.speakingID || '';
    if(lastSpeaking!==speaking){const old=rows.get(lastSpeaking);if(old){old.element.removeAttribute('aria-current');old.speaking.hidden=true;}lastSpeaking=speaking;}
    if(speaking)anchorID=speaking;else if(!anchorID&&rows.size)anchorID=rows.keys().next().value;
    const active=rows.get(speaking);if(active){active.element.setAttribute('aria-current','true');active.speaking.hidden=false;}
    pending.textContent=result.pending?'…':'';
    scrollToPosition();
-  }catch{if(pending)pending.textContent='接続を確認してください';}
+  }catch{if(pending)pending.textContent='接続を確認してください';if(!rows.size&&empty)empty.textContent='R翻訳との接続を確認してください。拡張から翻訳を開始し直すと再接続します。';}
   finally{polling=false;if(host?.isConnected)timer=setTimeout(poll,900);}
  }
  globalThis.__rTranslateTimeline={setVisible};
