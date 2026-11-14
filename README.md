@@ -2,13 +2,20 @@
 
 Safariで再生する英語ウェビナーを、日本語字幕と日本語音声で視聴するMacアプリとSafari Web Extensionです。Built with PLaMo.
 
-## インストールについて
+## インストール（ソースのビルドは不要）
 
-**GitHubの「Source code (zip)」「Source code (tar.gz)」は開発用ソースです。ダウンロードしてそのまま実行・インストールすることはできません。**
+Apple Silicon（Mシリーズ）・macOS 26以降が対象です。
 
-現時点では、このリポジトリ/Releaseでインストーラを一般配布していません。本人用に作成した `.pkg` インストーラは別途渡す形式です。今後、インストーラを公開するときはReleaseのAssetsに明示します。
+1. [インストーラ RTranslate-v0.3.3-macOS-arm64.pkg](https://github.com/haruketh/RTranslate/releases/download/v0.3.3/RTranslate-v0.3.3-macOS-arm64.pkg) をダウンロードします。その他の版は[Releases](https://github.com/haruketh/RTranslate/releases)で確認できます。
+2. 旧版が動いている場合は終了し、`.pkg` を開いて、表示される利用規約を確認してインストールします。
+3. アプリケーションフォルダの「Webinar Nihongo」を起動します。アプリ内の表示名はR翻訳です。初回はLLM・音声モデルのダウンロードが完了するまで待ちます。
+4. Safari拡張を使う場合はSafariの設定でR翻訳を有効にします。
 
-本人用インストーラを使う場合は、旧版を終了して `.pkg` を開き、インストール後にアプリを起動します。初回はモデルのダウンロード完了を待ちます。Safari拡張はSafariの設定で有効にしてください。未署名の開発版では試験用の許可を本人が設定する必要があります。Airでの実用性は未検証です。
+**「Source code (zip)」「Source code (tar.gz)」は開発用で、インストール用ではありません。** Xcode、Python、Homebrewの導入やソースからのビルドは不要です。
+
+現状は**未公証・仮署名の開発版**です。初回起動にmacOSの確認が必要な場合は、提供元を確認し[Appleの案内](https://support.apple.com/ja-jp/102445)に従ってください。Safariでは試験用の「未署名の機能拡張を許可」を本人が有効にする必要があり、Safari終了時にリセットされます。通常の署名・公証済み配布版と同じ手軽さではありません。MacBook Air M2 8GBでの性能は未検証です。
+
+更新通知後も、完成済みの新しい `.pkg` を使って更新します。**ワンクリック自動更新は未実装**ですが、ソースのビルドは不要です。外部モデルと履歴はアプリ本体とは別の場所に保持します。公開用インストーラにはGitHubの更新確認先が初期設定されています。初期設定のない旧インストーラから導入した場合は、下記「更新通知」のURLを設定してください。
 
 ## 機能と状態
 
