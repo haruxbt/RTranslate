@@ -1,11 +1,12 @@
 #!/usr/bin/env python3
 """Prepare a clean, built installer. No developer models, history or private notes."""
 import argparse,hashlib,json,plistlib,shutil,subprocess,tempfile
+from apply_branding import apply
 from pathlib import Path
 p=argparse.ArgumentParser();p.add_argument('--app',required=True,type=Path);p.add_argument('--output',required=True,type=Path);a=p.parse_args()
 root=Path(__file__).resolve().parent.parent
 (root/'work').mkdir(exist_ok=True)
-stage=Path(tempfile.mkdtemp(prefix='public-installer-',dir=root/'work'));payload=stage/'payload';payload.mkdir();app=payload/'Webinar Nihongo.app'
+stage=Path(tempfile.mkdtemp(prefix='public-installer-',dir=root/'work'));payload=stage/'payload';payload.mkdir();app=payload/'RTranslate.app'
 subprocess.run(['codesign','--verify','--deep','--strict',str(a.app)],check=True)
 subprocess.run(['ditto',str(a.app),str(app)],check=True)
 r=app/'Contents/Resources'
@@ -25,13 +26,14 @@ for f in r.rglob('*'):
  if f.suffix.lower() in ['.pem','.txt','.json','.py','.md','.html']:
   data=f.read_bytes();assert b'-----BEGIN PRIVATE KEY-----' not in data and b'-----BEGIN RSA PRIVATE KEY-----' not in data,str(f)
 assert not (r/'Models').exists()
+apply(app)
 subprocess.run(['codesign','--force','--sign','-',str(app)],check=True)
 subprocess.run(['codesign','--verify','--deep','--strict',str(app)],check=True)
 subprocess.run(['pkgbuild','--analyze','--root',str(payload),str(stage/'components.plist')],check=True,stdout=subprocess.DEVNULL)
 components=plistlib.loads((stage/'components.plist').read_bytes())
 for c in components:c['BundleIsRelocatable']=False;c['BundleOverwriteAction']='upgrade'
 (stage/'components.plist').write_bytes(plistlib.dumps(components))
-subprocess.run(['pkgbuild','--root',str(payload),'--component-plist',str(stage/'components.plist'),'--identifier','local.webinarnihongo.installer','--version',info['CFBundleShortVersionString'],'--install-location','/Applications','--ownership','recommended',str(stage/'component.pkg')],check=True,stdout=subprocess.DEVNULL)
+subprocess.run(['pkgbuild','--root',str(payload),'--component-plist',str(stage/'components.plist'),'--scripts',str(root/'scripts/installer'),'--identifier','local.webinarnihongo.installer','--version',info['CFBundleShortVersionString'],'--install-location','/Applications','--ownership','recommended',str(stage/'component.pkg')],check=True,stdout=subprocess.DEVNULL)
 license_dir=stage/'installer-resources';license_dir.mkdir()
 text='RTranslate / R翻訳\nBuilt with PLaMo\n\n独自コードはMIT。以下の第三者モデル・実行環境には各条件が適用されます。モデルの利用目的に応じてPLaMoの商用利用条件等を確認してください。VOICEVOXの音声利用時は選択話者の規約とクレジット条件に従ってください。\n\n'
 for title,path in [('RTranslate MIT',root/'LICENSE'),('Third-party notices',root/'THIRD_PARTY_NOTICES.md'),('PLaMo',r/'PLaMo-LICENSE/ja'),('VOICEVOX model terms',r/'VOICEVOX-LICENSE/VOICE-MODELS-README.txt'),('VOICEVOX ONNX Runtime',r/'VOICEVOX-LICENSE/ONNX-RUNTIME-TERMS.txt')]:text+='\n\n=== '+title+' ===\n'+path.read_text()

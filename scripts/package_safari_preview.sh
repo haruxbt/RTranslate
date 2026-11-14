@@ -1,15 +1,15 @@
 #!/bin/zsh
 set -eu
 cd "${0:A:h:h}"
-app="$PWD/dist/SafariPreview/Webinar Nihongo.app"
-output="${1:-$PWD/dist/RTranslate-Safari-v0.3.3-Installer.pkg}"
+app="$PWD/dist/SafariPreview/RTranslate.app"
+output="${1:-$PWD/dist/RTranslate-Safari-v0.3.4-Installer.pkg}"
 version=$(/usr/libexec/PlistBuddy -c 'Print :CFBundleShortVersionString' "$app/Contents/Info.plist")
 # Package the verified build, without rebuilding or launching an app on this Mac.
 codesign --verify --deep --strict "$app"
 stage=$(mktemp -d "$PWD/work/safari-installer-XXXXXX")
 mkdir -p "$stage/root"
-ditto "$app" "$stage/root/Webinar Nihongo.app"
-codesign --verify --deep --strict "$stage/root/Webinar Nihongo.app"
+ditto "$app" "$stage/root/RTranslate.app"
+codesign --verify --deep --strict "$stage/root/RTranslate.app"
 pkgbuild --analyze --root "$stage/root" "$stage/components.plist"
 python3 - "$stage/components.plist" <<'PY'
 import plistlib,sys

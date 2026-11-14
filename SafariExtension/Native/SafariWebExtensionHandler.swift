@@ -29,7 +29,7 @@ final class SafariWebExtensionHandler: NSObject, NSExtensionRequestHandling {
                         }
                     } catch {}
                 }
-                respond(["ok": false, "error": "Webinar Nihongoアプリを起動してから、もう一度開始してください。"], to: context)
+                respond(["ok": false, "error": "R翻訳アプリを起動してから、もう一度開始してください。"], to: context)
             }
         }
     }

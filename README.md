@@ -6,9 +6,9 @@ Safariで再生する英語ウェビナーを、日本語字幕と日本語音�
 
 Apple Silicon（Mシリーズ）・macOS 26以降が対象です。
 
-1. [インストーラ RTranslate-v0.3.3-macOS-arm64.pkg](https://github.com/haruketh/RTranslate/releases/download/v0.3.3/RTranslate-v0.3.3-macOS-arm64.pkg) をダウンロードします。その他の版は[Releases](https://github.com/haruketh/RTranslate/releases)で確認できます。
+1. [インストーラ RTranslate-v0.3.4-macOS-arm64.pkg](https://github.com/haruketh/RTranslate/releases/download/v0.3.4/RTranslate-v0.3.4-macOS-arm64.pkg) をダウンロードします。その他の版は[Releases](https://github.com/haruketh/RTranslate/releases)で確認できます。
 2. 旧版が動いている場合は終了し、`.pkg` を開いて、表示される利用規約を確認してインストールします。
-3. アプリケーションフォルダの「Webinar Nihongo」を起動します。アプリ内の表示名はR翻訳です。初回はLLM・音声モデルのダウンロードが完了するまで待ちます。
+3. アプリケーションフォルダの「R翻訳」（英語環境では「RTranslate」）を起動します。実ファイル名は `RTranslate.app` です。初回はLLM・音声モデルのダウンロードが完了するまで待ちます。
 4. Safari拡張を使う場合はSafariの設定でR翻訳を有効にします。
 
 **「Source code (zip)」「Source code (tar.gz)」は開発用で、インストール用ではありません。** Xcode、Python、Homebrewの導入やソースからのビルドは不要です。
@@ -16,6 +16,8 @@ Apple Silicon（Mシリーズ）・macOS 26以降が対象です。
 現状は**未公証・仮署名の開発版**です。初回起動にmacOSの確認が必要な場合は、提供元を確認し[Appleの案内](https://support.apple.com/ja-jp/102445)に従ってください。Safariでは試験用の「未署名の機能拡張を許可」を本人が有効にする必要があり、Safari終了時にリセットされます。通常の署名・公証済み配布版と同じ手軽さではありません。MacBook Air M2 8GBでの性能は未検証です。
 
 更新通知後も、完成済みの新しい `.pkg` を使って更新します。**ワンクリック自動更新は未実装**ですが、ソースのビルドは不要です。外部モデルと履歴はアプリ本体とは別の場所に保持します。公開用インストーラにはGitHubの更新確認先が初期設定されています。初期設定のない旧インストーラから導入した場合は、下記「更新通知」のURLを設定してください。
+
+旧名「Webinar Nihongo」から更新する場合、旧版を終了してからインストールしてください。同じアプリであることを確認した旧版だけを `/private/var/backups/RTranslate.previous.*/WebinarNihongo.bundlebackup` へ退避します。モデル・翻訳履歴・設定の保存場所は変更しません。退避した旧版の復元には管理者の操作が必要です。
 
 ## 機能と状態
 

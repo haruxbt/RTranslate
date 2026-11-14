@@ -1,0 +1,28 @@
+#!/bin/sh
+set -eu
+# Installer passes the target volume as $3. Keep upgrades confined to two known paths.
+volume=${3:?missing installation volume}
+case "$volume" in /) volume='' ;; /*) ;; *) exit 1 ;; esac
+old="$volume/Applications/Webinar Nihongo.app"
+new="$volume/Applications/RTranslate.app"
+[ -e "$old" ] || exit 0
+[ ! -L "$old" ] && [ ! -L "$new" ] || exit 1
+expected='local.webinarnihongo.app'
+[ "$(/usr/libexec/PlistBuddy -c 'Print :CFBundleIdentifier' "$old/Contents/Info.plist" 2>/dev/null)" = "$expected" ] || { echo 'Unrelated old app left untouched.'; exit 0; }
+[ "$(/usr/libexec/PlistBuddy -c 'Print :CFBundleIdentifier' "$new/Contents/Info.plist" 2>/dev/null)" = "$expected" ] || exit 1
+/bin/test -x "$new/Contents/MacOS/WebinarNihongo" || exit 1
+# Retain the previous bundle as a recovery copy, outside Launch Services discovery.
+parent="$volume/private/var/backups"
+for path in "$volume/private" "$volume/private/var" "$parent"; do
+    [ ! -L "$path" ] || exit 1
+done
+/bin/test -d "$parent" || exit 1
+umask 077
+backup=$(/usr/bin/mktemp -d "$parent/RTranslate.previous.XXXXXX")
+if /bin/mv "$old" "$backup/WebinarNihongo.bundlebackup"; then
+    echo "Previous app preserved at $backup/WebinarNihongo.bundlebackup"
+else
+    /bin/rmdir "$backup" 2>/dev/null || true
+    exit 1
+fi
+exit 0

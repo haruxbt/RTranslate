@@ -4,11 +4,13 @@ import Translation
 import WebinarCore
 import Combine
 
+private let displayAppName = Bundle.main.object(forInfoDictionaryKey: "CFBundleDisplayName") as? String ?? "RTranslate"
+
 @main
 struct WebinarApp: App {
     @StateObject private var model = AppModel()
     var body: some Scene {
-        WindowGroup("R翻訳", id: "main") {
+        WindowGroup(displayAppName, id: "main") {
             TimelineView(model: model)
         }.defaultLaunchBehavior(CommandLine.arguments.contains("--extension-service") ? .suppressed : .presented)
             .defaultPosition(.topTrailing).defaultSize(width: 400, height: 820)
@@ -22,7 +24,7 @@ struct WebinarApp: App {
             AppSettings(model: model).frame(width: 660, height: 680)
                 .translationTask(model.translationConfig) { session in await model.translationPrepared(session) }
         }.windowResizability(.contentSize)
-        MenuBarExtra("R翻訳", systemImage: model.updates.hasUpdate ? "bell.badge" : model.running ? "captions.bubble.fill" : "captions.bubble") {
+        MenuBarExtra(displayAppName, systemImage: model.updates.hasUpdate ? "bell.badge" : model.running ? "captions.bubble.fill" : "captions.bubble") {
             MenuContent(model: model)
         }
     }
@@ -79,7 +81,7 @@ struct TimelineView: View {
         VStack(spacing: 0) {
             HStack {
                 VStack(alignment: .leading, spacing: 3) {
-                    Text("R翻訳").font(.headline)
+                    Text(displayAppName).font(.headline)
                     Label(model.running ? (model.status.contains("音声未検出") ? "音声が届いていません" : "翻訳中") : model.busy ? "準備・停止処理中" : "停止中",
                           systemImage: model.running ? "circle.fill" : "pause.circle")
                         .font(.caption).foregroundStyle(model.running ? Color.green : .secondary)
@@ -305,7 +307,7 @@ struct AppSettings: View {
                 }
                 Section("日本語音声") { VoiceSelection(voice: model.voice) }
                 Section("このアプリ") {
-                    Text("R翻訳 · 個人利用版")
+                    Text("\(displayAppName) · 個人利用版")
                     Text("PLaMo 3 Translate 0.8Bと音声モデルは共通フォルダへ取得します。Built with PLaMo").font(.caption)
                     Button("導入手順・ライセンスを開く") {
                         if let resources = Bundle.main.resourceURL { NSWorkspace.shared.open(resources) }

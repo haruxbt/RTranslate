@@ -5,16 +5,17 @@ mkdir -p work dist/SafariPreview
 python3 - <<'PY'
 import subprocess
 running=subprocess.check_output(['ps','-axo','comm='],text=True).splitlines()
-if any('/dist/SafariPreview/Webinar Nihongo.app/' in p or p.strip().endswith('/Safari.app/Contents/MacOS/Safari') for p in running):
+if any('/dist/SafariPreview/' in p and '/Contents/MacOS/WebinarNihongo' in p or p.strip().endswith('/Safari.app/Contents/MacOS/Safari') for p in running):
     raise SystemExit('Close Safari and the preview translator before building. No installed app files were changed.')
 PY
 swift build -c release --product WebinarNihongo
 binary_dir=$(swift build -c release --show-bin-path)
-destination="$PWD/dist/SafariPreview/Webinar Nihongo.app"
+destination="$PWD/dist/SafariPreview/RTranslate.app"
 stage=$(mktemp -d "$PWD/work/safari-app-build-XXXXXX")
-app="$stage/Webinar Nihongo.app"
+app="$stage/RTranslate.app"
 # Build a separate complete bundle; never copy into Safari's loaded resources.
 base="$destination"
+if [[ ! -d "$base" ]]; then base="$PWD/dist/SafariPreview/Webinar Nihongo.app"; fi
 if [[ ! -d "$base" ]]; then base="$PWD/dist/Webinar Nihongo.app"; fi
 ditto "$base" "$app"
 cp "$binary_dir/WebinarNihongo" "$app/Contents/MacOS/WebinarNihongo"
@@ -32,7 +33,7 @@ if models.is_dir():shutil.rmtree(models)
 PY
 appex="$app/Contents/PlugIns/Webinar Safari.appex"
 mkdir -p "$appex/Contents/MacOS" "$appex/Contents/Resources"
-cp SafariExtension/Resources/* "$appex/Contents/Resources/"
+ditto SafariExtension/Resources "$appex/Contents/Resources"
 extension_executable=WebinarSafariExtension
 if [[ -n "${DEVELOPER_DIR:-}" && -x "$DEVELOPER_DIR/usr/bin/xcodebuild" ]]; then
     "$DEVELOPER_DIR/usr/bin/xcodebuild" \
@@ -53,10 +54,10 @@ python3 - "$app" "$appex" "$extension_executable" <<'PY'
 from pathlib import Path
 import plistlib,sys
 app,ext=map(Path,sys.argv[1:3]);p=app/'Contents/Info.plist';info=plistlib.loads(p.read_bytes())
-info['CFBundleShortVersionString']='0.3.3';info['CFBundleVersion']='15';info['LSUIElement']=True;info['CFBundleDisplayName']='R翻訳';info['CFBundleName']='RTranslate';info['CFBundleIconFile']='RTranslate.icns';p.write_bytes(plistlib.dumps(info))
+info['CFBundleShortVersionString']='0.3.4';info['CFBundleVersion']='16';info['LSUIElement']=True;info['CFBundleDisplayName']='R翻訳';info['CFBundleName']='RTranslate';info['CFBundleIconFile']='RTranslate.icns';p.write_bytes(plistlib.dumps(info))
 info={'CFBundleIdentifier':'local.webinarnihongo.app.safari','CFBundleName':'R翻訳',
       'CFBundleExecutable':'WebinarSafariExtension','CFBundlePackageType':'XPC!',
-      'CFBundleShortVersionString':'0.3.3','CFBundleVersion':'15','LSMinimumSystemVersion':'26.0',
+      'CFBundleShortVersionString':'0.3.4','CFBundleVersion':'16','LSMinimumSystemVersion':'26.0',
       'CFBundleSupportedPlatforms':['MacOSX'],
       'NSAppTransportSecurity':{'NSAllowsLocalNetworking':True},
       'NSExtension':{'NSExtensionPointIdentifier':'com.apple.Safari.web-extension',
@@ -68,6 +69,7 @@ for name in ('WebinarSafariExtension', 'Webinar Safari Extension'):
         (ext/'Contents/MacOS'/name).unlink(missing_ok=True)
 Path('work/safari-preview-entitlements.plist').write_bytes(plistlib.dumps({'com.apple.security.app-sandbox':True,'com.apple.security.network.client':True}))
 PY
+python3 scripts/apply_branding.py "$app"
 codesign --force --sign - --entitlements work/safari-preview-entitlements.plist "$appex"
 codesign --force --sign - "$app"
 codesign --verify --deep --strict "$app"
@@ -84,9 +86,11 @@ try:os.rename(app,destination)
 except BaseException:
     if backup.exists():os.rename(backup,destination)
     raise
+legacy=destination.with_name('Webinar Nihongo.app')
+if legacy.exists():os.rename(legacy,app.parent/'legacy-app.bundlebackup')
 resources=destination/'Contents/PlugIns/Webinar Safari.appex/Contents/Resources'
 files={str(f.relative_to(resources)):hashlib.sha256(f.read_bytes()).hexdigest() for f in resources.iterdir() if f.is_file()}
-Path('work/safari-preview-build-manifest.json').write_text(json.dumps({'version':'0.3.3','build':'15','resources':files,'backup':str(backup)},indent=2))
+Path('work/safari-preview-build-manifest.json').write_text(json.dumps({'version':'0.3.4','build':'16','resources':files,'backup':str(backup)},indent=2))
 PY
 codesign --verify --deep --strict "$destination"
 echo "Built and verified Safari preview: $destination"

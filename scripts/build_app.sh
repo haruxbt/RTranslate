@@ -4,7 +4,7 @@ cd "${0:A:h:h}"
 mkdir -p dist work
 swift build -c release --product WebinarNihongo
 binary_dir=$(swift build -c release --show-bin-path)
-app="dist/Webinar Nihongo.app"
+app="dist/RTranslate.app"
 mkdir -p "$app/Contents/MacOS" "$app/Contents/Resources"
 cp "$binary_dir/WebinarNihongo" "$app/Contents/MacOS/WebinarNihongo"
 cp Resources/Info.plist "$app/Contents/Info.plist"
@@ -35,6 +35,7 @@ if [[ "${1:-}" == "--personal" ]]; then
     cp docs/AIR_INSTALL.md "$app/Contents/Resources/AIR_INSTALL.md"
     cp docs/V01_RELEASE.md "$app/Contents/Resources/V01_RELEASE.md"
 fi
+python3 scripts/apply_branding.py "$app"
 codesign --force --deep --sign - "$app"
 codesign --verify --strict "$app"
 echo "Built: $PWD/$app"
