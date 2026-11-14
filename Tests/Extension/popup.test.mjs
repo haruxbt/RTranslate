@@ -1,7 +1,8 @@
 import test from 'node:test';import assert from 'node:assert/strict';import vm from 'node:vm';import fs from 'node:fs/promises';
 async function fixture(){
  class Element{constructor(){this.value='';this.checked=false;this.disabled=false;this.attributes={};this.children=[];this.textContent='';}focus(){this.focused=true;}append(...x){this.children.push(...x);}replaceChildren(){this.children=[];}setAttribute(k,v){this.attributes[k]=v;}}
- const elements=new Map(),calls=[];let dictionary={glossary:'SOC = SOC',readings:'Square = スクエア',displayTerms:''};const get=id=>{if(!elements.has(id))elements.set(id,new Element());return elements.get(id);};
+ const html=await fs.readFile(new URL('../../SafariExtension/Resources/popup.html',import.meta.url),'utf8'),ids=new Set([...html.matchAll(/id="([^"]+)"/g)].map(x=>x[1]));
+ const elements=new Map(),calls=[];let dictionary={glossary:'SOC = SOC',readings:'Square = スクエア',displayTerms:''};const get=id=>{assert.ok(ids.has(id),'Missing popup element: '+id);if(!elements.has(id))elements.set(id,new Element());return elements.get(id);};
  let model={running:false,voiceEnabled:false,timelineVisible:false,host:'example.test',effectiveSpeed:1.75};
  const context=vm.createContext({document:{getElementById:get,createElement:()=>new Element(),body:{dataset:{}}},setInterval(){},console,browser:{storage:{local:{get:async()=>({settings:{speaker:14,volume:80,speed:1.25,autoSpeed:false}})}},runtime:{sendMessage:async request=>{
   calls.push(request);if(request.type==='start')Object.assign(model,{running:true,voiceEnabled:true,timelineVisible:true});
@@ -28,18 +29,25 @@ test('volume numeric entry and preset speed reach settings; preview uses the cur
  await g('preview').onclick();assert.equal(g('preview-status').textContent,'試聴しています');assert.ok(f.calls.some(x=>x.type==='preview'));
 });
 
-test('dictionary form saves a reading without changing the translation glossary',async()=>{
- const f=await fixture(),g=f.get;g('dict-kind').value='readings';g('dictionary-panel').open=true;g('dictionary-panel').ontoggle();await new Promise(resolve=>setImmediate(resolve));
- assert.equal(g('dict-target-title').textContent,'読み');g('dict-source').value='OpenAI';g('dict-target').value='オープンエーアイ';await g('dict-add').onclick();
- const saved=f.calls.filter(x=>x.type==='dictionarySave').at(-1).dictionary;assert.equal(saved.glossary,'SOC = SOC');assert.match(saved.readings,/Square = スクエア/);assert.match(saved.readings,/OpenAI = オープンエーアイ/);
+test('dictionary and slide buttons open the matching native settings page',async()=>{
+ const f=await fixture(),g=f.get;
+ await g('settings-dictionary').onclick();await g('settings-slides').onclick();
+ assert.deepEqual(f.calls.filter(x=>x.type==='openAppSettings').map(x=>x.page),['dictionary','slides']);
+ assert.equal(f.calls.filter(x=>x.type==='dictionarySave').length,0);
 });
 test('gear opens separate settings and back restores the popup',async()=>{
  const f=await fixture(),g=f.get;g('open-settings').onclick();assert.equal(g('main-page').hidden,true);assert.equal(g('settings-page').hidden,false);
- await new Promise(resolve=>setImmediate(resolve));assert.ok(f.calls.some(x=>x.type==='assetsStatus'));
+ await new Promise(resolve=>setImmediate(resolve));assert.ok(f.calls.some(x=>x.type==='playbackGet'));
  g('close-settings').onclick();assert.equal(g('settings-page').hidden,true);assert.equal(g('main-page').hidden,false);
  assert.equal(f.calls.filter(x=>x.type==='uninstall').length,0);
 });
 
 test('opening the popup uses a neutral root instead of focusing details',async()=>{
- const f=await fixture();assert.equal(f.get('popup-root').focused,true);assert.notEqual(f.get('details').focused,true);
+ const f=await fixture();assert.equal(f.get('popup-root').focused,true);assert.notEqual(f.get('backend').focused,true);
+});
+
+test('engine and smoothing choices are saved and cannot switch during capture',async()=>{
+ const f=await fixture(),g=f.get;g('backend').value='Apple';g('speech-engine').value='Apple';g('smooth').checked=false;g('backend').onchange();await new Promise(resolve=>setImmediate(resolve));
+ const value=f.calls.filter(x=>x.type==='settings').at(-1).value;assert.equal(value.backend,'Apple');assert.equal(value.speechEngine,'Apple');assert.equal(value.smooth,false);
+ await g('translate').onclick();assert.equal(g('backend').disabled,true);assert.equal(g('speech-engine').disabled,true);
 });

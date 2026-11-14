@@ -12,7 +12,10 @@ export function settings(value = {}) {
     volume: Math.max(0, Math.min(100, Number(value.volume) || 0)),
     speed: [.75, 1, 1.25, 1.5, 1.75, 2].includes(Number(value.speed)) ? Number(value.speed) : 1.25,
     speaker: VOICES.some(([id]) => id === Number(value.speaker)) ? Number(value.speaker) : 2,
-    autoSpeed: value.autoSpeed !== false
+    autoSpeed: value.autoSpeed !== false,
+    backend: value.backend === "Apple" ? "Apple" : "PLaMo",
+    speechEngine: value.speechEngine === "Apple" ? "Apple" : "VOICEVOX",
+    smooth: value.smooth !== false
   };
 }
 export function pcm16(samples) {

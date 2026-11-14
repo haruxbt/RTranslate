@@ -8,7 +8,7 @@ final class VoiceQueue: NSObject, ObservableObject, AVSpeechSynthesizerDelegate,
     @Published var volume: Float = 0.8 { didSet { UserDefaults.standard.set(volume, forKey: "voiceVolume"); player?.volume = volume } }
     @Published var rate: Float = 0.50
     @Published var speed: Double = 1.25 { didSet { UserDefaults.standard.set(speed, forKey: "voiceSpeed") } }
-    @Published var autoSpeed = true
+    @Published var autoSpeed = UserDefaults.standard.object(forKey: "voiceAutoSpeed") as? Bool ?? true { didSet { UserDefaults.standard.set(autoSpeed, forKey: "voiceAutoSpeed") } }
     @Published var effectiveSpeed: Double = 1.5
     @Published var engine = "VOICEVOX" { didSet { UserDefaults.standard.set(engine, forKey: "voiceEngine") } }
     @Published var speakerID = 2 { didSet { UserDefaults.standard.set(speakerID, forKey: "voicevoxSpeaker") } }

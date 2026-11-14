@@ -1,8 +1,22 @@
 #!/bin/sh
 set -eu
-# Refuse to replace a running installed copy. Never terminate the user's app.
+scripts_dir=$(/usr/bin/dirname "$0")
+# Installer is a user-initiated update. Ask the matching app to quit normally.
+if [ -x "$scripts_dir/quit-apps" ]; then
+    if [ "$(/usr/bin/id -u)" = "0" ]; then
+        console_uid=$(/usr/bin/stat -f %u /dev/console)
+        if [ "$console_uid" -gt 0 ]; then
+            /bin/launchctl asuser "$console_uid" "$scripts_dir/quit-apps" || exit 1
+        else
+            "$scripts_dir/quit-apps" || exit 1
+        fi
+    else
+        "$scripts_dir/quit-apps" || exit 1
+    fi
+fi
+# Older apps or a different login session may not be visible to AppKit.
 if /bin/ps -axo comm= | /usr/bin/awk '/\/Applications\/(Webinar Nihongo|RTranslate)\.app\/Contents\/MacOS\/WebinarNihongo/ { found=1 } END { exit !found }'; then
-    echo 'R翻訳 / RTranslate を終了してからインストールしてください。' >&2
+    echo 'R翻訳を終了できませんでした。Safariも終了し、R翻訳のメニューバーから「終了」を選んで再実行してください。' >&2
     exit 1
 fi
 exit 0

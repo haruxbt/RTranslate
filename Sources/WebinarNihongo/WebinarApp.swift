@@ -8,6 +8,7 @@ private let displayAppName = Bundle.main.object(forInfoDictionaryKey: "CFBundleD
 
 @main
 struct WebinarApp: App {
+    @NSApplicationDelegateAdaptor(AppLifecycle.self) private var lifecycle
     @StateObject private var model = AppModel()
     var body: some Scene {
         WindowGroup(displayAppName, id: "main") {
@@ -15,25 +16,26 @@ struct WebinarApp: App {
         }.defaultLaunchBehavior(CommandLine.arguments.contains("--extension-service") ? .suppressed : .presented)
             .defaultPosition(.topTrailing).defaultSize(width: 400, height: 820)
             .windowResizability(.contentSize)
-            .commands { AppCommands() }
+            .commands { AppCommands(model: model) }
         Window("翻訳タイムライン", id: "captions") {
             TimelineView(model: model)
         }.defaultPosition(.topTrailing).defaultSize(width: 400, height: 820)
             .windowResizability(.contentSize)
-        Window("設定", id: "preferences") {
-            AppSettings(model: model).frame(width: 660, height: 680)
+        Window("\(displayAppName) - 設定", id: "preferences") {
+            AppSettings(model: model).frame(width: 780, height: 740)
                 .translationTask(model.translationConfig) { session in await model.translationPrepared(session) }
         }.windowResizability(.contentSize)
-        MenuBarExtra(displayAppName, systemImage: model.updates.hasUpdate ? "bell.badge" : model.running ? "captions.bubble.fill" : "captions.bubble") {
-            MenuContent(model: model)
+        MenuBarExtra { MenuContent(model: model) } label: {
+            BrandStatusIcon(model: model)
         }
     }
 }
 struct AppCommands: Commands {
+    @ObservedObject var model: AppModel
     @Environment(\.openWindow) var openWindow
     var body: some Commands {
         CommandGroup(replacing: .appSettings) {
-            Button("設定…") { openWindow(id: "preferences"); NSApp.activate(ignoringOtherApps: true) }
+            Button("設定…") { model.settingsPage = .overview; openWindow(id: "preferences"); NSApp.activate(ignoringOtherApps: true) }
                 .keyboardShortcut(",", modifiers: .command)
         }
     }
@@ -59,12 +61,16 @@ struct MenuContent: View {
     @ObservedObject var model: AppModel
     @Environment(\.openWindow) var openWindow
     var body: some View {
+        Text("R翻訳 " + (Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? ""))
+        if model.updates.appAvailable { Button("新しいバージョンがあります…") { model.settingsPage = .overview; openWindow(id: "preferences"); NSApp.activate(ignoringOtherApps: true) } }
+        if model.updates.checkFailed || model.updates.modelCheckFailed { Button("更新を確認できませんでした・再確認…") { model.settingsPage = .overview; openWindow(id: "preferences"); NSApp.activate(ignoringOtherApps: true) } }
+        if !model.assets.ready { Button("モデルの準備が必要です…") { model.settingsPage = .models; openWindow(id: "preferences"); NSApp.activate(ignoringOtherApps: true) } }
         Text(model.running ? (model.status.contains("音声未検出") ? "音声が届いていません" : "翻訳中") : "停止中")
         Button("タイムラインを表示") { openWindow(id: "main"); NSApp.activate(ignoringOtherApps: true) }
-        Button("設定…") { openWindow(id: "preferences"); NSApp.activate(ignoringOtherApps: true) }
+        Button("設定…") { model.settingsPage = .overview; openWindow(id: "preferences"); NSApp.activate(ignoringOtherApps: true) }
         Button("停止") { model.stop() }.disabled(!model.running && !model.busy)
         Divider()
-        Button("終了") { model.stop(); model.persistHistory(); model.stopMeasurement(); model.localWorker.stop(); model.voice.voicevox.stop(); NSApp.terminate(nil) }
+        Button("終了") { NSApp.terminate(nil) }
     }
 }
 final class TimelineState: ObservableObject {
@@ -87,7 +93,7 @@ struct TimelineView: View {
                         .font(.caption).foregroundStyle(model.running ? Color.green : .secondary)
                 }
                 Spacer()
-                Button { openWindow(id: "preferences"); NSApp.activate(ignoringOtherApps: true) } label: {
+                Button { model.settingsPage = .overview; openWindow(id: "preferences"); NSApp.activate(ignoringOtherApps: true) } label: {
                     Image(systemName: "gearshape").font(.title3)
                 }.buttonStyle(.plain).accessibilityLabel("設定")
                 .contextMenu {
@@ -96,7 +102,7 @@ struct TimelineView: View {
                     Button("履歴を書き出す") { model.export() }
                     Button("以前の履歴を追加") { model.importHistory() }.disabled(model.running || model.busy || model.pendingCount > 0)
                     Button("未翻訳を再試行") { model.retryUntranslated() }
-                    Button("設定…") { openWindow(id: "preferences"); NSApp.activate(ignoringOtherApps: true) }
+                    Button("設定…") { model.settingsPage = .overview; openWindow(id: "preferences"); NSApp.activate(ignoringOtherApps: true) }
                 }
             }.padding(16)
             if model.updates.hasUpdate { Text("更新情報があります。設定で確認してください。").font(.caption).foregroundStyle(.orange).padding(8) }
@@ -274,74 +280,6 @@ struct SpeechAdjustments: View {
                 }
             }
         }
-    }
-}
-final class SettingsPageState: ObservableObject { @Published var page = 0 }
-struct AppSettings: View {
-    @ObservedObject var model: AppModel
-    @StateObject private var state = SettingsPageState()
-    var body: some View {
-        VStack(spacing: 12) {
-            HStack(spacing: 0) {
-                ForEach(Array(["翻訳と音声", "スライド", "聞きやすさ", "モデル・更新・削除", "検証"].enumerated()), id: \.offset) { index, title in
-                    Button { state.page = index } label: {
-                        Text(title).font(.system(size: 12)).lineLimit(1)
-                            .frame(maxWidth: .infinity, minHeight: 28)
-                            .foregroundStyle(state.page == index ? Color.white : Color.primary)
-                            .background(state.page == index ? Color.accentColor : Color.clear, in: RoundedRectangle(cornerRadius: 6))
-                    }.buttonStyle(.plain)
-                        .accessibilityAddTraits(state.page == index ? .isSelected : [])
-                }
-            }.frame(width: 636, height: 28)
-                .background(Color.secondary.opacity(0.12), in: RoundedRectangle(cornerRadius: 6))
-                .clipped()
-            if state.page == 0 {
-            Form {
-                Section("翻訳") {
-                    Picker("翻訳方式", selection: $model.backend) {
-                        Text("Apple Translation").tag("Apple")
-                        Text("PLaMo（ローカル）").tag("PLaMo")
-                    }.disabled(model.running || model.busy || model.pendingCount > 0)
-                    Button("Apple翻訳を準備") { model.prepareTranslation() }
-                    LocalWorkerControls(worker: model.localWorker, locked: model.running || model.busy || model.pendingCount > 0)
-                }
-                Section("日本語音声") { VoiceSelection(voice: model.voice) }
-                Section("このアプリ") {
-                    Text("\(displayAppName) · 個人利用版")
-                    Text("PLaMo 3 Translate 0.8Bと音声モデルは共通フォルダへ取得します。Built with PLaMo").font(.caption)
-                    Button("導入手順・ライセンスを開く") {
-                        if let resources = Bundle.main.resourceURL { NSWorkspace.shared.open(resources) }
-                    }
-                }
-                Section("履歴と取得") {
-                    Text("確定した原文と日本語訳をこのMacに3か月保存します。起動時と起動中は1時間ごとに期限切れを削除します。書き出したファイル・手動バックアップは対象外です。音声・映像は保存しません。")
-                    Text(model.historyState).foregroundStyle(.secondary)
-                    Button("履歴を書き出す") { model.export() }
-                    Text("Safariの他のタブ・ウィンドウの音声も入ることがあります。ほかの再生は停止してください。原音量の制御は未実装です。")
-                        .font(.caption).foregroundStyle(.secondary)
-                }
-            }.formStyle(.grouped)
-            }
-            if state.page == 1 { SlideSettings(model: model) }
-            if state.page == 2 { ListeningSettings(preferences: model.listening, locked: model.running || model.busy) }
-            if state.page == 3 { MaintenanceSettings(model: model, assets: model.assets, updates: model.updates) }
-            if state.page == 4 {
-            Form {
-                Text(model.status).textSelection(.enabled)
-                Text("履歴 \(model.lines.count)件 · 翻訳待ち \(model.pendingCount)件").font(.caption)
-                Text(model.targetName).font(.caption)
-                Text(model.resourceStatus)
-                Button("計測ログの保存先を選ぶ") { model.chooseMeasurementFile() }
-                Button("計測保存を終了") { model.stopMeasurement() }
-                Text(model.measurementState).font(.caption)
-                TextField("翻訳テストの英文", text: $model.testText)
-                Button("この英文を翻訳") { model.translateTest() }.disabled(model.running || model.busy)
-                Button("未翻訳を再試行") { model.retryUntranslated() }
-                Text("保存上限は50,000区間です。3か月以内の履歴は上限でも消さずに取得を停止します。")
-                    .font(.caption).foregroundStyle(.secondary)
-            }.padding(24)
-            }
-        }.frame(width: 636, height: 656, alignment: .top).padding(12)
     }
 }
 struct VoiceSelection: View {

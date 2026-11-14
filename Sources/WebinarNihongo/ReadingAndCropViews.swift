@@ -26,12 +26,10 @@ struct SlideSettings: View {
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 14) {
-                Text("スライドの範囲").font(.title2.bold())
-                Text("Safariのプレビュー上で、翻訳したいスライド部分をドラッグして囲んでください。")
-                    .fixedSize(horizontal: false, vertical: true)
+                SettingsHeading(title: "スライド", subtitle: "翻訳したいスライド領域を選択できます。")
                 HStack {
                     Button("Safariを選択") { model.chooseSystemTarget() }.disabled(model.running || model.busy || model.cropBusy)
-                    Button(model.cropBusy ? "取得中…" : "プレビューを更新") { model.captureCropPreview() }
+                    Button(model.cropBusy ? "取得中…" : "範囲を選び直す") { model.captureCropPreview() }
                         .disabled(model.cropBusy || model.busy || !model.systemTargetSelected)
                 }
                 Text(model.cropStatus).font(.caption).foregroundStyle(.secondary).fixedSize(horizontal: false, vertical: true)
@@ -39,14 +37,14 @@ struct SlideSettings: View {
                     CropPreview(model: model, image: image)
                 } else {
                     RoundedRectangle(cornerRadius: 10).fill(Color.secondary.opacity(0.08))
-                        .overlay(Text("プレビューを更新すると、ここで範囲を選べます。").font(.callout).padding())
+                        .overlay(Text("Safariを選び、範囲を選び直すとここでドラッグできます。").font(.callout).padding())
                         .frame(height: 250)
                 }
-                Toggle("選択した範囲のOCRを有効にする", isOn: $model.ocrEnabled)
+                Toggle("スライド翻訳を有効にする", isOn: $model.ocrEnabled)
                     .onChange(of: model.ocrEnabled) { _, _ in model.resetSlides() }
-                Text("静止画は保存しません。取得中の音声翻訳を優先し、スライドが変わって安定してからOCRします。")
+                Text("静止画は保存しません。画面が安定してから翻訳し、音声の翻訳を優先します。")
                     .font(.caption).foregroundStyle(.secondary).fixedSize(horizontal: false, vertical: true)
-            }.frame(maxWidth: .infinity, alignment: .leading).padding(20)
+            }.frame(maxWidth: .infinity, alignment: .leading).padding(24)
         }.frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
     }
 }

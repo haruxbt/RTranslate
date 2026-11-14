@@ -25,7 +25,8 @@ func XCTAssertEqual<T: Equatable>(_ a: T, _ b: T) { precondition(a == b) }
         checks.testReadableJapanese()
         checks.testSpeechDictionary()
         checks.testGitHubReleaseUpdates()
-        print("PASS: 19 pipeline checks")
+        checks.testDictionaryRowEditing()
+        print("PASS: 20 pipeline checks")
     }
     func testBrowserPauseWatchdog() {
         var watch = BrowserInputWatchdog(now: 0)
@@ -204,6 +205,20 @@ func XCTAssertEqual<T: Equatable>(_ a: T, _ b: T) { precondition(a == b) }
         XCTAssertTrue(AppUpdateInfo(json: ["version": "latest"]) == nil)
         XCTAssertTrue(AppUpdateInfo(json: ["version": "1.0.0", "downloadURL": "http://example.test/file"])?.page == nil)
         XCTAssertEqual(AppUpdateInfo(json: ["version": "0.3.3"])?.version, "0.3.3")
+    }
+
+    func testDictionaryRowEditing() {
+        let text = "SOC = SOC\ninvalid row kept\nSquare = スクエア"
+        let added = try! DictionaryEdit.applying(to: text, original: nil, source: "MFA", target: "MFA")
+        XCTAssertTrue(added.contains("invalid row kept")); XCTAssertTrue(added.contains("SOC = SOC"))
+        let renamed = try! DictionaryEdit.applying(to: added, original: "SOC", source: "SIEM", target: "SIEM")
+        XCTAssertFalse(renamed.contains("SOC = SOC")); XCTAssertTrue(renamed.contains("invalid row kept"))
+        let removed = try! DictionaryEdit.applying(to: renamed, original: "Square", source: "", target: "", deleting: true)
+        XCTAssertFalse(removed.contains("Square")); XCTAssertTrue(removed.contains("MFA = MFA"))
+        XCTAssertTrue((try? DictionaryEdit.applying(to: text, original: nil, source: "bad=source", target: "value")) == nil)
+        let full = (0..<100).map { "term\($0) = value" }.joined(separator: "\n")
+        XCTAssertTrue((try? DictionaryEdit.applying(to: full, original: nil, source: "new", target: "value")) == nil)
+        XCTAssertTrue((try? DictionaryEdit.applying(to: full, original: "term1", source: "term1", target: "updated")) != nil)
     }
 
 }

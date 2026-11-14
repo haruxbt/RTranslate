@@ -33,13 +33,18 @@ subprocess.run(['pkgbuild','--analyze','--root',str(payload),str(stage/'componen
 components=plistlib.loads((stage/'components.plist').read_bytes())
 for c in components:c['BundleIsRelocatable']=False;c['BundleOverwriteAction']='upgrade'
 (stage/'components.plist').write_bytes(plistlib.dumps(components))
-subprocess.run(['pkgbuild','--root',str(payload),'--component-plist',str(stage/'components.plist'),'--scripts',str(root/'scripts/installer'),'--identifier','local.webinarnihongo.installer','--version',info['CFBundleShortVersionString'],'--install-location','/Applications','--ownership','recommended',str(stage/'component.pkg')],check=True,stdout=subprocess.DEVNULL)
+installer_scripts=stage/'installer-scripts';shutil.copytree(root/'scripts/installer',installer_scripts)
+subprocess.run(['swiftc',str(root/'scripts/InstallerQuitHelper.swift'),'-framework','AppKit','-o',str(installer_scripts/'quit-apps')],check=True)
+subprocess.run(['codesign','--force','--sign','-',str(installer_scripts/'quit-apps')],check=True)
+subprocess.run(['pkgbuild','--root',str(payload),'--component-plist',str(stage/'components.plist'),'--scripts',str(installer_scripts),'--identifier','local.webinarnihongo.installer','--version',info['CFBundleShortVersionString'],'--install-location','/Applications','--ownership','recommended',str(stage/'component.pkg')],check=True,stdout=subprocess.DEVNULL)
 license_dir=stage/'installer-resources';license_dir.mkdir()
 text='RTranslate / R翻訳\nBuilt with PLaMo\n\n独自コードはMIT。以下の第三者モデル・実行環境には各条件が適用されます。モデルの利用目的に応じてPLaMoの商用利用条件等を確認してください。VOICEVOXの音声利用時は選択話者の規約とクレジット条件に従ってください。\n\n'
 for title,path in [('RTranslate MIT',root/'LICENSE'),('Third-party notices',root/'THIRD_PARTY_NOTICES.md'),('PLaMo',r/'PLaMo-LICENSE/ja'),('VOICEVOX model terms',r/'VOICEVOX-LICENSE/VOICE-MODELS-README.txt'),('VOICEVOX ONNX Runtime',r/'VOICEVOX-LICENSE/ONNX-RUNTIME-TERMS.txt')]:text+='\n\n=== '+title+' ===\n'+path.read_text()
 (license_dir/'License.txt').write_text(text)
+(license_dir/'Welcome.html').write_text('<!doctype html><html lang="ja"><meta charset="utf-8"><body style="font:14px -apple-system;line-height:1.8"><h2>R翻訳 / RTranslate のインストール</h2><p>インストール時に、起動中のR翻訳へ<strong>通常の終了</strong>を要求します。確定した翻訳履歴を保存してから終了します。</p><p>Safariの翻訳を停止してから進めると確実です。終了できない場合はインストールを止めます。SafariとR翻訳を終了して再実行してください。<strong>自動で強制終了はしません。</strong></p><p>モデル・履歴・設定はアプリ本体の外に保持します。完了後にR翻訳を起動してください。開発版のSafari拡張には、本人による試験用未署名許可の再設定が必要です。</p></body></html>')
+
 (stage/'distribution.xml').write_text('''<?xml version="1.0" encoding="utf-8"?>
-<installer-gui-script minSpecVersion="2"><title>RTranslate</title><license file="License.txt"/><options customize="never" hostArchitectures="arm64"/><allowed-os-versions><os-version min="26.0"/></allowed-os-versions><choices-outline><line choice="main"/></choices-outline><choice id="main" visible="false"><pkg-ref id="local.webinarnihongo.installer"/></choice><pkg-ref id="local.webinarnihongo.installer" version="'''+info['CFBundleShortVersionString']+'''">component.pkg</pkg-ref></installer-gui-script>''')
+<installer-gui-script minSpecVersion="2"><title>RTranslate</title><welcome file="Welcome.html"/><license file="License.txt"/><options customize="never" hostArchitectures="arm64"/><allowed-os-versions><os-version min="26.0"/></allowed-os-versions><choices-outline><line choice="main"/></choices-outline><choice id="main" visible="false"><pkg-ref id="local.webinarnihongo.installer"/></choice><pkg-ref id="local.webinarnihongo.installer" version="'''+info['CFBundleShortVersionString']+'''">component.pkg</pkg-ref></installer-gui-script>''')
 a.output.parent.mkdir(parents=True,exist_ok=True)
 subprocess.run(['productbuild','--distribution',str(stage/'distribution.xml'),'--resources',str(license_dir),'--package-path',str(stage),str(a.output)],check=True)
 report={'version':info['CFBundleShortVersionString'],'app':str(app),'pkg':str(a.output),'modelsBundled':False,'historyBundled':False,'updateURL':info['RTranslateUpdateURL'],'signature':'ad hoc; not notarized','installerLicenseScreen':True,'sha256':hashlib.file_digest(a.output.open('rb'),'sha256').hexdigest()}

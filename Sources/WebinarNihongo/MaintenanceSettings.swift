@@ -13,32 +13,14 @@ import Combine
     var selection: [String: Bool] { ["models": models, "history": history, "app": app] }
     var reviewedSelection: [String: Bool] = [:]
 }
-struct MaintenanceSettings: View {
+struct RemovalPanel: View {
     @ObservedObject var model: AppModel
-    @ObservedObject var assets: AssetManager
-    @ObservedObject var updates: UpdateChecker
+    @Environment(\.dismiss) private var dismiss
     @StateObject private var state = MaintenanceState()
     var body: some View {
-        Form {
-            Section("共通モデル") {
-                Text(assets.message).textSelection(.enabled)
-                Text("PLaMoとVOICEVOXの音声データはアプリの外に保存し、Safari拡張と共用します。")
-                    .font(.caption).foregroundStyle(.secondary)
-                Button("準備・再確認") { assets.prepare() }.disabled(model.running || model.busy || state.busy)
-                Button("保存先を開く") { NSWorkspace.shared.open(AssetManager.root.deletingLastPathComponent()) }
-            }
-            Section("更新") {
-                Text(updates.appMessage)
-                Text(updates.modelMessage)
-                if let date = updates.checkedAt { Text("確認日時：\(date.formatted())").font(.caption).foregroundStyle(.secondary) }
-                Text("起動時に確認します。モデルの変更は通知だけ行い、確認前の重みに自動で切り替えません。")
-                    .font(.caption).foregroundStyle(.secondary)
-                TextField("アプリ更新一覧URL（未設定でも利用できます）", text: $updates.manifestURL)
-                Button(updates.checking ? "確認中…" : "更新を確認") { updates.check() }.disabled(updates.checking)
-                if updates.appAvailable, let url = updates.downloadURL {
-                    Button("配布ページを開く") { NSWorkspace.shared.open(url) }
-                }
-            }
+        VStack(alignment: .leading) {
+            HStack { Text("アプリとデータの削除").font(.title3.bold()); Spacer(); Button("閉じる") { dismiss() } }.padding()
+            Form {
             Section("アンインストール") {
                 Text("削除したい項目を選び、内容を確認してからゴミ箱へ移します。Safari拡張が有効な間は、ここから共通モデル・アプリを削除できません。")
                     .font(.caption).foregroundStyle(.secondary)
@@ -57,7 +39,8 @@ struct MaintenanceSettings: View {
                 }
                 if !state.message.isEmpty { Text(state.message).textSelection(.enabled) }
             }.disabled(state.busy)
-        }.formStyle(.grouped)
+            }.formStyle(.grouped)
+        }.frame(width: 580, height: 560)
     }
     private func requestReview() {
         state.busy = true; state.review = ""; state.message = ""

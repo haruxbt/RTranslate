@@ -20,6 +20,7 @@ if [[ ! -d "$base" ]]; then base="$PWD/dist/Webinar Nihongo.app"; fi
 ditto "$base" "$app"
 cp "$binary_dir/WebinarNihongo" "$app/Contents/MacOS/WebinarNihongo"
 cp SafariExtension/Design/RTranslate.icns "$app/Contents/Resources/"
+cp SafariExtension/Resources/toolbar-32.png "$app/Contents/Resources/MenuBarTemplate.png"
 cp scripts/plamo_worker.py scripts/voicevox_worker.py scripts/asset_worker.py "$app/Contents/Resources/"
 ditto Resources/AssetCatalog "$app/Contents/Resources/AssetCatalog"
 ditto Resources/AssetSupport "$app/Contents/Resources/AssetSupport"
@@ -54,10 +55,10 @@ python3 - "$app" "$appex" "$extension_executable" <<'PY'
 from pathlib import Path
 import plistlib,sys
 app,ext=map(Path,sys.argv[1:3]);p=app/'Contents/Info.plist';info=plistlib.loads(p.read_bytes())
-info['CFBundleShortVersionString']='0.3.5';info['CFBundleVersion']='17';info['LSUIElement']=True;info['CFBundleDisplayName']='R翻訳';info['CFBundleName']='RTranslate';info['CFBundleIconFile']='RTranslate.icns';p.write_bytes(plistlib.dumps(info))
+info['CFBundleShortVersionString']='0.3.6';info['CFBundleVersion']='18';info['LSUIElement']=True;info['CFBundleDisplayName']='R翻訳';info['CFBundleName']='RTranslate';info['CFBundleIconFile']='RTranslate.icns';p.write_bytes(plistlib.dumps(info))
 info={'CFBundleIdentifier':'local.webinarnihongo.app.safari','CFBundleName':'R翻訳',
       'CFBundleExecutable':'WebinarSafariExtension','CFBundlePackageType':'XPC!',
-      'CFBundleShortVersionString':'0.3.5','CFBundleVersion':'17','LSMinimumSystemVersion':'26.0',
+      'CFBundleShortVersionString':'0.3.6','CFBundleVersion':'18','LSMinimumSystemVersion':'26.0',
       'CFBundleSupportedPlatforms':['MacOSX'],
       'NSAppTransportSecurity':{'NSAllowsLocalNetworking':True},
       'NSExtension':{'NSExtensionPointIdentifier':'com.apple.Safari.web-extension',
@@ -77,7 +78,7 @@ if [[ "${RTRANSLATE_STAGE_ONLY:-0}" == "1" ]]; then
     python3 - "$app" <<'PY_STAGE'
 import json,sys
 from pathlib import Path
-Path('work/safari-preview-staged.json').write_text(json.dumps({'app':sys.argv[1],'version':'0.3.5'},indent=2))
+Path('work/safari-preview-staged.json').write_text(json.dumps({'app':sys.argv[1],'version':'0.3.6'},indent=2))
 PY_STAGE
     echo "Built and verified separate staged app: $app"
     exit 0
@@ -99,7 +100,7 @@ legacy=destination.with_name('Webinar Nihongo.app')
 if legacy.exists():os.rename(legacy,app.parent/'legacy-app.bundlebackup')
 resources=destination/'Contents/PlugIns/Webinar Safari.appex/Contents/Resources'
 files={str(f.relative_to(resources)):hashlib.sha256(f.read_bytes()).hexdigest() for f in resources.iterdir() if f.is_file()}
-Path('work/safari-preview-build-manifest.json').write_text(json.dumps({'version':'0.3.5','build':'17','resources':files,'backup':str(backup)},indent=2))
+Path('work/safari-preview-build-manifest.json').write_text(json.dumps({'version':'0.3.6','build':'18','resources':files,'backup':str(backup)},indent=2))
 PY
 codesign --verify --deep --strict "$destination"
 echo "Built and verified Safari preview: $destination"

@@ -8,7 +8,7 @@ const restored = api.storage.local.get(['activeSession','lastTarget','settings',
 async function save() { await api.storage.local.set({activeSession:active,lastTarget}); }
 async function native(command, payload = {}) {
   let result;
-  try { result = await api.runtime.sendNativeMessage(NATIVE_APP, {command, ...payload}); }
+  try { result = await api.runtime.sendNativeMessage(NATIVE_APP, {command, ...payload, client:"safari-extension"}); }
   catch { throw new Error('Mac側のR翻訳と拡張の連携を確認してください。'); }
   if (!result?.ok) throw new Error(result?.error || 'Macとの接続に失敗しました。');
   return result;
@@ -78,7 +78,8 @@ async function start() {
   starting=true; message='音声認識と日本語音声を準備しています…';
   try {
     const stored=await api.storage.local.get('settings');
-    await native('start',{session,url:tab.url,title:tab.title || '',settings:settings(stored.settings || {volume:60,speed:1.25,speaker:2})});
+    const current=await native('playbackGet');
+    await native('start',{session,url:tab.url,title:tab.title || '',settings:settings(current.settings || stored.settings || {volume:60,speed:1.25,speaker:2})});
     // Keep this asynchronous task separate from the popup, which may close immediately.
     prepareCapture(active).catch(async error => { message=error.message; await stop(); });
     await setTimeline(tab.id,true);
@@ -150,6 +151,11 @@ api.runtime.onMessage.addListener((request,sender) => (async()=>{
         if (!active) throw new Error('先に翻訳を開始してください。');
         await native('voice',{session:active.session,...(typeof request.enabled==='boolean'?{enabled:request.enabled}:{})});
         return status();
+      case 'openAppSettings': {
+        if(!['overview','dictionary','slides','models','history','support'].includes(request.page))throw new Error('設定項目を確認してください。');
+        return native('openSettings',{page:request.page});
+      }
+      case 'playbackGet': return native('playbackGet');
       case 'assetsStatus': return native('assetsStatus');
       case 'assetsPrepare': return native('assetsPrepare');
       case 'uninstallReview': return native('uninstallReview',{selection:request.selection});
@@ -165,8 +171,8 @@ api.runtime.onMessage.addListener((request,sender) => (async()=>{
         return native('preview',{settings:settings(stored.settings || {volume:60,speed:1.25,speaker:2})});
       }
       case 'settings': {
-        const value=settings(request.value); await api.storage.local.set({settings:value});
-        if (active) await native('settings',{session:active.session,settings:value});
+        const value=settings(request.value); await native('playbackSave',{settings:value});
+        await api.storage.local.set({settings:value});
         return {ok:true};
       }
       case 'timeline': {

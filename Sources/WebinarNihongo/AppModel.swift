@@ -9,6 +9,8 @@ import CoreImage
 
 @MainActor
 final class AppModel: ObservableObject {
+    @Published var settingsPage: SettingsPage = .overview
+    var safariRecentlyConnected: Bool { Date().timeIntervalSince(browserLastSeen) < 15 }
     @Published var status = "停止中：対象を選択してください"
     @Published var running = false
     @Published var busy = false
@@ -97,6 +99,7 @@ final class AppModel: ObservableObject {
     private var slideCache: [String: String] = [:]
     private var lastSound = ProcessInfo.processInfo.systemUptime
     init() {
+        AppLifecycle.model = self
         updateObservation = updates.objectWillChange.sink { [weak self] _ in self?.objectWillChange.send() }
         updates.check()
         voice.speechText = { [weak preferences = listening] text in preferences?.spoken(text) ?? text }
@@ -310,6 +313,15 @@ final class AppModel: ObservableObject {
             status = reason == "操作による停止" ? "停止しました（未確定の英語は保存しません）" : reason
             writeMeasurement("capture_stopped", ["reason": reason])
         }
+    }
+    func shutdownGracefully() async {
+        voice.enabled = false
+        stop(reason: "更新・終了のため停止しました")
+        let deadline = ProcessInfo.processInfo.systemUptime + 5
+        while busy && ProcessInfo.processInfo.systemUptime < deadline { try? await Task.sleep(for: .milliseconds(100)) }
+        try? await assets.stopForRemoval()
+        voice.halt(); voice.voicevox.stop(); localWorker.stop()
+        persistHistory(); stopMeasurement(); extensionServer?.stop()
     }
     private func fail(_ message: String, token: UUID) {
         guard generation == token else { return }
@@ -549,13 +561,28 @@ final class AppModel: ObservableObject {
     private func extensionRequest(_ request: [String: Any]) async -> [String: Any] {
         do {
             guard let command = request["command"] as? String else { throw AppError.message("操作が不明です") }
-            if request["managementOrigin"] as? String != "app" { browserLastSeen = Date() }
+            if request["client"] as? String == "safari-extension" { browserLastSeen = Date() }
+            if command == "playbackGet" { return ["ok": true, "settings": playbackSettings()] }
+            if command == "playbackSave" {
+                guard let values = request["settings"] as? [String: Any] else { throw AppError.message("設定を確認してください。") }
+                let changesEngine = (values["backend"] as? String ?? backend) != backend || (values["speechEngine"] as? String ?? voice.engine) != voice.engine
+                guard !changesEngine || (!running && !busy && pendingCount == 0) else { throw AppError.message("翻訳方式・音声方式を変える場合は翻訳を停止してください。") }
+                applyBrowserSettings(values)
+                return ["ok": true, "settings": playbackSettings()]
+            }
+            if command == "openSettings" {
+                guard let raw = request["page"] as? String, let page = SettingsPage(rawValue: raw) else { throw AppError.message("設定項目を確認してください。") }
+                settingsPage = page
+                NotificationCenter.default.post(name: .rTranslateOpenSettings, object: nil)
+                return ["ok": true]
+            }
             if command == "assetsStatus" {
-                let available = assets.ready && localWorker.ready && voice.voicevox.ready
-                return ["ok": true, "ready": available, "diskReady": assets.ready, "message": assets.ready ? (available ? "利用可能（このMacの共通モデル）" : "モデルを読み込み中…") : assets.message]
+                let available = assets.ready && (backend != "PLaMo" || localWorker.ready) && (voice.engine != "VOICEVOX" || voice.voicevox.ready)
+                let loading = localWorker.state.contains("読み込み中") || voice.voicevox.state.contains("読み込み中")
+                return ["ok": true, "ready": available, "diskReady": assets.ready, "message": assets.ready ? (available ? "利用可能（このMacの共通モデル）" : loading ? "モデルを読み込み中…" : "設定のモデルから再確認して読み込んでください。") : assets.message]
             }
             if command == "assetsPrepare" {
-                guard !running, !busy else { throw AppError.message("翻訳を停止してから準備してください。") }
+                guard !running, !busy, pendingCount == 0, !voice.reading else { throw AppError.message("翻訳と読み上げを停止してから準備してください。") }
                 assets.prepare(); return ["ok": true]
             }
             if command == "uninstallReview" || command == "uninstall" {
@@ -615,11 +642,11 @@ final class AppModel: ObservableObject {
             }
             if command == "preview" {
                 guard !voice.reading else { throw AppError.message("読み上げ中です。読み上げをOFFにしてから試聴してください。") }
-                applyBrowserSettings(request["settings"] as? [String: Any] ?? [:]); voice.engine = "VOICEVOX"
+                applyBrowserSettings(request["settings"] as? [String: Any] ?? [:])
                 if !voice.voicevox.ready, !voice.voicevox.state.contains("読み込み中"),
                    let root = BundledModels.resolve("voicevox", marker: "models/vvms", savedKey: "voicevoxRoot", overrideKey: "voicevoxExternalModel") { voice.voicevox.load(root: root) }
                 let deadline = ProcessInfo.processInfo.systemUptime + 6
-                while !voice.voicevox.ready {
+                while voice.engine == "VOICEVOX" && !voice.voicevox.ready {
                     guard ProcessInfo.processInfo.systemUptime < deadline else { throw AppError.message("日本語音声の準備中です。少し待って試聴してください。") }
                     try await Task.sleep(for: .milliseconds(100))
                 }
@@ -647,10 +674,9 @@ final class AppModel: ObservableObject {
                 sessionID = UUID(); browserHistoryID = sessionID; browserPageURL = pageIdentity(url); beginTimelineSession()
                 targetName = String((request["title"] as? String ?? url.host ?? "Safari").prefix(300))
                 applyBrowserSettings(request["settings"] as? [String: Any] ?? [:])
-                voice.engine = "VOICEVOX"; voice.enabled = true
+                voice.enabled = true
                 busy = true; generation = UUID(); let token = generation
                 gate = FinalRangeGate(); assembler = ListeningAssembler(); pending = []; pendingCount = 0; partial = ""; bufferingEnglish = false
-                backend = "PLaMo"
                 if !localWorker.ready, !localWorker.state.contains("読み込み中"),
                    let root = BundledModels.resolve("plamo-3-translate-0.8b-MLX-4bit", marker: "config.json", savedKey: "plamoModelRoot", overrideKey: "plamoExternalModel") {
                     localWorker.load(model: root)
@@ -664,7 +690,7 @@ final class AppModel: ObservableObject {
                     let engine = SpeechEngine(); speech = engine
                     do {
                         let deadline = ProcessInfo.processInfo.systemUptime + 120
-                        while !localWorker.ready || !voice.voicevox.ready {
+                        while (backend == "PLaMo" && !localWorker.ready) || (voice.engine == "VOICEVOX" && !voice.voicevox.ready) {
                             try Task.checkCancellation()
                             guard ProcessInfo.processInfo.systemUptime < deadline else { throw AppError.message("モデルを準備できませんでした。Macアプリの設定を確認してください") }
                             try await Task.sleep(for: .milliseconds(250))
@@ -742,8 +768,16 @@ final class AppModel: ObservableObject {
         ["ok": true, "running": running && browserAudio != nil, "preparing": busy && browserSession != nil,
          "voiceEnabled": voice.enabled, "effectiveSpeed": voice.reading ? voice.effectiveSpeed : voice.speed, "paused": browserWatchdog.paused, "message": status]
     }
+    private func playbackSettings() -> [String: Any] {
+        ["volume": Int((voice.volume * 100).rounded()), "speed": voice.speed, "speaker": voice.speakerID, "autoSpeed": voice.autoSpeed, "backend": backend, "speechEngine": voice.engine, "smooth": listening.smooth]
+    }
     private func applyBrowserSettings(_ values: [String: Any]) {
         voice.invalidatePrefetch()
+        if !running && !busy && pendingCount == 0 {
+            if let selected = values["backend"] as? String, ["PLaMo", "Apple"].contains(selected) { backend = selected }
+            if let selected = values["speechEngine"] as? String, ["VOICEVOX", "Apple"].contains(selected) { voice.engine = selected }
+        }
+        if let smooth = values["smooth"] as? Bool { listening.smooth = smooth }
         if let volume = values["volume"] as? Double, volume.isFinite { voice.volume = Float(min(100, max(0, volume))) / 100 }
         if let speed = values["speed"] as? Double, [0.75, 1, 1.25, 1.5, 1.75, 2].contains(speed) { voice.speed = speed }
         if let speaker = values["speaker"] as? Int, [2, 3, 8, 10, 14, 52].contains(speaker) { voice.speakerID = speaker }

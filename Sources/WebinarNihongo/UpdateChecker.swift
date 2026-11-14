@@ -6,6 +6,10 @@ import WebinarCore
     @Published var manifestURL = UserDefaults.standard.string(forKey: "appUpdateManifestURL") ?? (Bundle.main.object(forInfoDictionaryKey: "RTranslateUpdateURL") as? String ?? "") {
         didSet { UserDefaults.standard.set(manifestURL, forKey: "appUpdateManifestURL") }
     }
+    @Published var appState = "unchecked"
+    @Published var modelCheckFailed = false
+    var checkFailed: Bool { appState == "failed" }
+    var appBadge: String { switch appState { case "checking": "確認中"; case "current": "最新版です"; case "ahead": "開発版"; case "available": "更新あり"; case "unconfigured": "更新先未設定"; case "failed": "確認できません"; default: "未確認" } }
     @Published var appMessage = "アプリ：配布先未設定"
     @Published var modelMessage = "PLaMo：未確認"
     @Published var appAvailable = false
@@ -31,9 +35,9 @@ import WebinarCore
         return data
     }
     private func checkApp() async {
-        appAvailable = false; downloadURL = nil
-        guard !manifestURL.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { appMessage = "アプリ：配布先未設定"; return }
-        guard let url = URL(string: manifestURL), url.scheme == "https", url.user == nil, url.password == nil else { appMessage = "アプリ：HTTPSの更新一覧URLを設定してください"; return }
+        appAvailable = false; downloadURL = nil; appState = "checking"
+        guard !manifestURL.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { appState = "unconfigured"; appMessage = "アプリ：配布先未設定"; return }
+        guard let url = URL(string: manifestURL), url.scheme == "https", url.user == nil, url.password == nil else { appState = "failed"; appMessage = "アプリ：HTTPSの更新一覧URLを設定してください"; return }
         do {
             let data = try await fetch(url)
             guard let obj = try JSONSerialization.jsonObject(with: data) as? [String: Any],
@@ -41,11 +45,12 @@ import WebinarCore
             let version = update.version
             let current = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "0.0.0"
             appAvailable = update.isNewer(than: current); downloadURL = update.page
+            appState = appAvailable ? "available" : version.compare(current, options: .numeric) == .orderedAscending ? "ahead" : "current"
             appMessage = appAvailable ? "アプリ：v\(version)へ更新できます" : "アプリ：配布先の最新版です（\(current)）"
-        } catch { appMessage = "アプリ：更新を確認できません。既存版は利用できます。" }
+        } catch { appState = "failed"; appMessage = "アプリ：更新を確認できません。既存版は利用できます。" }
     }
     private func checkModel() async {
-        modelAvailable = false
+        modelAvailable = false; modelCheckFailed = false
         do {
             let url = URL(string: "https://huggingface.co/api/models/pfnet/plamo-3-translate-0.8b-MLX-4bit?blobs=true")!
             let data = try await fetch(url)
@@ -57,6 +62,6 @@ import WebinarCore
                   let files = catalog["files"] as? [[String: Any]], let local = files.first(where: { ($0["path"] as? String)?.hasSuffix("model.safetensors") == true })?["sha256"] as? String else { throw AppError.message("モデル情報が不足しています") }
             modelAvailable = remote != local
             modelMessage = modelAvailable ? "PLaMo：公式の重みに変更があります（動作確認前）" : "PLaMo：公式の重みと一致しています"
-        } catch { modelMessage = "PLaMo：更新を確認できません。現在のモデルは利用できます。" }
+        } catch { modelCheckFailed = true; modelMessage = "PLaMo：更新を確認できません。現在のモデルは利用できます。" }
     }
 }

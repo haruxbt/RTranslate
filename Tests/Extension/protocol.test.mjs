@@ -5,7 +5,7 @@ test('only http(s) targets and normal preset voices',()=>{
  assert.equal(webURL('file:///Users/example/private.txt'),null);
  assert.equal(webURL('javascript:alert(1)'),null);
  assert.equal(webURL('https://www.brighttalk.com/webcast/1/2'),'https://www.brighttalk.com/webcast/1/2');
- assert.deepEqual(settings({volume:150,speed:8,speaker:0}),{volume:100,speed:1.25,speaker:2,autoSpeed:true});
+ assert.deepEqual(settings({volume:150,speed:8,speaker:0}),{volume:100,speed:1.25,speaker:2,autoSpeed:true,backend:"PLaMo",speechEngine:"VOICEVOX",smooth:true});
  assert.equal(settings({volume:-5,speaker:52}).volume,0);
 });
 test('stream resampling preserves duration across arbitrary callback boundaries',()=>{

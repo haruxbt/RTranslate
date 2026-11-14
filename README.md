@@ -6,8 +6,8 @@ Safariで再生する英語ウェビナーを、日本語字幕と日本語音�
 
 Apple Silicon（Mシリーズ）・macOS 26以降が対象です。
 
-1. [インストーラ RTranslate-v0.3.5-macOS-arm64.pkg](https://github.com/haruketh/RTranslate/releases/download/v0.3.5/RTranslate-v0.3.5-macOS-arm64.pkg) をダウンロードします。その他の版は[Releases](https://github.com/haruketh/RTranslate/releases)で確認できます。
-2. 旧版が動いている場合は終了し、`.pkg` を開いて、表示される利用規約を確認してインストールします。
+1. [インストーラ RTranslate-v0.3.6-macOS-arm64.pkg](https://github.com/haruketh/RTranslate/releases/download/v0.3.6/RTranslate-v0.3.6-macOS-arm64.pkg) をダウンロードします。その他の版は[Releases](https://github.com/haruketh/RTranslate/releases)で確認できます。
+2. Safariの翻訳を停止し、`.pkg` を開いて、表示される利用規約を確認してインストールします。インストーラが起動中のR翻訳へ通常終了を要求します。終了できない場合はインストールを中止します。SafariとR翻訳を手動で終了して再実行してください。自動で強制終了はしません。
 3. アプリケーションフォルダの「R翻訳」（英語環境では「RTranslate」）を起動します。実ファイル名は `RTranslate.app` です。初回はLLM・音声モデルのダウンロードが完了するまで待ちます。
 4. Safari拡張を使う場合はSafariの設定でR翻訳を有効にします。
 
@@ -17,7 +17,13 @@ Apple Silicon（Mシリーズ）・macOS 26以降が対象です。
 
 更新通知後も、完成済みの新しい `.pkg` を使って更新します。**ワンクリック自動更新は未実装**ですが、ソースのビルドは不要です。外部モデルと履歴はアプリ本体とは別の場所に保持します。公開用インストーラにはGitHubの更新確認先が初期設定されています。初期設定のない旧インストーラから導入した場合は、下記「更新通知」のURLを設定してください。
 
-旧名「Webinar Nihongo」から更新する場合、旧版を終了してからインストールしてください。同じアプリであることを確認した旧版だけを `/private/var/backups/RTranslate.previous.*/WebinarNihongo.bundlebackup` へ退避します。モデル・翻訳履歴・設定の保存場所は変更しません。退避した旧版の復元には管理者の操作が必要です。
+旧名「Webinar Nihongo」から更新する場合、Safariの翻訳を停止してからインストールしてください。同じアプリであることを確認した旧版だけを `/private/var/backups/RTranslate.previous.*/WebinarNihongo.bundlebackup` へ退避します。モデル・翻訳履歴・設定の保存場所は変更しません。退避した旧版の復元には管理者の操作が必要です。
+
+## v0.3.6の設定画面と更新手順
+
+設定を「概要・辞書・スライド・モデル・履歴・サポート」の6ページに整理しました。ウィンドウは一定の幅で、Safariの歯車から目的の管理ページを開けます。日常の音量・速度・翻訳方式は拡張の詳細設定で変更し、Macアプリと共有します。辞書は行ごとに追加・編集でき、モデルの保存量や履歴の保持ルールも確認できます。
+
+インストーラがアプリへ通常終了を要求し、終了できなければ更新を中止します。自動で強制終了はしません。新アプリは終了時に確定した履歴を保存します。Mac miniで全6ページの実画面、通常終了、共有設定、Core20・拡張40・資産3・移行5項目の確認を行いました。Airでの実インストール、管理者権限でのpkg全体の実行、新版Safari吹き出しの実操作は未確認です。
 
 ## v0.3.5のブラウザ内タイムライン対策
 
@@ -54,7 +60,7 @@ python3 Tests/Integration/asset_store_checks.py
 
 ## 更新通知
 
-アプリの「設定 → モデル・更新・削除」の更新一覧URLに、GitHub Releases APIの `https://api.github.com/repos/haruketh/RTranslate/releases/latest` を設定できます。**コミットだけでは通知されず、通常版Releaseの公開が必要**です。起動時に版番号を比較し、更新時は配布ページへ案内します。自動インストールはしません。リリースがない場合は未確認になります。
+アプリの「設定 → サポート → 詳細・開発者向け」の更新一覧URLに、GitHub Releases APIの `https://api.github.com/repos/haruketh/RTranslate/releases/latest` を設定できます。**コミットだけでは通知されず、通常版Releaseの公開が必要**です。起動時に版番号を比較し、更新時は配布ページへ案内します。自動インストールはしません。リリースがない場合は未確認になります。
 
 モデルは別途公式重みの変更を確認し、動作確認前のモデルへ自動切替しません。更新確認で原文・訳文・履歴を送信しません。
 

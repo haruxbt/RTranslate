@@ -1,29 +1,22 @@
 <!doctype html><html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width"><link rel="stylesheet" href="popup.css"><title>R翻訳</title></head>
 <body><main id="popup-root" tabindex="-1">
-<section id="main-page"><header><img src="icon-128.png" width="44" height="44" alt=""><div><h1>R翻訳</h1><p>R-Translate</p></div><button id="open-settings" class="gear" aria-label="設定" title="設定">⚙</button></header>
-<div id="site" class="site">現在のタブ</div>
-<p id="status-line" role="status"><span id="status-dot" aria-hidden="true"></span><span id="status">準備状態を確認しています…</span></p>
+<section id="main-page"><header><img src="icon-128.png" width="44" height="44" alt=""><div><h1>R翻訳</h1><p>RTranslate</p></div><button id="open-settings" class="gear" aria-label="設定" title="設定">⚙</button></header>
+<div id="site" class="site">現在のタブ</div><p id="status-line" role="status"><span id="status-dot" aria-hidden="true"></span><span id="status">準備状態を確認しています…</span></p>
 <button id="translate" class="primary"><span id="translate-label">翻訳開始</span><span id="translate-symbol" class="play" aria-hidden="true"></span></button>
 <div class="toggle-row"><span id="voice-label">日本語読み上げ</span><button id="voice" class="switch" role="switch" aria-checked="false" aria-labelledby="voice-label" disabled><span></span></button></div>
 <div class="toggle-row"><span id="timeline-label">翻訳タイムライン</span><button id="timeline" class="switch" role="switch" aria-checked="false" aria-labelledby="timeline-label"><span></span></button></div>
-<details><summary>詳細設定<span class="chevron" aria-hidden="true"></span></summary>
-<div class="settings">
-<label class="field voice-field"><span>声</span><select id="speaker"></select><button id="preview" class="preview" aria-label="選んだ声を試聴" title="選んだ声を試聴"><span class="play" aria-hidden="true"></span></button></label>
+<details><summary>詳細設定<span class="chevron" aria-hidden="true"></span></summary><div class="settings">
+<label class="field choice-field"><span>翻訳方式</span><select id="backend"><option value="PLaMo">PLaMo（ローカル）</option><option value="Apple">Apple Translation</option></select></label>
+<button id="prepare-apple" class="settings-link" hidden>Apple翻訳を準備</button>
+<label class="field choice-field"><span>音声合成</span><select id="speech-engine"><option value="VOICEVOX">VOICEVOX</option><option value="Apple">macOS標準</option></select></label>
+<label id="voice-row" class="field voice-field"><span>声</span><select id="speaker"></select><button id="preview" class="preview" aria-label="選んだ声を試聴" title="選んだ声を試聴"><span class="play" aria-hidden="true"></span></button></label>
 <p id="preview-status" class="note" role="status"></p>
 <label class="field"><span>音量</span><input id="volume" type="range" min="0" max="100" value="60"><span class="number"><input id="volume-number" type="number" min="0" max="100" value="60" aria-label="音量の数値">%</span></label>
 <label class="field"><span>基本速度</span><input id="speed" type="range" min="0" max="5" step="1" value="2"><output id="speed-value" for="speed">1.25×</output></label>
+<div class="auto"><label><input id="autoSpeed" type="checkbox" checked><span>遅れに応じて自動加速</span></label></div>
+<div class="auto"><label><input id="smooth" type="checkbox" checked><span>フィラー・相づち・重複を減らす</span></label></div>
 </div></details></section>
 <section id="settings-page" hidden><header><button id="close-settings" class="back" aria-label="戻る">‹</button><h1>設定</h1></header>
-<div class="auto"><label><input id="autoSpeed" type="checkbox" checked><span>遅れに応じて自動加速</span></label></div>
-
-
-<details id="dictionary-panel" class="dictionary"><summary>辞書<span class="chevron" aria-hidden="true"></span></summary>
-<div class="dictionary-body"><label for="dict-kind">種類</label><select id="dict-kind"><option value="glossary">翻訳用語</option><option value="readings">読み上げの読み</option><option value="displayTerms">表示の表記</option></select>
-<div class="dict-inputs"><label>用語<input id="dict-source" type="text" maxlength="64" placeholder="SOC" autocomplete="off"></label><label id="dict-target-label"><span id="dict-target-title">訳語</span><input id="dict-target" type="text" maxlength="96" placeholder="SOC" autocomplete="off"></label></div>
-<button id="dict-add" type="button">追加・更新</button><p id="dict-status" class="note" role="status"></p><div id="dict-list" aria-label="登録した用語"></div>
-</div></details>
-
-<details class="management"><summary>モデル管理<span class="chevron"></span></summary><p id="assets-status" class="note" role="status"></p><button id="prepare-assets">準備・再確認</button></details>
-<details class="management"><summary>アンインストール<span class="chevron"></span></summary><label class="remove-choice"><input id="remove-models" type="checkbox">ダウンロード済みモデル</label><label class="remove-choice"><input id="remove-history" type="checkbox">履歴・辞書・設定</label><label class="remove-choice"><input id="remove-app" type="checkbox">アプリ本体とSafari拡張</label><button id="review-uninstall">削除内容を確認</button><div id="uninstall-review" hidden><p id="uninstall-summary" class="note"></p><button id="confirm-uninstall">確認した項目をゴミ箱へ移す</button><button id="cancel-uninstall">キャンセル</button></div><p id="uninstall-status" class="note" role="status"></p></details>
-<details class="management"><summary>ライセンス・クレジット<span class="chevron"></span></summary><p id="credit" class="note"></p><p class="note">Built with PLaMo / VOICEVOX。利用規約・ライセンスはアプリに同梱しています。</p></details></section>
-</main><script type="module" src="popup.js"></script></body></html>
+<p class="note">整える・管理する設定はアプリで開きます。</p>
+<button id="settings-overview" class="settings-link">概要・アップデート</button><button id="settings-dictionary" class="settings-link">辞書を編集</button><button id="settings-slides" class="settings-link">スライドの範囲を設定</button><button id="settings-models" class="settings-link">モデルを管理</button><button id="settings-history" class="settings-link">履歴を書き出す</button><button id="settings-support" class="settings-link">サポート・ライセンス・削除</button><p id="settings-status" class="note" role="status"></p>
+</section></main><script type="module" src="popup.js"></script></body></html>

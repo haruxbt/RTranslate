@@ -96,3 +96,14 @@ test('timeline lookup does not wait for capture storage restoration',async()=>{
  const result=await Promise.race([f.send({type:'timelineData'},{tab:{id:7,url:'https://example.test/webinar'},frameId:0}),new Promise((_,reject)=>setTimeout(()=>reject(Error('timeline blocked by capture restoration')),100))]);
  assert.equal(result.rows[0].id,'owned');
 });
+
+test('native settings links and shared playback writes are restricted to extension controls',async()=>{
+ const f=await fixture();
+ assert.equal((await f.send({type:'openAppSettings',page:'dictionary'})).ok,true);
+ assert.equal(f.calls.find(c=>c.command==='openSettings').page,'dictionary');
+ assert.equal((await f.send({type:'openAppSettings',page:'unknown'})).ok,false);
+ assert.equal((await f.send({type:'openAppSettings',page:'support'},{tab:{id:7,url:'https://example.test/webinar'},frameId:0})).ok,false);
+ await f.send({type:'settings',value:{backend:'Apple',speechEngine:'Apple',smooth:false,volume:40,speed:1.5,speaker:2}});
+ const saved=f.calls.find(c=>c.command==='playbackSave');assert.equal(saved.settings.backend,'Apple');assert.equal(saved.settings.speechEngine,'Apple');assert.equal(saved.settings.smooth,false);
+ assert.equal(f.calls.filter(c=>c.command==='start').length,0);
+});
