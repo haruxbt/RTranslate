@@ -8,12 +8,12 @@ Apple Silicon（Mシリーズ）・macOS 26以降が対象です。
 
 1. [インストーラ RTranslate-v0.3.8-macOS-arm64.pkg](https://github.com/haruxbt/RTranslate/releases/download/v0.3.8/RTranslate-v0.3.8-macOS-arm64.pkg) をダウンロードします。その他の版は[Releases](https://github.com/haruxbt/RTranslate/releases)で確認できます。
 
-   **注：個人開発版（未公証・仮署名）のため、初回はmacOSでこのインストーラを個別に許可する操作と、Safariの開発版拡張の許可が必要です。[スクリーンショット付きインストール手順](docs/INSTALL.md)を参照してください。**
+   <strong>注：個人開発版（未公証・仮署名）のため、初回はmacOSでこのインストーラを個別に許可する操作と、Safariの開発版拡張の許可が必要です。[スクリーンショット付きインストール手順](docs/INSTALL.md)を参照してください。</strong>
 
 2. 詳細手順に沿ってインストールし、アプリケーションフォルダの「R翻訳」を起動します。初回はモデルのダウンロード完了を待ちます。
 3. Safari設定でR翻訳を有効にし、動画を再生して拡張から「翻訳開始」を押します。
 
-**「Source code (zip)」「Source code (tar.gz)」は開発用で、インストール用ではありません。** Xcode、Python、Homebrewの導入やソースからのビルドは不要です。
+<strong>「Source code (zip)」「Source code (tar.gz)」は開発用で、インストール用ではありません。</strong> Xcode、Python、Homebrewの導入やソースからのビルドは不要です。
 
 更新通知後も完成済みのPKGで更新します。ワンクリック自動更新は未実装です。モデル・履歴・設定は引き継ぎます。起動中のR翻訳へはインストーラが通常終了を要求し、終了できなければ更新を中止します。[アップデートの手順](docs/INSTALL.md#アップデートするとき)も確認してください。
 
@@ -64,13 +64,13 @@ python3 Tests/Integration/asset_store_checks.py
 
 上記はネイティブソースのビルドと独立テストです。Safari拡張のXcodeプロジェクトは `SafariExtension/Xcode` にあります。
 
-**公開ソースにはモデル重み、Python/MLX/VOICEVOX/ONNXの実行バイナリ、個人用の完成アプリを含めません。** 完成アプリのパッケージ化には、対応するランタイムと各ライセンスを揃えたベースアプリが別途必要です。`scripts/build_safari_preview.sh` はその準備済みベースを要求し、ソースを取得しただけではインストーラを作れません。公開ソースから実行環境を一式構築する手順は整備中です。
+<strong>公開ソースにはモデル重み、Python/MLX/VOICEVOX/ONNXの実行バイナリ、個人用の完成アプリを含めません。</strong> 完成アプリのパッケージ化には、対応するランタイムと各ライセンスを揃えたベースアプリが別途必要です。`scripts/build_safari_preview.sh` はその準備済みベースを要求し、ソースを取得しただけではインストーラを作れません。公開ソースから実行環境を一式構築する手順は整備中です。
 
 未署名のSafari開発版は本人がSafariの試験用許可を有効にする必要があります。Developer ID署名・公証済みの一般配布版はまだありません。
 
 ## 更新通知
 
-アプリの「設定 → サポート → 詳細・開発者向け」の更新一覧URLに、GitHub Releases APIの `https://api.github.com/repos/haruketh/RTranslate/releases/latest` を設定できます。**コミットだけでは通知されず、通常版Releaseの公開が必要**です。起動時に版番号を比較し、更新時は配布ページへ案内します。自動インストールはしません。リリースがない場合は未確認になります。
+アプリの「設定 → サポート → 詳細・開発者向け」の更新一覧URLに、GitHub Releases APIの `https://api.github.com/repos/haruketh/RTranslate/releases/latest` を設定できます。<strong>コミットだけでは通知されず、通常版Releaseの公開が必要</strong>です。起動時に版番号を比較し、更新時は配布ページへ案内します。自動インストールはしません。リリースがない場合は未確認になります。
 
 モデルは別途公式重みの変更を確認し、動作確認前のモデルへ自動切替しません。更新確認で原文・訳文・履歴を送信しません。
 
