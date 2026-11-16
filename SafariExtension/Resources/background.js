@@ -1,11 +1,24 @@
 import {NATIVE_APP, webURL, settings} from './protocol.mjs';
 const api = globalThis.browser || globalThis.chrome;
-let active = null, lastTarget = null, message = '', starting = false;
-const restored = api.storage.local.get(['activeSession','lastTarget','settings','pacePolicy']).then(async data => {
+let active = null, lastTarget = null, message = '', starting = false, controlError = '', storageNotice = '';
+// Safari can reject extension storage after an OS upgrade. Never delete it to recover:
+// playback settings and history already belong to the native app; session state can stay in RAM.
+async function stored(operation, fallback) {
+  let timer;
+  try {
+    return await Promise.race([operation(), new Promise((_,reject)=>{timer=setTimeout(()=>reject(Error('storage timeout')),2500);})]);
+  } catch {
+    storageNotice='Safariの状態保存が使えないため、この起動中だけの状態で動作します。設定と履歴はMacアプリに保存します。Safariの再起動をお試しください。';
+    return fallback;
+  } finally { clearTimeout(timer); }
+}
+const readStore=keys=>stored(()=>api.storage.local.get(keys),{});
+const writeStore=value=>stored(()=>api.storage.local.set(value),undefined);
+const restored = readStore(['activeSession','lastTarget','settings','pacePolicy']).then(async data => {
   active=data.activeSession || null;lastTarget=data.lastTarget || null;
-  if(data.pacePolicy!==2)await api.storage.local.set({pacePolicy:2,settings:settings({...data.settings,volume:data.settings?.volume ?? 60,speaker:data.settings?.speaker ?? 2,speed:1.25})});
+  if(data.pacePolicy!==2)await writeStore({pacePolicy:2,settings:settings({...data.settings,volume:data.settings?.volume ?? 60,speaker:data.settings?.speaker ?? 2,speed:1.25})});
 });
-async function save() { await api.storage.local.set({activeSession:active,lastTarget}); }
+async function save() { await writeStore({activeSession:active,lastTarget}); }
 async function native(command, payload = {}) {
   let result;
   try { result = await api.runtime.sendNativeMessage(NATIVE_APP, {command, ...payload, client:"safari-extension"}); }
@@ -22,7 +35,8 @@ let profileCache={tabID:null,at:0,value:null};
 async function mediaProfile() {
   const tab=await currentTab();
   if(profileCache.tabID===tab.id && Date.now()-profileCache.at<5000)return profileCache.value;
-  const frames=await api.scripting.executeScript({target:{tabId:tab.id,allFrames:true},func:()=>[...document.querySelectorAll('video,audio')].map(media=>{
+  await api.scripting.executeScript({target:{tabId:tab.id,allFrames:true},files:['media-discovery.js']});
+  const frames=await api.scripting.executeScript({target:{tabId:tab.id,allFrames:true},func:()=>globalThis.__rTranslateMedia().map(media=>{
     let url;try{url=new URL(media.currentSrc,location.href);}catch{}
     const path=url?.pathname || '';
     return {playing:!media.paused,area:media.getBoundingClientRect().width*media.getBoundingClientRect().height,
@@ -66,22 +80,24 @@ async function start() {
   await restored;
   if (active) return status();
   const tab=await currentTab();
+  await api.scripting.executeScript({target:{tabId:tab.id,allFrames:true},files:['media-discovery.js']});
   const candidates=await api.scripting.executeScript({target:{tabId:tab.id,allFrames:true},func:() => {
-    const media=[...document.querySelectorAll('video,audio')];
+    const media=globalThis.__rTranslateMedia();
     return media.map((m,index)=>({index,playing:!m.paused&&!m.ended,area:m.getBoundingClientRect().width*m.getBoundingClientRect().height}));
   }});
   const list=candidates.flatMap(frame => (frame.result || []).map(media=>({...media,frameID:frame.frameId})));
   list.sort((a,b)=>Number(b.playing)-Number(a.playing)||b.area-a.area);
-  if (!list.length) throw new Error('このタブで動画を見つけられません。埋め込み元へのアクセス許可が必要な場合があります。');
+  if (!list.length) throw new Error('このタブで動画を見つけられません。動画のある教材を開いて再生してから、もう一度開始してください。埋め込み元へのアクセス許可が必要な場合もあります。');
   const picked=list[0], session=crypto.randomUUID();
   active={tabID:tab.id,frameID:picked.frameID,index:picked.index,session,url:tab.url}; await save();
   starting=true; message='音声認識と日本語音声を準備しています…';
   try {
-    const stored=await api.storage.local.get('settings');
+    const stored=await readStore('settings');
     const current=await native('playbackGet');
     await native('start',{session,url:tab.url,title:tab.title || '',settings:settings(current.settings || stored.settings || {volume:60,speed:1.25,speaker:2})});
     // Keep this asynchronous task separate from the popup, which may close immediately.
-    prepareCapture(active).catch(async error => { message=error.message; await stop(); });
+    const target=active;
+    prepareCapture(target).catch(async error => { if(active?.session!==target.session)return; controlError=error.message; message=error.message; await stop(); });
     await setTimeline(tab.id,true);
     return {ok:true,preparing:true,voiceEnabled:true,timelineVisible:true,host:new URL(tab.url).hostname,message};
   } catch(error) { await stop(); throw error; }
@@ -96,7 +112,7 @@ async function prepareCapture(target) {
     await new Promise(resolve=>setTimeout(resolve,700));
   }
   if (active?.session!==target.session) return;
-  await api.scripting.executeScript({target:{tabId:target.tabID,frameIds:[target.frameID]},files:['hls.min.js','capture.js']});
+  await api.scripting.executeScript({target:{tabId:target.tabID,frameIds:[target.frameID]},files:['media-discovery.js','hls.min.js','capture.js']});
   const result=await api.tabs.sendMessage(target.tabID,{type:'captureStart',session:target.session,index:target.index},{frameId:target.frameID});
   if (!result?.ok) throw new Error(result?.error || 'この動画の音声を取得できませんでした。');
   // captureReady will confirm the audio route after any required page click.
@@ -139,14 +155,14 @@ api.runtime.onMessage.addListener((request,sender) => (async()=>{
       }
       if (request.type==='captureError') {
         if (!active || sender.frameId!==active.frameID || request.session!==active.session) throw new Error('対象外の動画です。');
-        message=String(request.error || '音声取得を停止しました。').slice(0,240); await stop(); return {ok:true};
+        message=String(request.error || '音声取得を停止しました。').slice(0,240); controlError=message; await stop(); return {ok:true};
       }
       throw new Error('許可されていない操作です。');
     }
     switch(request.type) {
-      case 'status': return status();
-      case 'start': return start();
-      case 'stop': message='停止しました'; return stop();
+      case 'status': return {...await status(),...(controlError?{error:controlError}:{}),storageNotice};
+      case 'start': controlError=''; return await start();
+      case 'stop': controlError=''; message='停止しました'; return await stop();
       case 'voice':
         if (!active) throw new Error('先に翻訳を開始してください。');
         await native('voice',{session:active.session,...(typeof request.enabled==='boolean'?{enabled:request.enabled}:{})});
@@ -161,18 +177,18 @@ api.runtime.onMessage.addListener((request,sender) => (async()=>{
       case 'uninstallReview': return native('uninstallReview',{selection:request.selection});
       case 'uninstall': {
         const result=await native('uninstall',{selection:request.selection,token:request.token});
-        if(request.selection?.history){active=null;lastTarget=null;message='';starting=false;await api.storage.local.remove(['settings','pacePolicy','activeSession','lastTarget']);}
+        if(request.selection?.history){active=null;lastTarget=null;message='';starting=false;await stored(()=>api.storage.local.remove(['settings','pacePolicy','activeSession','lastTarget']),undefined);}
         return result;
       }
       case 'dictionaryGet': return native('dictionaryGet');
       case 'dictionarySave': return native('dictionarySave',{dictionary:request.dictionary});
       case 'preview': {
-        const stored=await api.storage.local.get('settings');
+        const stored=await readStore('settings');
         return native('preview',{settings:settings(stored.settings || {volume:60,speed:1.25,speaker:2})});
       }
       case 'settings': {
         const value=settings(request.value); await native('playbackSave',{settings:value});
-        await api.storage.local.set({settings:value});
+        await writeStore({settings:value});
         return {ok:true};
       }
       case 'timeline': {
@@ -185,7 +201,7 @@ api.runtime.onMessage.addListener((request,sender) => (async()=>{
       }
       default: throw new Error('不明な操作です。');
     }
-  } catch(error) { return {ok:false,error:error.message}; }
+  } catch(error) { if(!sender.tab && ['start','stop','timeline'].includes(request.type))controlError=error.message; return {ok:false,error:error.message}; }
 })());
 api.tabs.onRemoved.addListener(id=>{ if(active?.tabID===id) { message='対象タブが閉じられたため停止しました'; stop(); } });
 api.tabs.onUpdated.addListener((id,change)=>{ if(active?.tabID===id && change.status==='loading') { message='ページが移動したため停止しました'; stop(); } });

@@ -1,5 +1,6 @@
 import test from 'node:test';import assert from 'node:assert/strict';import vm from 'node:vm';import fs from 'node:fs/promises';
 const source=await fs.readFile(new URL('../../SafariExtension/Resources/capture.js',import.meta.url),'utf8');
+const discoverySource=await fs.readFile(new URL('../../SafariExtension/Resources/media-discovery.js',import.meta.url),'utf8');
 const workletSource=await fs.readFile(new URL('../../SafariExtension/Resources/audio-worklet.js',import.meta.url),'utf8');
 function fixture(src='https://example.test/video.mp4',failModule=false,needsGesture=false,options={}){
  const listeners=[],contexts=[],packets=[],modules=new Map(),timers=new Set();const events=new Map(),fetches=[];let cors=null;
@@ -29,9 +30,11 @@ function fixture(src='https://example.test/video.mp4',failModule=false,needsGest
   connect(){} disconnect(){}
   render(channels){workletScope.currentFrame=Math.round(this.context.currentTime*this.context.sampleRate);const active=this.worker.process([channels],[[new Float32Array(channels[0].length)]]);this.context.currentTime+=channels[0].length/this.context.sampleRate;return active;}
  }
- const context=vm.createContext({AudioContext,AudioWorkletNode,URL:ModuleURL,Blob:ModuleBlob,location:{href:'https://example.test/',origin:'https://example.test'},document:{querySelectorAll:()=>[media],createElement:element,documentElement:{append(){}}},
+ const shadow={querySelectorAll:selector=>selector==='video,audio'?[media]:[]};
+ const context=vm.createContext({AudioContext,AudioWorkletNode,URL:ModuleURL,Blob:ModuleBlob,location:{href:'https://example.test/',origin:'https://example.test'},document:{querySelectorAll:selector=>options.shadow?(selector==='video,audio'?[]:[{shadowRoot:shadow}]):(selector==='video,audio'?[media]:[]),createElement:element,documentElement:{append(){}}},
   browser:{runtime:{getURL:path=>'safari-web-extension://test/'+path,onMessage:{addListener:fn=>listeners.push(fn)},sendMessage:async packet=>{packets.push(packet);return {ok:true};}}},
   setTimeout,clearTimeout,setInterval:fn=>{timers.add(fn);return fn;},clearInterval:fn=>timers.delete(fn),AbortController,fetch:async(url,request)=>{fetches.push(request);if(!options.corsAllowed)throw Error('CORS denied');return {ok:true,type:'cors'};},addEventListener(){},btoa:value=>Buffer.from(value,'binary').toString('base64'),Float32Array,Uint8Array,DataView,console});
+ vm.runInContext(discoverySource,context);
  vm.runInContext(source,context,{importModuleDynamically:async specifier=>{
   assert.equal(specifier,'safari-web-extension://test/hls-decoder.mjs');
   const module=new vm.SyntheticModule(['createHLSCapture'],function(){this.setExport('createHLSCapture',async options=>{
@@ -143,4 +146,11 @@ test('paused HLS stays connected without synthetic PCM and cancels heartbeats on
  f.media.paused=true;await f.emit('pause');assert.equal(f.packets.at(-1).paused,true);
  await f.send({type:'captureStop',session:'s'});const count=f.packets.length;
  await f.tick();await f.emit('play');assert.equal(f.packets.length,count);
+});
+
+test('the capture route resolves the same discovered shadow video and sends PCM',async()=>{
+ const f=fixture(undefined,false,false,{shadow:true});assert.equal((await f.send({type:'captureStart',index:0,session:'shadow'})).ok,true);
+ const context=f.contexts[0];for(let i=0;i<192;i++)context.processor.render([new Float32Array(128).fill(.25)]);
+ await new Promise(resolve=>setImmediate(resolve));assert.equal(f.packets.filter(p=>p.type==='pcm').length,1);
+ await f.send({type:'captureStop',session:'shadow'});
 });

@@ -6,7 +6,7 @@ Safariで再生する英語ウェビナーを、日本語字幕と日本語音�
 
 Apple Silicon（Mシリーズ）・macOS 26以降が対象です。
 
-1. [インストーラ RTranslate-v0.3.6-macOS-arm64.pkg](https://github.com/haruketh/RTranslate/releases/download/v0.3.6/RTranslate-v0.3.6-macOS-arm64.pkg) をダウンロードします。その他の版は[Releases](https://github.com/haruketh/RTranslate/releases)で確認できます。
+1. [インストーラ RTranslate-v0.3.7-macOS-arm64.pkg](https://github.com/haruxbt/RTranslate/releases/download/v0.3.7/RTranslate-v0.3.7-macOS-arm64.pkg) をダウンロードします。その他の版は[Releases](https://github.com/haruxbt/RTranslate/releases)で確認できます。
 2. Safariの翻訳を停止し、`.pkg` を開いて、表示される利用規約を確認してインストールします。インストーラが起動中のR翻訳へ通常終了を要求します。終了できない場合はインストールを中止します。SafariとR翻訳を手動で終了して再実行してください。自動で強制終了はしません。
 3. アプリケーションフォルダの「R翻訳」（英語環境では「RTranslate」）を起動します。実ファイル名は `RTranslate.app` です。初回はLLM・音声モデルのダウンロードが完了するまで待ちます。
 4. Safari拡張を使う場合はSafariの設定でR翻訳を有効にします。
@@ -18,6 +18,12 @@ Apple Silicon（Mシリーズ）・macOS 26以降が対象です。
 更新通知後も、完成済みの新しい `.pkg` を使って更新します。**ワンクリック自動更新は未実装**ですが、ソースのビルドは不要です。外部モデルと履歴はアプリ本体とは別の場所に保持します。公開用インストーラにはGitHubの更新確認先が初期設定されています。初期設定のない旧インストーラから導入した場合は、下記「更新通知」のURLを設定してください。
 
 旧名「Webinar Nihongo」から更新する場合、Safariの翻訳を停止してからインストールしてください。同じアプリであることを確認した旧版だけを `/private/var/backups/RTranslate.previous.*/WebinarNihongo.bundlebackup` へ退避します。モデル・翻訳履歴・設定の保存場所は変更しません。退避した旧版の復元には管理者の操作が必要です。
+
+## v0.3.7のISC2開始対策
+
+ISC2のプレーヤーのように部品の内側（open Shadow DOM）にある動画も探索するよう修正しました。サイトへの権限やCORS・DRMの制約は引き続き適用されます。開始に失敗した理由は定期更新で消さず、再試行・停止まで表示します。
+
+Safariの状態保存がエラーになる場合も初期化を止めず、セッションは一時的にメモリ上で管理します。設定・履歴はMacアプリに保持し、Safariのデータベースは削除しません。この場合、拡張の再起動後は翻訳を開始し直してください。独立テスト46項目成功。Miniで実ISC2ページの動画構造を確認しましたが、Airでの解消と修正版による実サイトのライブ翻訳は未確認です。
 
 ## v0.3.6の設定画面と更新手順
 

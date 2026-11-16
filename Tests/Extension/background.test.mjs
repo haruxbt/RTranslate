@@ -1,13 +1,13 @@
 import test from 'node:test';import assert from 'node:assert/strict';import vm from 'node:vm';import fs from 'node:fs/promises';import {webcrypto} from 'node:crypto';
-async function fixture(nativeStatus={},restoreNeverFinishes=false){
+async function fixture(nativeStatus={},restoreNeverFinishes=false,options={}){
  const calls=[],listeners={},store={};let onMessage,timelineVisible=false;
  const event=name=>({addListener:fn=>listeners[name]=fn});
- const api={storage:{local:{get:async()=>restoreNeverFinishes?await new Promise(()=>{}):store,set:async value=>Object.assign(store,value)}},runtime:{onMessage:{addListener:fn=>onMessage=fn},sendNativeMessage:async(app,request)=>{
+ const api={storage:{local:{get:async()=>{if(options.storageFails)throw Error('invalid schema version');return restoreNeverFinishes?await new Promise(()=>{}):store;},set:async value=>{if(options.storageFails)throw Error('invalid schema version');return Object.assign(store,value);}}},runtime:{onMessage:{addListener:fn=>onMessage=fn},sendNativeMessage:async(app,request)=>{
   calls.push(request);if(request.command==='status')return {ok:true,running:true,voiceEnabled:true,...nativeStatus};
   if(request.command==='timelineForPage')return {ok:true,rows:[{id:'owned',japanese:'表示経路の試験'}],cursor:1,historySession:'native-session'};
   if(request.command==='timeline')return {ok:true,rows:[],cursor:0};return {ok:true};
- }},tabs:{get:async id=>({id,url:'https://example.test/webinar'}),query:async()=>[{id:7,url:'https://example.test/webinar',title:'Synthetic webinar'}],sendMessage:async(_id,r)=>{if(r.type==='timelineVisibility'){if(typeof r.visible==='boolean')timelineVisible=r.visible;return {ok:true,visible:timelineVisible};}return {ok:true};},onRemoved:event('removed'),onUpdated:event('updated'),onActivated:event('activated')},scripting:{executeScript:async request=>request.func?[{frameId:0,result:[{index:0,playing:true,area:100}]}]:[]}};
- const context=vm.createContext({browser:api,URL,crypto:webcrypto,setTimeout,console});
+ }},tabs:{get:async id=>({id,url:'https://example.test/webinar'}),query:async()=>[{id:7,url:'https://example.test/webinar',title:'Synthetic webinar'}],sendMessage:async(_id,r)=>{if(r.type==='timelineVisibility'){if(typeof r.visible==='boolean')timelineVisible=r.visible;return {ok:true,visible:timelineVisible};}return {ok:true};},onRemoved:event('removed'),onUpdated:event('updated'),onActivated:event('activated')},scripting:{executeScript:async request=>{if(options.scriptError)throw Error(options.scriptError);return request.func?[{frameId:0,result:options.noMedia?[]:[{index:0,playing:true,area:100}]}]:[];}}};
+ const context=vm.createContext({browser:api,URL,crypto:webcrypto,setTimeout,clearTimeout,console});
  const protocol=new vm.SourceTextModule(await fs.readFile(new URL('../../SafariExtension/Resources/protocol.mjs',import.meta.url),'utf8'),{context});await protocol.link(()=>{});await protocol.evaluate();
  const background=new vm.SourceTextModule(await fs.readFile(new URL('../../SafariExtension/Resources/background.js',import.meta.url),'utf8'),{context});await background.link(()=>protocol);await background.evaluate();
  return {send:(r,s={})=>onMessage(r,s),calls,listeners};
@@ -106,4 +106,19 @@ test('native settings links and shared playback writes are restricted to extensi
  await f.send({type:'settings',value:{backend:'Apple',speechEngine:'Apple',smooth:false,volume:40,speed:1.5,speaker:2}});
  const saved=f.calls.find(c=>c.command==='playbackSave');assert.equal(saved.settings.backend,'Apple');assert.equal(saved.settings.speechEngine,'Apple');assert.equal(saved.settings.smooth,false);
  assert.equal(f.calls.filter(c=>c.command==='start').length,0);
+});
+
+test('failed start remains visible through status refreshes until explicit retry',async()=>{
+ const f=await fixture({},false,{noMedia:true});
+ const failed=await f.send({type:'start'});assert.equal(failed.ok,false);
+ for(let i=0;i<3;i++)assert.equal((await f.send({type:'status'})).error,failed.error);
+ assert.equal(f.calls.filter(x=>x.command==='start').length,0);
+ await f.send({type:'stop'});assert.equal((await f.send({type:'status'})).error,undefined);
+});
+test('Safari storage schema failures do not block native start, settings or stop',async()=>{
+ const f=await fixture({},false,{storageFails:true});
+ assert.equal((await f.send({type:'start'})).ok,true);await new Promise(resolve=>setImmediate(resolve));
+ const state=await f.send({type:'status'});assert.equal(state.running,true);assert.match(state.storageNotice,/Safari/);
+ assert.equal((await f.send({type:'settings',value:{speed:1.5}})).ok,true);
+ assert.equal((await f.send({type:'stop'})).ok,true);assert.ok(f.calls.some(x=>x.command==='stop'));
 });

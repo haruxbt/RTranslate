@@ -156,7 +156,7 @@
   }
   async function start(request) {
     stop(); const token=generation;preparingSession=request.session;
-    const media=[...document.querySelectorAll('video,audio')][request.index];
+    const media=(globalThis.__rTranslateMedia?.() || [...document.querySelectorAll('video,audio')])[request.index];
     if(!media)throw new Error('対象の動画が変わりました。もう一度開始してください。');
     const sourceURL=media.currentSrc?new URL(media.currentSrc,location.href):null;
     if(sourceURL&&/\.m3u8$/i.test(sourceURL.pathname)){
