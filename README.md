@@ -6,7 +6,7 @@ Safariで再生する英語ウェビナーを、日本語字幕と日本語音�
 
 Apple Silicon（Mシリーズ）・macOS 26以降が対象です。
 
-1. [インストーラ RTranslate-v0.3.7-macOS-arm64.pkg](https://github.com/haruxbt/RTranslate/releases/download/v0.3.7/RTranslate-v0.3.7-macOS-arm64.pkg) をダウンロードします。その他の版は[Releases](https://github.com/haruxbt/RTranslate/releases)で確認できます。
+1. [インストーラ RTranslate-v0.3.8-macOS-arm64.pkg](https://github.com/haruxbt/RTranslate/releases/download/v0.3.8/RTranslate-v0.3.8-macOS-arm64.pkg) をダウンロードします。その他の版は[Releases](https://github.com/haruxbt/RTranslate/releases)で確認できます。
 2. Safariの翻訳を停止し、`.pkg` を開いて、表示される利用規約を確認してインストールします。インストーラが起動中のR翻訳へ通常終了を要求します。終了できない場合はインストールを中止します。SafariとR翻訳を手動で終了して再実行してください。自動で強制終了はしません。
 3. アプリケーションフォルダの「R翻訳」（英語環境では「RTranslate」）を起動します。実ファイル名は `RTranslate.app` です。初回はLLM・音声モデルのダウンロードが完了するまで待ちます。
 4. Safari拡張を使う場合はSafariの設定でR翻訳を有効にします。
@@ -19,11 +19,15 @@ Apple Silicon（Mシリーズ）・macOS 26以降が対象です。
 
 旧名「Webinar Nihongo」から更新する場合、Safariの翻訳を停止してからインストールしてください。同じアプリであることを確認した旧版だけを `/private/var/backups/RTranslate.previous.*/WebinarNihongo.bundlebackup` へ退避します。モデル・翻訳履歴・設定の保存場所は変更しません。退避した旧版の復元には管理者の操作が必要です。
 
+## v0.3.8のメニューバー調整
+
+メニューバーのアイコンを専用の18ポイントの図形描画へ変更し、小さく細くしました。ブラウザ用PNGの縮小をやめ、表示倍率に合わせて描画します。Safari側のアイコンと翻訳・音声の処理は変更していません。Miniでビルドと通常/Retina相当の描画を確認しました。Airでの新版の見え方は未確認です。
+
 ## v0.3.7のISC2開始対策
 
 ISC2のプレーヤーのように部品の内側（open Shadow DOM）にある動画も探索するよう修正しました。サイトへの権限やCORS・DRMの制約は引き続き適用されます。開始に失敗した理由は定期更新で消さず、再試行・停止まで表示します。
 
-Safariの状態保存がエラーになる場合も初期化を止めず、セッションは一時的にメモリ上で管理します。設定・履歴はMacアプリに保持し、Safariのデータベースは削除しません。この場合、拡張の再起動後は翻訳を開始し直してください。独立テスト46項目成功。Miniで実ISC2ページから開始し、日本語訳4件のブラウザ内表示と読み上げ中の表示を確認しました。Airでの解消は未確認です。
+Safariの状態保存がエラーになる場合も初期化を止めず、セッションは一時的にメモリ上で管理します。設定・履歴はMacアプリに保持し、Safariのデータベースは削除しません。この場合、拡張の再起動後は翻訳を開始し直してください。独立テスト46項目成功。Miniで実ISC2ページから開始し、日本語訳4件のブラウザ内表示と読み上げ中の表示を確認しました。利用者からAirでも正常動作し、稼働中の0.3.6から更新できたとの報告を受けています。この更新ではSafariの再許可・拡張の再指定も不要でした。
 
 ## v0.3.6の設定画面と更新手順
 

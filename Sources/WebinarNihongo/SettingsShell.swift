@@ -15,17 +15,11 @@ extension Notification.Name { static let rTranslateOpenSettings = Notification.N
 struct BrandStatusIcon: View {
     @ObservedObject var model: AppModel
     @Environment(\.openWindow) private var openWindow
-    private var image: NSImage? {
-        guard let root = Bundle.main.resourceURL, let icon = NSImage(contentsOf: root.appendingPathComponent("MenuBarTemplate.png")) else { return nil }
-        icon.isTemplate = true; return icon
-    }
     var body: some View {
-        Group {
-            if let image { Image(nsImage: image).resizable().scaledToFit() }
-            else { Image(systemName: "waveform") }
-        }.frame(width: 20, height: 18)
-            .overlay(alignment: .topTrailing) { if model.updates.hasUpdate || model.updates.checkFailed || model.updates.modelCheckFailed || model.updates.appState == "unconfigured" || !model.assets.ready { Circle().fill(.orange).frame(width: 5, height: 5).offset(x: 5, y: -3) } }
-            .padding(.trailing, 6).padding(.top, 3)
+        Image(nsImage: MenuBarSymbol.image)
+            .renderingMode(.template)
+            .overlay(alignment: .topTrailing) { if model.updates.hasUpdate || model.updates.checkFailed || model.updates.modelCheckFailed || model.updates.appState == "unconfigured" || !model.assets.ready { Circle().fill(.orange).frame(width: 4, height: 4).offset(x: 2, y: 0) } }
+            .padding(.trailing, 3)
             .accessibilityLabel("R翻訳")
             .onReceive(NotificationCenter.default.publisher(for: .rTranslateOpenSettings)) { _ in openWindow(id: "preferences"); NSApp.activate(ignoringOtherApps: true) }
     }
