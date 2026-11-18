@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "R翻訳",
-  "version": "0.3.8",
+  "version": "0.3.9",
   "description": "今のタブの英語ウェビナーを日本語で聴き、翻訳タイムラインを読む。",
   "permissions": [
     "activeTab",

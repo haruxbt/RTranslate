@@ -6,7 +6,7 @@ from pathlib import Path
 p=argparse.ArgumentParser();p.add_argument('--app',required=True,type=Path);p.add_argument('--output',required=True,type=Path);a=p.parse_args()
 root=Path(__file__).resolve().parent.parent
 (root/'work').mkdir(exist_ok=True)
-stage=Path(tempfile.mkdtemp(prefix='public-installer-',dir=root/'work'));payload=stage/'payload';payload.mkdir();app=payload/'RTranslate.app'
+stage=Path(tempfile.mkdtemp(prefix='rtranslate-public-installer-'));payload=stage/'payload';payload.mkdir();app=payload/'RTranslate.app'
 subprocess.run(['codesign','--verify','--deep','--strict',str(a.app)],check=True)
 subprocess.run(['ditto',str(a.app),str(app)],check=True)
 r=app/'Contents/Resources'
@@ -41,7 +41,7 @@ license_dir=stage/'installer-resources';license_dir.mkdir()
 text='RTranslate / R翻訳\nBuilt with PLaMo\n\n独自コードはMIT。以下の第三者モデル・実行環境には各条件が適用されます。モデルの利用目的に応じてPLaMoの商用利用条件等を確認してください。VOICEVOXの音声利用時は選択話者の規約とクレジット条件に従ってください。\n\n'
 for title,path in [('RTranslate MIT',root/'LICENSE'),('Third-party notices',root/'THIRD_PARTY_NOTICES.md'),('PLaMo',r/'PLaMo-LICENSE/ja'),('VOICEVOX model terms',r/'VOICEVOX-LICENSE/VOICE-MODELS-README.txt'),('VOICEVOX ONNX Runtime',r/'VOICEVOX-LICENSE/ONNX-RUNTIME-TERMS.txt')]:text+='\n\n=== '+title+' ===\n'+path.read_text()
 (license_dir/'License.txt').write_text(text)
-(license_dir/'Welcome.html').write_text('<!doctype html><html lang="ja"><meta charset="utf-8"><body style="font:14px -apple-system;line-height:1.8"><h2>R翻訳 / RTranslate のインストール</h2><p>インストール時に、起動中のR翻訳へ<strong>通常の終了</strong>を要求します。確定した翻訳履歴を保存してから終了します。</p><p>Safariの翻訳を停止してから進めると確実です。終了できない場合はインストールを止めます。SafariとR翻訳を終了して再実行してください。<strong>自動で強制終了はしません。</strong></p><p>モデル・履歴・設定はアプリ本体の外に保持します。完了後にR翻訳を起動してください。開発版のSafari拡張には、本人による試験用未署名許可の再設定が必要です。</p></body></html>')
+(license_dir/'Welcome.html').write_text('<!doctype html><html lang="ja"><meta charset="utf-8"><body style="font:14px -apple-system;line-height:1.8"><h2>R翻訳 / RTranslate のインストール</h2><p>インストール時に、起動中のR翻訳へ<strong>通常の終了</strong>を要求します。確定した翻訳履歴を保存してから終了します。</p><p>Safariの翻訳を停止してから進めると確実です。終了できない場合はインストールを止めます。SafariとR翻訳を終了して再実行してください。<strong>自動で強制終了はしません。</strong></p><p>モデル・履歴・設定はアプリ本体の外に保持します。完了後にR翻訳を起動してください。Safari拡張が無効な場合は、試験用未署名許可とR翻訳の有効化を確認してください。</p></body></html>')
 
 (stage/'distribution.xml').write_text('''<?xml version="1.0" encoding="utf-8"?>
 <installer-gui-script minSpecVersion="2"><title>RTranslate</title><welcome file="Welcome.html"/><license file="License.txt"/><options customize="never" hostArchitectures="arm64"/><allowed-os-versions><os-version min="26.0"/></allowed-os-versions><choices-outline><line choice="main"/></choices-outline><choice id="main" visible="false"><pkg-ref id="local.webinarnihongo.installer"/></choice><pkg-ref id="local.webinarnihongo.installer" version="'''+info['CFBundleShortVersionString']+'''">component.pkg</pkg-ref></installer-gui-script>''')

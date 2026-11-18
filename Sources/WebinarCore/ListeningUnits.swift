@@ -19,7 +19,7 @@ public struct ListeningAssembler {
         let text = text.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !text.isEmpty else { return [] }
         var output: [ListeningUnit] = []
-        if let old = pending, Self.complete(old.english), !Self.continuation(text) {
+        if let old = pending, Self.complete(old.english), Self.wordCount(old.english) >= 24, !Self.continuation(text) {
             output += flush(reason: "文境界")
         }
         if let old = pending, old.english.count + text.count + 1 > 1600 {
@@ -47,8 +47,13 @@ public struct ListeningAssembler {
         if now - item.recognizedAt >= maximumWait { return flush(reason: "待ち時間上限・途中の可能性あり") }
         guard !Self.continuation(partial) else { return [] }
         let idle = now - lastFinalAt
-        if Self.complete(item.english) && idle >= 1.8 { return flush(reason: "文末") }
-        if partial.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty && idle >= 3.5 && Self.canStand(item.english) {
+        // Brief ASR punctuation is not a reason to translate each tiny sentence alone.
+        let enough = Self.wordCount(item.english) >= 24
+        if Self.complete(item.english) && idle >= (enough ? 1.8 : 4.0)
+            && partial.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+            return flush(reason: enough ? "文末" : "短文・無音で確定")
+        }
+        if partial.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty && idle >= 4.0 && Self.canStand(item.english) {
             return flush(reason: "発話の区切り")
         }
         return []
@@ -57,6 +62,7 @@ public struct ListeningAssembler {
         guard var item = pending else { return [] }
         item.reason = reason; pending = nil; return [item]
     }
+    private static func wordCount(_ text: String) -> Int { text.split(whereSeparator: \.isWhitespace).count }
     private static func continuation(_ text: String) -> Bool {
         text.range(of: #"^\s*(unless|if|because|although|though|when|while|which|that|and|but|or|provided|rather)\b"#, options: [.regularExpression, .caseInsensitive]) != nil
     }

@@ -9,6 +9,7 @@ import CoreImage
 
 @MainActor
 final class AppModel: ObservableObject {
+    private var lastStopReason: String?
     @Published var settingsPage: SettingsPage = .overview
     var safariRecentlyConnected: Bool { Date().timeIntervalSince(browserLastSeen) < 15 }
     @Published var status = "停止中：対象を選択してください"
@@ -142,7 +143,7 @@ final class AppModel: ObservableObject {
             self.historyTicks += 1
             if self.historyTicks % 3600 == 0 { self.pruneHistory() }
             if self.historyTicks % 3 == 0 { self.persistHistory() }
-            self.writeMeasurement("checkpoint", ["running": self.running, "busy": self.busy, "lines": self.lines.count, "translationQueue": self.pendingCount, "speechQueue": self.voice.waiting, "speechLag": self.voice.lag, "speechPaused": self.voice.pausedForLag, "thermal": ProcessInfo.processInfo.thermalState.rawValue, "audioRMS": self.audioLevel, "status": self.status, "backend": self.backend, "voiceEnabled": self.voice.enabled, "ocrEnabled": self.ocrEnabled])
+            self.writeMeasurement("checkpoint", ["running": self.running, "busy": self.busy, "lines": self.lines.count, "translationQueue": self.pendingCount, "speechQueue": self.voice.waiting, "speechPrepared": self.voice.preparedCount, "speechPreparedBytes": self.voice.preparedBytes, "speechLag": self.voice.lag, "speechPaused": self.voice.pausedForLag, "thermal": ProcessInfo.processInfo.thermalState.rawValue, "audioRMS": self.audioLevel, "status": self.status, "backend": self.backend, "voiceEnabled": self.voice.enabled, "ocrEnabled": self.ocrEnabled])
             self.voice.updateLag()
             if self.running, self.browserAudio != nil, self.browserWatchdog.timedOut(at: ProcessInfo.processInfo.systemUptime) {
                 self.stop(reason: "タブからの音声転送が止まったため停止しました")
@@ -291,6 +292,12 @@ final class AppModel: ObservableObject {
     }
     func stop(reason: String = "操作による停止", finishVoice: Bool = false) {
         guard !busy || startTask != nil else { return }
+        if !running && !busy && capture == nil && speech == nil && startTask == nil && translateTask == nil && slideTask == nil {
+            if !finishVoice { voice.enabled = false }
+            return // Preserve the first stop reason when late PCM/stop requests arrive.
+        }
+        lastStopReason = reason
+        status = reason == "操作による停止" ? "停止しました（未確定の英語は保存しません）" : reason
         for unit in assembler.flush(reason: "停止時の確定英文") { addUnit(unit, enqueue: false) }
         bufferingEnglish = false
         writeMeasurement("capture_stopping", ["reason": reason])
@@ -670,7 +677,7 @@ final class AppModel: ObservableObject {
                       let raw = request["url"] as? String, raw.count <= 8000, let url = URL(string: raw),
                       ["http", "https"].contains(url.scheme?.lowercased() ?? "") else { throw AppError.message("対象タブを確認してください") }
                 sharingPicker.deactivate(); selectedFilter = nil; systemTargetSelected = false; selected = 0
-                browserSession = key; browserSequence = 0
+                browserSession = key; browserSequence = 0; lastStopReason = nil
                 sessionID = UUID(); browserHistoryID = sessionID; browserPageURL = pageIdentity(url); beginTimelineSession()
                 targetName = String((request["title"] as? String ?? url.host ?? "Safari").prefix(300))
                 applyBrowserSettings(request["settings"] as? [String: Any] ?? [:])
@@ -732,9 +739,12 @@ final class AppModel: ObservableObject {
                 if paused { status = "動画の再生を待っています" }
                 return ["ok": true]
             case "pcm":
-                guard running, let browserAudio, let seq = request["sequence"] as? Int,
-                      let encoded = request["pcm"] as? String, encoded.count <= 24000,
-                      let data = Data(base64Encoded: encoded), data.count == 16000 else { throw AppError.message("音声データまたは取得状態を確認してください") }
+                guard running, let browserAudio else {
+                    throw AppError.message("音声取得は停止しています：\(lastStopReason ?? status)。翻訳を開始し直してください。")
+                }
+                guard let seq = request["sequence"] as? Int, seq >= 0 else { throw AppError.message("音声データの連番を読み取れません。ページを再読み込みして翻訳を開始し直してください。") }
+                guard let encoded = request["pcm"] as? String, encoded.count <= 24000,
+                      let data = Data(base64Encoded: encoded), data.count == 16000 else { throw AppError.message("音声データの形式・サイズが一致しません。アプリと拡張を同じ版に更新し、ページを再読み込みしてください。") }
                 if seq < browserSequence { return ["ok": true] } // acknowledged retry, not duplicated input
                 guard seq == browserSequence else { stop(reason: "音声区間が欠けたため停止しました"); throw AppError.message("音声転送の順序が一致しません") }
                 browserSequence += 1; browserWatchdog.packet(at: ProcessInfo.processInfo.systemUptime)
@@ -765,14 +775,13 @@ final class AppModel: ObservableObject {
         return result
     }
     private func browserState() -> [String: Any] {
-        ["ok": true, "running": running && browserAudio != nil, "preparing": busy && browserSession != nil,
+        ["ok": true, "running": running && browserAudio != nil, "preparing": busy && browserSession != nil && startTask != nil,
          "voiceEnabled": voice.enabled, "effectiveSpeed": voice.reading ? voice.effectiveSpeed : voice.speed, "paused": browserWatchdog.paused, "message": status]
     }
     private func playbackSettings() -> [String: Any] {
         ["volume": Int((voice.volume * 100).rounded()), "speed": voice.speed, "speaker": voice.speakerID, "autoSpeed": voice.autoSpeed, "backend": backend, "speechEngine": voice.engine, "smooth": listening.smooth]
     }
     private func applyBrowserSettings(_ values: [String: Any]) {
-        voice.invalidatePrefetch()
         if !running && !busy && pendingCount == 0 {
             if let selected = values["backend"] as? String, ["PLaMo", "Apple"].contains(selected) { backend = selected }
             if let selected = values["speechEngine"] as? String, ["VOICEVOX", "Apple"].contains(selected) { voice.engine = selected }

@@ -6,7 +6,7 @@ Safariで再生する英語ウェビナーを、日本語字幕と日本語音�
 
 Apple Silicon（Mシリーズ）・macOS 26以降が対象です。
 
-1. [インストーラ RTranslate-v0.3.8-macOS-arm64.pkg](https://github.com/haruxbt/RTranslate/releases/download/v0.3.8/RTranslate-v0.3.8-macOS-arm64.pkg) をダウンロードします。その他の版は[Releases](https://github.com/haruxbt/RTranslate/releases)で確認できます。
+1. [インストーラ RTranslate-v0.3.9-macOS-arm64.pkg](https://github.com/haruxbt/RTranslate/releases/download/v0.3.9/RTranslate-v0.3.9-macOS-arm64.pkg) をダウンロードします。その他の版は[Releases](https://github.com/haruxbt/RTranslate/releases)で確認できます。
 
    <strong>注：個人開発版（未公証・仮署名）のため、初回はmacOSでこのインストーラを個別に許可する操作と、Safariの開発版拡張の許可が必要です。[スクリーンショット付きインストール手順](docs/INSTALL.md)を参照してください。</strong>
 
@@ -18,6 +18,18 @@ Apple Silicon（Mシリーズ）・macOS 26以降が対象です。
 更新通知後も完成済みのPKGで更新します。ワンクリック自動更新は未実装です。モデル・履歴・設定は引き継ぎます。起動中のR翻訳へはインストーラが通常終了を要求し、終了できなければ更新を中止します。[アップデートの手順](docs/INSTALL.md#アップデートするとき)も確認してください。
 
 旧名「Webinar Nihongo」からの更新では、同じアプリと確認できた旧版だけを復旧用に退避します。モデル・履歴・設定の保存場所は変わりません。
+
+## v0.3.9の音声先読み
+
+最大5文先まで日本語音声を順番に生成し、先読みWAVの保持量を24MiBまでに制限します。合成は同時に1件だけ行い、速度は再生時に適用して速度変更による再合成を避けます。文章の省略・要約はしません。未翻訳の文章は準備できず、合成が追いつかない場合には待ちが残ります。
+
+Safariの音声転送は約8秒分まで一時的な詰まりを吸収します。順番・欠落チェックは維持し、長く詰まる場合は停止します。取得停止とデータ形式のエラーを分け、後続の要求が元の停止理由を上書きしないようにしました。更新後はウェビナーページを再読み込みしてください。
+
+Miniの実VOICEVOX＋無音再生で同じ16文（短文2つの後に長文）を比較し、長文前の待ちは旧版2.73秒→新版1.29秒でした。最大5文を先読みし、先読みWAV保持はこの試験で約0.5MB。各1回の測定で、Airでの速度・実BrightTALKの停止解消は未確認です。非同期バッファ7項目、Core21項目、拡張48項目の独立試験も成功しました。
+
+### 短文と読み上げ速度
+
+短い英文は次の文とまとめて翻訳します。目安は24語で、無音4秒または待ち時間14秒で確定します。文章の意味と順序を保ち、同じ長さへの強制分割はしません。自動加速は待ち件数ではなく推定読み上げ残量で判断し、15秒以上で最大×1.5、7.5秒以下で通常速度へ戻します。×1.75・×2は手動指定です。速度は文の切り替わり時に変えます。新しい区切りのAir・実ウェビナー検証は未実施です。
 
 ## v0.3.8のメニューバー調整
 
@@ -58,6 +70,7 @@ macOS 26以降・Apple Silicon・対応するSwift SDK/Xcodeが必要です。
 ```sh
 swift build --product WebinarNihongo
 swift run WebinarCoreChecks
+swift run SpeechBufferChecks
 node --experimental-vm-modules --test Tests/Extension/*.test.mjs
 python3 Tests/Integration/asset_store_checks.py
 ```

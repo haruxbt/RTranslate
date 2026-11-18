@@ -10,8 +10,8 @@ final class VoiceQueue: NSObject, ObservableObject, AVSpeechSynthesizerDelegate,
     @Published var speed: Double = 1.25 { didSet { UserDefaults.standard.set(speed, forKey: "voiceSpeed") } }
     @Published var autoSpeed = UserDefaults.standard.object(forKey: "voiceAutoSpeed") as? Bool ?? true { didSet { UserDefaults.standard.set(autoSpeed, forKey: "voiceAutoSpeed") } }
     @Published var effectiveSpeed: Double = 1.5
-    @Published var engine = "VOICEVOX" { didSet { UserDefaults.standard.set(engine, forKey: "voiceEngine") } }
-    @Published var speakerID = 2 { didSet { UserDefaults.standard.set(speakerID, forKey: "voicevoxSpeaker") } }
+    @Published var engine = "VOICEVOX" { didSet { UserDefaults.standard.set(engine, forKey: "voiceEngine"); if engine != oldValue { invalidatePrefetch() } } }
+    @Published var speakerID = 2 { didSet { UserDefaults.standard.set(speakerID, forKey: "voicevoxSpeaker"); if speakerID != oldValue { invalidatePrefetch() } } }
     @Published var voiceIdentifier = "" { didSet { UserDefaults.standard.set(voiceIdentifier, forKey: "voiceIdentifier") } }
     @Published var waiting = 0
     @Published var lag: Double = 0
@@ -28,15 +28,19 @@ final class VoiceQueue: NSObject, ObservableObject, AVSpeechSynthesizerDelegate,
     private var current: Job?
     private var currentUtterance: AVSpeechUtterance?
     private var synthesisTask: Task<Void, Never>?
-    private var prefetchTask: Task<(Data, Double), Error>?
-    private var prefetchID: UUID?
-    private var prefetchSpeaker: Int?
+    private static let bufferedSynthesisSpeed = 1.5
+    private lazy var audioBuffer = SpeechAudioBuffer { [voicevox] request in
+        try await voicevox.synthesize(request.text, speaker: request.speaker, speed: VoiceQueue.bufferedSynthesisSpeed)
+    }
+    var preparedCount: Int { audioBuffer.preparedCount }
+    var preparedBytes: Int { audioBuffer.preparedBytes }
+    private var accelerated = false
     private var generation = UUID()
     var onState: ((UUID, String, Double?, Bool) -> Void)?
     var onBacklogLimit: (() -> Void)?
     var onFailure: ((String) -> Void)?
     var speechText: (String) -> String = { $0 }
-    func invalidatePrefetch() { prefetchTask?.cancel(); prefetchTask = nil; prefetchID = nil; prefetchSpeaker = nil }
+    func invalidatePrefetch() { audioBuffer.invalidateAhead(); prefetchNext() }
     override init() {
         super.init(); synthesizer.delegate = self
         let defaults = UserDefaults.standard
@@ -92,36 +96,32 @@ final class VoiceQueue: NSObject, ObservableObject, AVSpeechSynthesizerDelegate,
     func resume() { playNext() }
     func halt(mark: String = "停止：未読・履歴に保存") {
         generation = UUID(); synthesisTask?.cancel(); synthesisTask = nil
-        prefetchTask?.cancel(); prefetchTask = nil; prefetchID = nil
+        audioBuffer.cancelAll()
         player?.stop(); player = nil
         previewSynthesizer.stopSpeaking(at: .immediate); synthesizer.stopSpeaking(at: .immediate)
         if let current { onState?(current.id, mark, nil, current.manual) }
         for item in queue { onState?(item.id, mark, nil, item.manual) }
-        queue = []; current = nil; currentUtterance = nil; waiting = 0; lag = 0; pausedForLag = false
+        queue = []; current = nil; currentUtterance = nil; waiting = 0; lag = 0; pausedForLag = false; accelerated = false
     }
     private func playNext() {
         guard enabled, current == nil, !queue.isEmpty else { return }
         let job = queue.removeFirst(); current = job; waiting = queue.count
-        effectiveSpeed = SpeechPacing.speed(base: speed, backlog: queue.count, automatic: autoSpeed)
+        let queuedSeconds = queue.reduce(0.0) { $0 + SpeechPacing.estimatedSeconds(speechText($1.text), base: speed) }
+        effectiveSpeed = SpeechPacing.speed(base: speed, queuedSeconds: queuedSeconds, automatic: autoSpeed, accelerated: &accelerated)
         let spoken = speechText(job.text)
         player?.stop(); player = nil; previewSynthesizer.stopSpeaking(at: .immediate)
         onState?(job.id, "音声を準備中", nil, job.manual)
         if engine == "VOICEVOX" {
             let token = generation
-            let prepared = prefetchID == job.id && prefetchSpeaker == speakerID ? prefetchTask : nil
-            if prepared == nil { prefetchTask?.cancel() }
-            prefetchTask = nil; prefetchID = nil
             synthesisTask?.cancel()
+            let request = SpeechAudioRequest(id: job.id, text: spoken, speaker: speakerID)
             synthesisTask = Task {
                 do {
-                    let data: Data
-                    if let prepared {
-                        let result = try await prepared.value
-                        if result.1 == effectiveSpeed { data = result.0 }
-                        else { data = try await voicevox.synthesize(spoken, speaker: speakerID, speed: effectiveSpeed) }
-                    } else { data = try await voicevox.synthesize(spoken, speaker: speakerID, speed: effectiveSpeed) }
+                    let data = try await audioBuffer.audio(for: request)
                     guard !Task.isCancelled, generation == token else { return }
-                    let audio = try AVAudioPlayer(data: data); audio.volume = volume; audio.delegate = self; player = audio
+                    let audio = try AVAudioPlayer(data: data)
+                    audio.enableRate = true; audio.rate = Float(effectiveSpeed / Self.bufferedSynthesisSpeed)
+                    audio.volume = volume; audio.delegate = self; player = audio
                     guard audio.play() else { throw AppError.message("VOICEVOX音声を再生できません") }
                     self.error = ""
                     onState?(job.id, "読み上げ中", ProcessInfo.processInfo.systemUptime, job.manual)
@@ -144,16 +144,10 @@ final class VoiceQueue: NSObject, ObservableObject, AVSpeechSynthesizerDelegate,
         }
     }
     private func prefetchNext() {
-        guard engine == "VOICEVOX", enabled, player?.isPlaying == true, let job = queue.first,
-              prefetchTask == nil else { return }
-        let pace = SpeechPacing.speed(base: speed, backlog: max(0, queue.count - 1), automatic: autoSpeed)
-        let speaker = speakerID
-        let spoken = speechText(job.text)
-        prefetchID = job.id; prefetchSpeaker = speaker
-        prefetchTask = Task { [voicevox] in
-            let data = try await voicevox.synthesize(spoken, speaker: speaker, speed: pace)
-            return (data, pace)
-        }
+        guard engine == "VOICEVOX", enabled, current != nil else { return }
+        audioBuffer.updateAhead(queue.prefix(5).map {
+            SpeechAudioRequest(id: $0.id, text: speechText($0.text), speaker: speakerID)
+        })
     }
     private func finished() {
         if let job = current { onState?(job.id, "読了", nil, job.manual) }

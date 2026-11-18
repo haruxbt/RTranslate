@@ -296,7 +296,7 @@ struct VoiceSelection: View {
                 ForEach(voice.japaneseVoices, id: \.identifier) { item in Text(item.name).tag(item.identifier) }
             }
         }
-        Toggle("待ちが3件以上なら自動加速（最大×1.5）", isOn: $voice.autoSpeed)
+        Toggle("読み上げ待ちの長さに応じて自動加速（最大×1.5）", isOn: $voice.autoSpeed)
         Button("選んだ声を試聴") { voice.preview() }
         if !voice.previewStatus.isEmpty { Text(voice.previewStatus).font(.caption) }
         if !voice.error.isEmpty { Text(voice.error).foregroundStyle(.red) }

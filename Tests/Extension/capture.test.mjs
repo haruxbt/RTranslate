@@ -3,6 +3,7 @@ const source=await fs.readFile(new URL('../../SafariExtension/Resources/capture.
 const discoverySource=await fs.readFile(new URL('../../SafariExtension/Resources/media-discovery.js',import.meta.url),'utf8');
 const workletSource=await fs.readFile(new URL('../../SafariExtension/Resources/audio-worklet.js',import.meta.url),'utf8');
 function fixture(src='https://example.test/video.mp4',failModule=false,needsGesture=false,options={}){
+ let held=true,releaseAck;
  const listeners=[],contexts=[],packets=[],modules=new Map(),timers=new Set();const events=new Map(),fetches=[];let cors=null;
  const media={currentSrc:src,currentTime:17,paused:true,loadCount:0,mediaKeys:options.protected?{}:null,
   getAttribute:()=>cors,setAttribute:(_key,value)=>{cors=value;},removeAttribute:()=>{cors=null;},
@@ -32,7 +33,7 @@ function fixture(src='https://example.test/video.mp4',failModule=false,needsGest
  }
  const shadow={querySelectorAll:selector=>selector==='video,audio'?[media]:[]};
  const context=vm.createContext({AudioContext,AudioWorkletNode,URL:ModuleURL,Blob:ModuleBlob,location:{href:'https://example.test/',origin:'https://example.test'},document:{querySelectorAll:selector=>options.shadow?(selector==='video,audio'?[]:[{shadowRoot:shadow}]):(selector==='video,audio'?[media]:[]),createElement:element,documentElement:{append(){}}},
-  browser:{runtime:{getURL:path=>'safari-web-extension://test/'+path,onMessage:{addListener:fn=>listeners.push(fn)},sendMessage:async packet=>{packets.push(packet);return {ok:true};}}},
+  browser:{runtime:{getURL:path=>'safari-web-extension://test/'+path,onMessage:{addListener:fn=>listeners.push(fn)},sendMessage:async packet=>{packets.push(packet);if(packet.type==='pcm'&&options.holdPCM&&held)await new Promise(resolve=>{releaseAck=resolve;});return {ok:true};}}},
   setTimeout,clearTimeout,setInterval:fn=>{timers.add(fn);return fn;},clearInterval:fn=>timers.delete(fn),AbortController,fetch:async(url,request)=>{fetches.push(request);if(!options.corsAllowed)throw Error('CORS denied');return {ok:true,type:'cors'};},addEventListener(){},btoa:value=>Buffer.from(value,'binary').toString('base64'),Float32Array,Uint8Array,DataView,console});
  vm.runInContext(discoverySource,context);
  vm.runInContext(source,context,{importModuleDynamically:async specifier=>{
@@ -41,7 +42,7 @@ function fixture(src='https://example.test/video.mp4',failModule=false,needsGest
     assert.equal(options.media,media);options.onBlock(new Float32Array(24000).fill(.25),48000);
     return {stop:()=>{hlsStops++;},sampleRate:48000};
   });},{context});await module.link(()=>{});await module.evaluate();return module;
- }});return {get hlsStops(){return hlsStops;},rawSend:request=>listeners[0](request),send:async request=>{
+ }});return {releasePCM:()=>{held=false;releaseAck?.();},get hlsStops(){return hlsStops;},rawSend:request=>listeners[0](request),send:async request=>{
   const result=await listeners[0](request);
   if(request.type!=='captureStart')return result;
   const deadline=Date.now()+3000;
@@ -153,4 +154,19 @@ test('the capture route resolves the same discovered shadow video and sends PCM'
  const context=f.contexts[0];for(let i=0;i<192;i++)context.processor.render([new Float32Array(128).fill(.25)]);
  await new Promise(resolve=>setImmediate(resolve));assert.equal(f.packets.filter(p=>p.type==='pcm').length,1);
  await f.send({type:'captureStop',session:'shadow'});
+});
+
+test('brief bridge stalls retain more than two seconds and drain in order without loss',async()=>{
+ const f=fixture(undefined,false,false,{holdPCM:true});await f.send({type:'captureStart',index:0,session:'slow-bridge'});
+ const c=f.contexts[0];for(let i=0;i<1152;i++)c.processor.render([new Float32Array(128).fill(.25)]);
+ assert.equal(f.packets.some(p=>p.type==='captureError'),false);
+ f.releasePCM();await new Promise(resolve=>setImmediate(resolve));
+ const pcm=f.packets.filter(p=>p.type==='pcm');assert.equal(pcm.length,6);assert.deepEqual(pcm.map(p=>p.sequence),[0,1,2,3,4,5]);
+ await f.send({type:'captureStop',session:'slow-bridge'});
+});
+test('sustained bridge stalls still stop at a bounded eight seconds instead of dropping speech',async()=>{
+ const f=fixture(undefined,false,false,{holdPCM:true});await f.send({type:'captureStart',index:0,session:'blocked-bridge'});
+ const c=f.contexts[0];for(let i=0;i<3300;i++)c.processor.render([new Float32Array(128).fill(.25)]);
+ await new Promise(resolve=>setImmediate(resolve));assert.ok(f.packets.some(p=>p.type==='captureError'&&p.error.includes('8秒')));
+ f.releasePCM();
 });

@@ -8,6 +8,7 @@ func XCTAssertEqual<T: Equatable>(_ a: T, _ b: T) { precondition(a == b) }
         let checks = PipelineTests()
         checks.testAudioIdentityPreservesRepeatedSpeech()
         checks.testSeparateSentencesEmitInOrder()
+        checks.testShortSentenceGrouping()
         checks.testStableSlidesOnlyOncePerChange()
         checks.testSpeechAccelerationWithoutSlowingUserChoice()
         checks.testSentenceIsNotCutAt22Words()
@@ -26,7 +27,7 @@ func XCTAssertEqual<T: Equatable>(_ a: T, _ b: T) { precondition(a == b) }
         checks.testSpeechDictionary()
         checks.testGitHubReleaseUpdates()
         checks.testDictionaryRowEditing()
-        print("PASS: 20 pipeline checks")
+        print("PASS: 21 pipeline checks")
     }
     func testBrowserPauseWatchdog() {
         var watch = BrowserInputWatchdog(now: 0)
@@ -56,8 +57,9 @@ func XCTAssertEqual<T: Equatable>(_ a: T, _ b: T) { precondition(a == b) }
         var assembler = ListeningAssembler()
         XCTAssertEqual(assembler.append("No.", audioEnd: 1, at: 2).count, 0)
         let first = assembler.append("MFA is required.", audioEnd: 3, at: 4)
-        XCTAssertEqual(first.map(\.english), ["No."])
-        XCTAssertEqual(assembler.poll(at: 6).map(\.english), ["MFA is required."])
+        XCTAssertTrue(first.isEmpty)
+        XCTAssertTrue(assembler.poll(at: 6).isEmpty)
+        XCTAssertEqual(assembler.poll(at: 8).map(\.english), ["No. MFA is required."])
     }
     func testStableSlidesOnlyOncePerChange() {
         var gate = SlideStability()
@@ -70,13 +72,35 @@ func XCTAssertEqual<T: Equatable>(_ a: T, _ b: T) { precondition(a == b) }
         XCTAssertTrue(gate.observe([100, 100]))
     }
     func testSpeechAccelerationWithoutSlowingUserChoice() {
-        XCTAssertEqual(SpeechPacing.speed(base: 1.25, backlog: 2, automatic: true), 1.25)
-        XCTAssertEqual(SpeechPacing.speed(base: 1.75, backlog: 30, automatic: true), 1.75)
-        XCTAssertEqual(SpeechPacing.speed(base: 1.25, backlog: 3, automatic: true), 1.5)
-        XCTAssertEqual(SpeechPacing.speed(base: 1.25, backlog: 100, automatic: true), 1.5)
-        XCTAssertEqual(SpeechPacing.speed(base: 2, backlog: 3, automatic: true), 2)
-        XCTAssertEqual(SpeechPacing.speed(base: 1.5, backlog: 100, automatic: false), 1.5)
-        XCTAssertEqual(SpeechPacing.speed(base: 1.5, backlog: 0, automatic: true), 1.5)
+        var accelerated = false
+        let short = Array(repeating: "短い文です。", count: 5).reduce(0.0) { $0 + SpeechPacing.estimatedSeconds($1, base: 1.25) }
+        XCTAssertEqual(SpeechPacing.speed(base: 1.25, queuedSeconds: short, automatic: true, accelerated: &accelerated), 1.25)
+        XCTAssertEqual(SpeechPacing.speed(base: 1.25, queuedSeconds: 16, automatic: true, accelerated: &accelerated), 1.5)
+        XCTAssertEqual(SpeechPacing.speed(base: 1.25, queuedSeconds: 10, automatic: true, accelerated: &accelerated), 1.5)
+        XCTAssertEqual(SpeechPacing.speed(base: 1.25, queuedSeconds: 7, automatic: true, accelerated: &accelerated), 1.25)
+        XCTAssertEqual(SpeechPacing.speed(base: 1.75, queuedSeconds: 30, automatic: true, accelerated: &accelerated), 1.75)
+        XCTAssertEqual(SpeechPacing.speed(base: 2, queuedSeconds: 30, automatic: true, accelerated: &accelerated), 2)
+        XCTAssertEqual(SpeechPacing.speed(base: 1.25, queuedSeconds: 100, automatic: false, accelerated: &accelerated), 1.25)
+        XCTAssertFalse(accelerated)
+    }
+    func testShortSentenceGrouping() {
+        var assembler = ListeningAssembler()
+        let fragments = ["It was not very long ago.", "So as an example, you do not need any special Google magic for this.", "Your organization can do the same.", "By combining the different data feeds.", "Most are open source, but some may also be developed in house."]
+        var output: [ListeningUnit] = []
+        for (i, text) in fragments.enumerated() {
+            output += assembler.append(text, audioEnd: Double(i + 1), at: Double(i * 2))
+            output += assembler.poll(at: Double(i * 2 + 1), partial: "next words")
+        }
+        output += assembler.poll(at: 12)
+        XCTAssertEqual(output.map(\.english).joined(separator: " "), fragments.joined(separator: " "))
+        XCTAssertTrue(output.count < fragments.count)
+        XCTAssertEqual(output.first?.audioEnd, 3)
+        // Continuous short sentences cannot postpone publication indefinitely.
+        var continuous = ListeningAssembler()
+        _ = continuous.append("Keep it safe.", audioEnd: 1, at: 0)
+        _ = continuous.append("Check again.", audioEnd: 5, at: 5)
+        XCTAssertTrue(continuous.poll(at: 13, partial: "and").isEmpty)
+        XCTAssertEqual(continuous.poll(at: 14, partial: "and").count, 1)
     }
     func testReadableJapanese() {
         XCTAssertEqual(PronunciationText.displayed("監査を行った担当の方はSquareを確認しました。"), "監査をおこなった担当のかたはSquareを確認しました。")
@@ -104,13 +128,13 @@ func XCTAssertEqual<T: Equatable>(_ a: T, _ b: T) { precondition(a == b) }
         _ = assembler.append("Do not grant access.", audioEnd: 1, at: 2)
         XCTAssertEqual(assembler.poll(at: 4, partial: "unless MFA").count, 0)
         XCTAssertEqual(assembler.append("unless MFA is enabled.", audioEnd: 5, at: 6).count, 0)
-        let unit = assembler.poll(at: 8)[0]
+        let unit = assembler.poll(at: 10)[0]
         XCTAssertEqual(ListeningText.english(unit.english, smooth: true, corrections: []), "Do not grant access unless MFA is enabled.")
         var leading = ListeningAssembler()
         _ = leading.append("If MFA is disabled,", audioEnd: 1, at: 2)
         XCTAssertEqual(leading.poll(at: 7).count, 0)
         _ = leading.append("do not grant access.", audioEnd: 8, at: 9)
-        XCTAssertEqual(leading.poll(at: 11)[0].english, "If MFA is disabled, do not grant access.")
+        XCTAssertEqual(leading.poll(at: 13)[0].english, "If MFA is disabled, do not grant access.")
     }
     func testPauseAndDeadline() {
         var assembler = ListeningAssembler()

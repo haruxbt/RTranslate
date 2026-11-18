@@ -135,7 +135,8 @@
         let binary='';for(const byte of bytes)binary+=String.fromCharCode(byte);
         run.queue.push({sequence:run.sequence++,pcm:btoa(binary)});
       }
-      if(run.queue.length>4){fail('音声の転送が追いつかないため停止しました。');return;}
+      // Half-second packets: absorb brief bridge stalls without dropping or reordering audio.
+      if(run.queue.length>16){fail('音声の転送が8秒分以上滞ったため停止しました。翻訳を開始し直してください。');return;}
       drain();
     };
     return run;
