@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Pinned data downloads only; no credentials, telemetry, or media content."""
-import argparse,fcntl,hashlib,json,os,shutil,tarfile,time,urllib.request
+import argparse,fcntl,hashlib,json,os,shutil,tarfile,tempfile,time,urllib.request
 from pathlib import Path
 
 def digest(p):
@@ -9,6 +9,25 @@ def child(root,name):
     p=root/name
     if Path(name).is_absolute() or '..' in Path(name).parts or not p.resolve().is_relative_to(root.resolve()):raise ValueError('Invalid asset path')
     return p
+
+def download_archive_member(item, partial):
+    request = urllib.request.Request(item['url'], headers={'User-Agent': 'RTranslate/0.3'})
+    # Keep the archive temporary. Extract only the explicitly named regular file.
+    with tempfile.TemporaryFile(dir=partial.parent) as download:
+        with urllib.request.urlopen(request, timeout=60) as response:
+            if not response.url.startswith('https://'):
+                raise ValueError('Insecure redirect')
+            shutil.copyfileobj(response, download)
+        download.seek(0)
+        if hashlib.file_digest(download, 'sha256').hexdigest() != item['archive_sha256']:
+            raise ValueError('Asset archive checksum mismatch: ' + partial.name)
+        download.seek(0)
+        with tarfile.open(fileobj=download, mode='r:gz') as tar:
+            member = tar.getmember(item['archive_member'])
+            if not member.isfile():
+                raise ValueError('Runtime archive member must be a regular file')
+            with tar.extractfile(member) as source, partial.open('wb') as destination:
+                shutil.copyfileobj(source, destination)
 
 def prepare(catalog,root,support,import_root=None):
     root.mkdir(parents=True,exist_ok=True)
@@ -33,6 +52,9 @@ def _prepare_locked(catalog,root,support,import_root=None):
                 os.replace(partial,path);stat=path.stat();state[item['path']]={'sha256':item['sha256'],'size':stat.st_size,'mtime':stat.st_mtime_ns};continue
             if source and source.is_file() and digest(source)==item['sha256']:shutil.copyfile(source,partial)
             elif item.get('support'):shutil.copyfile(child(support,item['path']),partial)
+            elif item.get('archive_member'):
+                if not item['url'].startswith('https://'): raise ValueError('HTTPS required')
+                download_archive_member(item, partial)
             else:
                 url=item['url'];offset=partial.stat().st_size if partial.exists() else 0
                 if not url.startswith('https://'):raise ValueError('HTTPS required')

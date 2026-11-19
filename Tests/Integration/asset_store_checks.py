@@ -14,6 +14,33 @@ class Assets(unittest.TestCase):
     m.prepare(catalog,dest,support,source);self.assertTrue((dest/'ready.json').exists());m.prepare(catalog,dest,support)
     (dest/'config').write_bytes(b'corrupt');(dest/'voicevox/dict/open_jtalk_dic_utf_8-1.11/sys.dic').write_bytes(b'corrupt');m.prepare(catalog,dest,support)
    self.assertEqual((dest/'config').read_bytes(),b'owned configuration');self.assertEqual((dest/'voicevox/dict/open_jtalk_dic_utf_8-1.11/sys.dic').read_bytes(),b'dictionary')
+ def test_runtime_download_reuse_and_archive_verification(self):
+  with tempfile.TemporaryDirectory() as tmp:
+   root=Path(tmp);dest=root/'assets';source=root/'source';source.mkdir()
+   member='release/lib/voice.dylib'; data=b'example runtime'
+   archive=io.BytesIO()
+   with tarfile.open(fileobj=archive,mode='w:gz') as tar:
+    entry=tarfile.TarInfo(member);entry.size=len(data);tar.addfile(entry,io.BytesIO(data))
+   body=archive.getvalue()
+   with tarfile.open(source/'open-jtalk-1.11.tar.gz','w:gz') as tar:
+    entry=tarfile.TarInfo('open_jtalk_dic_utf_8-1.11/sys.dic');entry.size=1;tar.addfile(entry,io.BytesIO(b'd'))
+   runtime={'path':'voicevox/onnxruntime/lib/voice.dylib','sha256':hashlib.sha256(data).hexdigest(),
+            'archive_sha256':hashlib.sha256(body).hexdigest(),'archive_member':member,'url':'https://example.invalid/runtime'}
+   dictionary={'path':'open-jtalk-1.11.tar.gz','sha256':m.digest(source/'open-jtalk-1.11.tar.gz')}
+   catalog={'version':1,'files':[runtime,dictionary],'dictionary':{'open_jtalk_dic_utf_8-1.11/sys.dic':hashlib.sha256(b'd').hexdigest()}}
+   class Response(io.BytesIO):
+    url='https://example.invalid/runtime'
+   with contextlib.redirect_stdout(io.StringIO()):
+    with patch.object(m.urllib.request,'urlopen',return_value=Response(body+b'corrupt')):
+     with self.assertRaisesRegex(ValueError,'archive checksum'):m.prepare(catalog,dest,root,source)
+    self.assertFalse((dest/runtime['path']).exists())
+    with patch.object(m.urllib.request,'urlopen',return_value=Response(body)) as fetch:
+     m.prepare(catalog,dest,root,source)
+     self.assertEqual(fetch.call_count,1)
+    with patch.object(m.urllib.request,'urlopen',side_effect=AssertionError('must reuse verified runtime')):
+     m.prepare(catalog,dest,root)
+   self.assertEqual((dest/runtime['path']).read_bytes(),data)
+   self.assertEqual([p.name for p in (dest/runtime['path']).parent.iterdir()],['voice.dylib'])
  def test_paths_and_links_rejected(self):
   with tempfile.TemporaryDirectory() as tmp:
    with self.assertRaises(ValueError):m.child(Path(tmp),'../escape')

@@ -92,6 +92,13 @@
       "url": "https://github.com/VOICEVOX/voicevox_vvm/releases/download/0.17.1/12.vvm"
     },
     {
+      "path": "voicevox/onnxruntime/lib/libvoicevox_onnxruntime.1.17.3.dylib",
+      "sha256": "04661c9a1cd8f6b2884cc36270808d7b5ddef16637806f2a70eeeee428c37d03",
+      "url": "https://github.com/VOICEVOX/onnxruntime-builder/releases/download/voicevox_onnxruntime-1.17.3/voicevox_onnxruntime-osx-arm64-1.17.3.tgz",
+      "archive_sha256": "96d7ea1928a0a15485492d37621387df50f40a792e2a6817d4df73ecd18571f2",
+      "archive_member": "voicevox_onnxruntime-osx-arm64-1.17.3/lib/libvoicevox_onnxruntime.1.17.3.dylib"
+    },
+    {
       "path": "open-jtalk-1.11.tar.gz",
       "sha256": "33e9cd251bc41aa2bd7ca36f57abbf61eae3543ca25ca892ae345e394cb10549",
       "url": "https://downloads.sourceforge.net/project/open-jtalk/Dictionary/open_jtalk_dic-1.11/open_jtalk_dic_utf_8-1.11.tar.gz"

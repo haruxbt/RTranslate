@@ -24,13 +24,21 @@ cp SafariExtension/Resources/toolbar-32.png "$app/Contents/Resources/MenuBarTemp
 cp scripts/plamo_worker.py scripts/voicevox_worker.py scripts/asset_worker.py "$app/Contents/Resources/"
 ditto Resources/AssetCatalog "$app/Contents/Resources/AssetCatalog"
 ditto Resources/AssetSupport "$app/Contents/Resources/AssetSupport"
-ditto Resources/VoiceRuntime "$app/Contents/Resources/VoiceRuntime"
 # Model data lives in Application Support, never in the distributable app.
 python3 - "$app" <<'PY'
 from pathlib import Path
 import shutil,sys
-models=Path(sys.argv[1])/'Contents/Resources/Models'
-if models.is_dir():shutil.rmtree(models)
+resources = Path(sys.argv[1]) / 'Contents/Resources'
+python = resources / 'Python'
+packages = python / 'lib/python3.13/site-packages'
+# Keep licenses and package metadata. The pinned workers only use the AutoTokenizer path.
+unused = [resources / 'Models', resources / 'VoiceRuntime/lib', python / 'include']
+unused += [packages / name for name in ('pip', 'hf_xet', 'pygments')]
+unused += [path for path in (packages / 'transformers/models').iterdir()
+           if path.is_dir() and path.name not in {'auto', 'encoder_decoder'}]
+for path in unused:
+    if path.is_dir():
+        shutil.rmtree(path)
 PY
 appex="$app/Contents/PlugIns/Webinar Safari.appex"
 mkdir -p "$appex/Contents/MacOS" "$appex/Contents/Resources"
@@ -55,10 +63,10 @@ python3 - "$app" "$appex" "$extension_executable" <<'PY'
 from pathlib import Path
 import plistlib,sys
 app,ext=map(Path,sys.argv[1:3]);p=app/'Contents/Info.plist';info=plistlib.loads(p.read_bytes())
-info['CFBundleShortVersionString']='0.3.9';info['CFBundleVersion']='21';info['LSUIElement']=True;info['CFBundleDisplayName']='R翻訳';info['CFBundleName']='RTranslate';info['CFBundleIconFile']='RTranslate.icns';p.write_bytes(plistlib.dumps(info))
+info['CFBundleShortVersionString']='0.3.10';info['CFBundleVersion']='22';info['LSUIElement']=True;info['CFBundleDisplayName']='R翻訳';info['CFBundleName']='RTranslate';info['CFBundleIconFile']='RTranslate.icns';p.write_bytes(plistlib.dumps(info))
 info={'CFBundleIdentifier':'local.webinarnihongo.app.safari','CFBundleName':'R翻訳',
       'CFBundleExecutable':'WebinarSafariExtension','CFBundlePackageType':'XPC!',
-      'CFBundleShortVersionString':'0.3.9','CFBundleVersion':'21','LSMinimumSystemVersion':'26.0',
+      'CFBundleShortVersionString':'0.3.10','CFBundleVersion':'22','LSMinimumSystemVersion':'26.0',
       'CFBundleSupportedPlatforms':['MacOSX'],
       'NSAppTransportSecurity':{'NSAllowsLocalNetworking':True},
       'NSExtension':{'NSExtensionPointIdentifier':'com.apple.Safari.web-extension',
@@ -85,7 +93,7 @@ if [[ "${RTRANSLATE_STAGE_ONLY:-0}" == "1" ]]; then
     python3 - "$app" <<'PY_STAGE'
 import json,sys
 from pathlib import Path
-Path('work/safari-preview-staged.json').write_text(json.dumps({'app':sys.argv[1],'version':'0.3.9'},indent=2))
+Path('work/safari-preview-staged.json').write_text(json.dumps({'app':sys.argv[1],'version':'0.3.10'},indent=2))
 PY_STAGE
     echo "Built and verified separate staged app: $app"
     exit 0
@@ -107,7 +115,7 @@ legacy=destination.with_name('Webinar Nihongo.app')
 if legacy.exists():os.rename(legacy,app.parent/'legacy-app.bundlebackup')
 resources=destination/'Contents/PlugIns/Webinar Safari.appex/Contents/Resources'
 files={str(f.relative_to(resources)):hashlib.sha256(f.read_bytes()).hexdigest() for f in resources.iterdir() if f.is_file()}
-Path('work/safari-preview-build-manifest.json').write_text(json.dumps({'version':'0.3.9','build':'21','resources':files,'backup':str(backup)},indent=2))
+Path('work/safari-preview-build-manifest.json').write_text(json.dumps({'version':'0.3.10','build':'22','resources':files,'backup':str(backup)},indent=2))
 PY
 codesign --verify --deep --strict "$destination"
 echo "Built and verified Safari preview: $destination"

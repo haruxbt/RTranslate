@@ -34,8 +34,10 @@ final class VoicevoxService: ObservableObject {
         process.executableURL = resources.appendingPathComponent("Python/bin/python3.13")
         process.arguments = ["-B", "-u", resources.appendingPathComponent("voicevox_worker.py").path,
                              "--root", root.path, "--parent-pid", String(ProcessInfo.processInfo.processIdentifier)]
-        let runtime = resources.appendingPathComponent("VoiceRuntime/lib")
-        if FileManager.default.fileExists(atPath: runtime.path) { process.arguments! += ["--runtime", runtime.path] }
+        let runtime = AssetManager.root.appendingPathComponent("voicevox/onnxruntime/lib")
+        if FileManager.default.fileExists(atPath: runtime.appendingPathComponent("libvoicevox_onnxruntime.1.17.3.dylib").path) {
+            process.arguments! += ["--runtime", runtime.path]
+        }
         process.environment = ["PATH": "/usr/bin:/bin", "HOME": NSHomeDirectory(), "TMPDIR": NSTemporaryDirectory(),
                                "PYTHONNOUSERSITE": "1", "PYTHONDONTWRITEBYTECODE": "1"]
         let pipe = Pipe(); process.standardOutput = pipe; process.standardError = FileHandle.nullDevice
