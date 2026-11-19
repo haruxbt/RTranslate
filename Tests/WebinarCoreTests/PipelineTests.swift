@@ -27,7 +27,20 @@ func XCTAssertEqual<T: Equatable>(_ a: T, _ b: T) { precondition(a == b) }
         checks.testSpeechDictionary()
         checks.testGitHubReleaseUpdates()
         checks.testDictionaryRowEditing()
-        print("PASS: 21 pipeline checks")
+        checks.testPageReadingChunks()
+        print("PASS: 22 pipeline checks")
+    }
+    func testPageReadingChunks() {
+        let mixed = "OAuthを使います。 Confirm the grant before a review. 手順を確認します。"
+        let chunks = PageReading.chunks(mixed, separateLanguages: true)
+        XCTAssertEqual(chunks, ["OAuthを使います。", "Confirm the grant before a review.", "手順を確認します。"])
+        XCTAssertEqual(chunks.filter(PageReading.needsEnglishTranslation), ["Confirm the grant before a review."])
+        let long = Array(repeating: "words", count: 300).joined(separator: " ")
+        let pieces = PageReading.chunks(long)
+        XCTAssertEqual(pieces.joined(separator: " "), long)
+        XCTAssertTrue(pieces.allSatisfy { $0.count <= 420 })
+        XCTAssertTrue(PageReading.containsUntranslatedProse("設定を確認。 Review the settings before enabling this option."))
+        XCTAssertFalse(PageReading.containsUntranslatedProse("OpenAI APIを使用します。"))
     }
     func testBrowserPauseWatchdog() {
         var watch = BrowserInputWatchdog(now: 0)

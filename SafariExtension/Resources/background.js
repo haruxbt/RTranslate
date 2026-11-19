@@ -1,5 +1,6 @@
 import {NATIVE_APP, webURL, settings} from './protocol.mjs';
 const api = globalThis.browser || globalThis.chrome;
+let pageReader = null, pageStarting = false;
 let active = null, lastTarget = null, message = '', starting = false, controlError = '', storageNotice = '';
 // Safari can reject extension storage after an OS upgrade. Never delete it to recover:
 // playback settings and history already belong to the native app; session state can stay in RAM.
@@ -14,8 +15,8 @@ async function stored(operation, fallback) {
 }
 const readStore=keys=>stored(()=>api.storage.local.get(keys),{});
 const writeStore=value=>stored(()=>api.storage.local.set(value),undefined);
-const restored = readStore(['activeSession','lastTarget','settings','pacePolicy']).then(async data => {
-  active=data.activeSession || null;lastTarget=data.lastTarget || null;
+const restored = readStore(['activeSession','lastTarget','settings','pacePolicy','pageReader']).then(async data => {
+  pageReader=data.pageReader || null;active=data.activeSession || null;lastTarget=data.lastTarget || null;
   if(data.pacePolicy!==2)await writeStore({pacePolicy:2,settings:settings({...data.settings,volume:data.settings?.volume ?? 60,speaker:data.settings?.speaker ?? 2,speed:1.25})});
 });
 async function save() { await writeStore({activeSession:active,lastTarget}); }
@@ -28,7 +29,7 @@ async function native(command, payload = {}) {
 }
 async function currentTab() {
   const [tab] = await api.tabs.query({active:true,currentWindow:true});
-  if (!tab || !webURL(tab.url)) throw new Error('ウェビナーのタブを開いてください。');
+  if (!tab || !webURL(tab.url)) throw new Error('対象のウェブページを開いてください。');
   return tab;
 }
 let profileCache={tabID:null,at:0,value:null};
@@ -79,6 +80,7 @@ async function stop(notify = true) {
 async function start() {
   await restored;
   if (active) return status();
+  if (pageStarting || (pageReader && (await pageStatus()).reading)) throw new Error('ページの読み上げを停止してから開始してください。');
   const tab=await currentTab();
   await api.scripting.executeScript({target:{tabId:tab.id,allFrames:true},files:['media-discovery.js']});
   const candidates=await api.scripting.executeScript({target:{tabId:tab.id,allFrames:true},func:() => {
@@ -101,6 +103,64 @@ async function start() {
     await setTimeline(tab.id,true);
     return {ok:true,preparing:true,voiceEnabled:true,timelineVisible:true,host:new URL(tab.url).hostname,message};
   } catch(error) { await stop(); throw error; }
+}
+async function pageStatus() {
+  if (!pageReader) {
+    const tab=await currentTab().catch(()=>null);
+    return {ok:true,reading:false,host:tab?new URL(tab.url).hostname:''};
+  }
+  const target=pageReader;
+  const result=await native('pageStatus',{session:target.session}).catch(()=>({ok:true,reading:false}));
+  if (pageReader!==target) return {ok:true,reading:false};
+  const tab=await currentTab().catch(()=>null);
+  return {...result,host:tab?new URL(tab.url).hostname:''};
+}
+async function pageText(tab, selection) {
+  const target={tabId:tab.id,frameIds:[0]};
+  await api.scripting.executeScript({target,files:['page-extraction.js']});
+  const [frame]=await api.scripting.executeScript({target,func:fromSelection=>globalThis.__rTranslatePageText(fromSelection),args:[selection]});
+  const page=frame?.result;
+  if (!page?.text || webURL(page.url)!==webURL(tab.url)) throw new Error('読み上げる本文が見つかりません。');
+  return page.text;
+}
+async function startPage(mode) {
+  if (active || starting) throw new Error('音声・動画の翻訳を停止してから開始してください。');
+  if (pageStarting) throw new Error('ページを準備しています。');
+  if (!['original','translate'].includes(mode)) throw new Error('読み方を確認してください。');
+  pageStarting=true;
+  let target;
+  try {
+    if ((await pageStatus()).reading) throw new Error('いまの読み上げを停止してください。');
+    const tab=await currentTab();
+    const text=await pageText(tab,true);
+    if (new TextEncoder().encode(JSON.stringify(text)).length>48000) throw new Error('本文が長すぎます。途中から読む場合は、その位置の文を選んで開始してください。');
+    target={tabID:tab.id,session:crypto.randomUUID()};
+    pageReader=target;await writeStore({pageReader});
+    if (pageReader !== target) throw new Error('ページが移動したため停止しました。');
+    const result=await native('pageStart',{session:target.session,mode,text});
+    if (pageReader !== target) {
+      await native('pageStop',{session:target.session}).catch(()=>{});
+      throw new Error('ページが移動したため停止しました。');
+    }
+    return result;
+  } catch(error) {
+    if (target && pageReader===target) {pageReader=null;await writeStore({pageReader:null});}
+    throw error;
+  } finally {pageStarting=false;}
+}
+async function stopPage() {
+  const target=pageReader;
+  if (!target) return {ok:true,reading:false};
+  const result=await native('pageStop',{session:target.session});
+  if (pageReader===target) {pageReader=null;await writeStore({pageReader:null});}
+  return result;
+}
+function pageLeft(tabID) {
+  if (pageReader?.tabID!==tabID) return;
+  // Invalidate an in-flight start before the native reply, including on reload.
+  const target=pageReader;pageReader=null;
+  writeStore({pageReader:null});
+  native('pageStop',{session:target.session}).catch(()=>{});
 }
 async function prepareCapture(target) {
   const deadline=Date.now()+180000;
@@ -160,6 +220,14 @@ api.runtime.onMessage.addListener((request,sender) => (async()=>{
       throw new Error('許可されていない操作です。');
     }
     switch(request.type) {
+      case 'pageStatus': return await pageStatus();
+      case 'pageStart': return await startPage(request.mode);
+      case 'pageStop': return await stopPage();
+      case 'pageWords': {
+        const text=await pageText(await currentTab(),false);
+        const words=[...new Set((text.match(/\b(?:[A-Z]{2,}|[A-Z][a-z]+|[a-z]+[A-Z][A-Za-z]*)[A-Za-z0-9]*(?:[-_][A-Za-z0-9]+)*\b/g)||[]))];
+        return {ok:true,words:words.slice(0,24)};
+      }
       case 'status': return {...await status(),...(controlError?{error:controlError}:{}),storageNotice};
       case 'start': controlError=''; return await start();
       case 'stop': controlError=''; message='停止しました'; return await stop();
@@ -169,7 +237,7 @@ api.runtime.onMessage.addListener((request,sender) => (async()=>{
         return status();
       case 'openAppSettings': {
         if(!['overview','dictionary','slides','models','history','support'].includes(request.page))throw new Error('設定項目を確認してください。');
-        return native('openSettings',{page:request.page});
+        return native('openSettings',{page:request.page,...(typeof request.word==='string' && request.word.length<=64?{word:request.word}:{})});
       }
       case 'playbackGet': return native('playbackGet');
       case 'assetsStatus': return native('assetsStatus');
@@ -203,6 +271,6 @@ api.runtime.onMessage.addListener((request,sender) => (async()=>{
     }
   } catch(error) { if(!sender.tab && ['start','stop','timeline'].includes(request.type))controlError=error.message; return {ok:false,error:error.message}; }
 })());
-api.tabs.onRemoved.addListener(id=>{ if(active?.tabID===id) { message='対象タブが閉じられたため停止しました'; stop(); } });
-api.tabs.onUpdated.addListener((id,change)=>{ if(active?.tabID===id && change.status==='loading') { message='ページが移動したため停止しました'; stop(); } });
+api.tabs.onRemoved.addListener(id=>{ void restored.then(()=>pageLeft(id)); if(active?.tabID===id) { message='対象タブが閉じられたため停止しました'; stop(); } });
+api.tabs.onUpdated.addListener((id,change)=>{ if(change.status==='loading' || change.url)void restored.then(()=>pageLeft(id)); if(active?.tabID===id && change.status==='loading') { message='ページが移動したため停止しました'; stop(); } });
 api.tabs.onActivated.addListener(info=>{ if(active && active.tabID!==info.tabId) { message='対象タブが変わったため停止しました'; stop(); } });

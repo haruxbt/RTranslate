@@ -1,13 +1,17 @@
 import test from 'node:test';import assert from 'node:assert/strict';import vm from 'node:vm';import fs from 'node:fs/promises';import {webcrypto} from 'node:crypto';
 async function fixture(nativeStatus={},restoreNeverFinishes=false,options={}){
- const calls=[],listeners={},store={};let onMessage,timelineVisible=false;
+ const calls=[],listeners={},store={};let onMessage,timelineVisible=false,pageReading=false;
  const event=name=>({addListener:fn=>listeners[name]=fn});
  const api={storage:{local:{get:async()=>{if(options.storageFails)throw Error('invalid schema version');return restoreNeverFinishes?await new Promise(()=>{}):store;},set:async value=>{if(options.storageFails)throw Error('invalid schema version');return Object.assign(store,value);}}},runtime:{onMessage:{addListener:fn=>onMessage=fn},sendNativeMessage:async(app,request)=>{
-  calls.push(request);if(request.command==='status')return {ok:true,running:true,voiceEnabled:true,...nativeStatus};
+  calls.push(request);
+  if(request.command==='pageStart')return {ok:true,reading:pageReading=true};
+  if(request.command==='pageStop')return {ok:true,reading:pageReading=false};
+  if(request.command==='pageStatus')return {ok:true,reading:pageReading};
+  if(request.command==='status')return {ok:true,running:true,voiceEnabled:true,...nativeStatus};
   if(request.command==='timelineForPage')return {ok:true,rows:[{id:'owned',japanese:'表示経路の試験'}],cursor:1,historySession:'native-session'};
   if(request.command==='timeline')return {ok:true,rows:[],cursor:0};return {ok:true};
- }},tabs:{get:async id=>({id,url:'https://example.test/webinar'}),query:async()=>[{id:7,url:'https://example.test/webinar',title:'Synthetic webinar'}],sendMessage:async(_id,r)=>{if(r.type==='timelineVisibility'){if(typeof r.visible==='boolean')timelineVisible=r.visible;return {ok:true,visible:timelineVisible};}return {ok:true};},onRemoved:event('removed'),onUpdated:event('updated'),onActivated:event('activated')},scripting:{executeScript:async request=>{if(options.scriptError)throw Error(options.scriptError);return request.func?[{frameId:0,result:options.noMedia?[]:[{index:0,playing:true,area:100}]}]:[];}}};
- const context=vm.createContext({browser:api,URL,crypto:webcrypto,setTimeout,clearTimeout,console});
+ }},tabs:{get:async id=>({id,url:'https://example.test/webinar'}),query:async()=>[{id:7,url:'https://example.test/webinar',title:'Synthetic webinar'}],sendMessage:async(_id,r)=>{if(r.type==='timelineVisibility'){if(typeof r.visible==='boolean')timelineVisible=r.visible;return {ok:true,visible:timelineVisible};}return {ok:true};},onRemoved:event('removed'),onUpdated:event('updated'),onActivated:event('activated')},scripting:{executeScript:async request=>{if(options.scriptError)throw Error(options.scriptError);if(request.args)return [{frameId:0,result:{url:'https://example.test/webinar',text:'The system uses OAuth.'}}];return request.func?[{frameId:0,result:options.noMedia?[]:[{index:0,playing:true,area:100}]}]:[];}}};
+ const context=vm.createContext({browser:api,URL,crypto:webcrypto,TextEncoder,setTimeout,clearTimeout,console});
  const protocol=new vm.SourceTextModule(await fs.readFile(new URL('../../SafariExtension/Resources/protocol.mjs',import.meta.url),'utf8'),{context});await protocol.link(()=>{});await protocol.evaluate();
  const background=new vm.SourceTextModule(await fs.readFile(new URL('../../SafariExtension/Resources/background.js',import.meta.url),'utf8'),{context});await background.link(()=>protocol);await background.evaluate();
  return {send:(r,s={})=>onMessage(r,s),calls,listeners};
@@ -121,4 +125,18 @@ test('Safari storage schema failures do not block native start, settings or stop
  const state=await f.send({type:'status'});assert.equal(state.running,true);assert.match(state.storageNotice,/Safari/);
  assert.equal((await f.send({type:'settings',value:{speed:1.5}})).ok,true);
  assert.equal((await f.send({type:'stop'})).ok,true);assert.ok(f.calls.some(x=>x.command==='stop'));
+});
+
+test('page translation does not start capture and stops when its source tab navigates',async()=>{
+ const f=await fixture();
+ assert.equal((await f.send({type:'pageStart',mode:'translate'},{tab:{id:7},frameId:0})).ok,false);
+ assert.equal((await f.send({type:'pageStart',mode:'translate'})).reading,true);
+ const request=f.calls.find(x=>x.command==='pageStart');
+ assert.equal(request.text,'The system uses OAuth.');
+ assert.equal(request.mode,'translate');
+ assert.equal(f.calls.some(x=>x.command==='pcm'||x.command==='start'),false);
+ assert.equal((await f.send({type:'start'})).ok,false);
+ f.listeners.updated(7,{status:'loading'});
+ await new Promise(resolve=>setImmediate(resolve));
+ assert.equal(f.calls.find(x=>x.command==='pageStop').session,request.session);
 });

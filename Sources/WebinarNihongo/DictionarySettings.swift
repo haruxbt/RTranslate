@@ -2,78 +2,152 @@ import SwiftUI
 import Combine
 import WebinarCore
 
-enum DictionaryKind: String, CaseIterable, Identifiable {
-    case glossary, corrections, readings, displayTerms
-    var id: String { rawValue }
-    var title: String { switch self { case .glossary: "用語辞書"; case .corrections: "誤認識の補正"; case .readings: "読み"; case .displayTerms: "表記" } }
-    @MainActor var key: ReferenceWritableKeyPath<ListeningPreferences, String> { switch self { case .glossary: \.glossary; case .corrections: \.corrections; case .readings: \.readings; case .displayTerms: \.displayTerms } }
-    var left: String { self == .glossary ? "英語・原語" : self == .corrections ? "誤認識された表記" : "用語" }
-    var right: String { self == .glossary ? "日本語・訳語" : self == .readings ? "読み" : "正しい表記" }
-}
-@MainActor final class DictionaryEditorState: ObservableObject {
-    @Published var kind: DictionaryKind = .glossary
-    @Published var source = ""
-    @Published var target = ""
-    @Published var original: String?
-    @Published var editing = false
-    @Published var message = "保存済み"
-    @Published var validation = ""
-    @Published var raw = false
-}
 struct DictionarySettings: View {
     @ObservedObject var model: AppModel
     @ObservedObject var preferences: ListeningPreferences
-    @StateObject private var state = DictionaryEditorState()
-    private var terms: [GlossaryTerm] { ListeningText.terms(preferences[keyPath: state.kind.key]) }
-    private var locked: Bool { model.running || model.busy }
+    @StateObject private var state = EditorState()
+    private var mode: Int { state.mode }
+    private final class EditorState: ObservableObject {
+        @Published var mode = 0
+        @Published var draft: Draft?
+        @Published var error = ""
+    }
+    private var locked: Bool { model.running || model.busy || model.pageReading }
+
+    private struct Draft: Identifiable {
+        let id = UUID()
+        var original: String?
+        var term = ""
+        var translation = ""
+        var pronunciation = ""
+    }
+
+    private var rows: [Draft] {
+        let primary = mode == 0 ? preferences.glossary : mode == 1 ? preferences.corrections : preferences.displayTerms
+        var result: [Draft] = []
+        var indices: [String: Int] = [:]
+        for (entries, isReading) in [(ListeningText.terms(primary), false),
+                                     (mode == 0 ? ListeningText.terms(preferences.readings) : [], true)] {
+            for entry in entries {
+                let key = entry.source.lowercased()
+                let i = indices[key] ?? result.count
+                if i == result.count {
+                    indices[key] = i
+                    result.append(Draft(original: entry.source, term: entry.source))
+                }
+                if isReading { result[i].pronunciation = entry.target }
+                else { result[i].translation = entry.target }
+            }
+        }
+        return result.sorted { $0.term.localizedStandardCompare($1.term) == .orderedAscending }
+    }
+
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
-            SettingsHeading(title: "辞書", subtitle: "専門用語の訳し方や、聞き間違い・読みを整えます。")
+            SettingsHeading(title: "辞書", subtitle: "用語の訳し方と読み方をまとめて編集します。")
             HStack {
-                Picker("辞書の種類", selection: $state.kind) { ForEach(DictionaryKind.allCases) { Text($0.title).tag($0) } }.labelsHidden().pickerStyle(.segmented)
-                Button("追加") { edit(nil) }.buttonStyle(.borderedProminent).disabled(locked)
+                Picker("辞書の種類", selection: $state.mode) {
+                    Text("用語と読み方").tag(0)
+                    Text("誤認識の補正").tag(1)
+                    Text("表記").tag(2)
+                }.labelsHidden().pickerStyle(.segmented)
+                Button("追加") { open(Draft()) }.buttonStyle(.borderedProminent).disabled(locked)
             }
-            HStack { Text(state.kind.left).frame(maxWidth: .infinity, alignment: .leading); Text(state.kind.right).frame(maxWidth: .infinity, alignment: .leading); Color.clear.frame(width: 58, height: 1) }.font(.caption).foregroundStyle(.secondary).padding(12).background(Color.secondary.opacity(0.06), in: RoundedRectangle(cornerRadius: 7))
+            tableRow(mode == 1 ? "誤認識された語" : "原語", mode == 0 ? "訳語" : "正しい表記", "読み方") {
+                Color.clear.frame(width: 40, height: 1)
+            }.font(.caption).foregroundStyle(.secondary).padding(10)
+                .background(Color.secondary.opacity(0.06), in: RoundedRectangle(cornerRadius: 7))
             ScrollView {
                 LazyVStack(spacing: 0) {
-                    if terms.isEmpty { Text("まだ登録されていません。").foregroundStyle(.secondary).padding(30) }
-                    ForEach(Array(terms.enumerated()), id: \.offset) { _, term in
-                        HStack(alignment: .top, spacing: 12) {
-                            Text(term.source).frame(maxWidth: .infinity, alignment: .leading)
-                            Text(term.target).frame(maxWidth: .infinity, alignment: .leading)
-                            Button("編集") { edit(term) }.buttonStyle(.plain).foregroundStyle(Color.accentColor).frame(width: 44).disabled(locked)
-                        }.padding(.vertical, 13).padding(.horizontal, 12)
+                    if rows.isEmpty { Text("まだ登録されていません。").foregroundStyle(.secondary).padding(30) }
+                    ForEach(rows, id: \.term) { row in
+                        tableRow(row.term, row.translation.isEmpty ? "—" : row.translation,
+                                 row.pronunciation.isEmpty ? "—" : row.pronunciation) {
+                            Button("編集") { open(row) }.buttonStyle(.plain).foregroundStyle(Color.accentColor)
+                                .frame(width: 40).disabled(locked)
+                        }.padding(10)
                         Divider()
                     }
                 }
-            }.frame(maxHeight: .infinity)
-            HStack { Label(state.message, systemImage: "checkmark.circle.fill").foregroundStyle(.teal); Spacer() }.font(.caption)
-            Text(locked ? "翻訳を停止すると編集できます。" : "聞き取りへの反映は、次の翻訳開始から。").font(.caption).foregroundStyle(.secondary)
-            HStack { Text("用語辞書は認識の参考語と翻訳に使用します。").font(.caption).foregroundStyle(.secondary); Spacer(); Button("詳細編集") { state.raw = true }.font(.caption).disabled(locked) }
-        }.padding(24)
-            .sheet(isPresented: $state.editing) { editor }
-            .sheet(isPresented: $state.raw) { VStack(alignment: .leading, spacing: 12) { Text("\(state.kind.title)・詳細編集").font(.headline); Text("1行に「用語 = 変換先」。入力した内容をそのまま保存します。").font(.caption); TextEditor(text: Binding(get: { preferences[keyPath: state.kind.key] }, set: { preferences[keyPath: state.kind.key] = $0; model.voice.invalidatePrefetch() })).font(.system(.body, design: .monospaced)); Button("閉じる") { state.raw = false } }.padding(24).frame(width: 500, height: 380) }
-            .onChange(of: state.kind) { _,_ in state.message = "保存済み" }
-    }
-    private func edit(_ term: GlossaryTerm?) { state.original = term?.source; state.source = term?.source ?? ""; state.target = term?.target ?? ""; state.validation = ""; state.editing = true }
-    private var editor: some View {
-        VStack(alignment: .leading, spacing: 16) {
-            Text(state.original == nil ? "\(state.kind.title)に追加" : "用語を編集").font(.title3.bold())
-            TextField(state.kind.left, text: $state.source).textFieldStyle(.roundedBorder)
-            TextField(state.kind.right, text: $state.target).textFieldStyle(.roundedBorder)
-            if !state.validation.isEmpty { Text(state.validation).font(.caption).foregroundStyle(.orange) }
-            HStack {
-                if state.original != nil { Button("削除", role: .destructive) { save(remove: true) } }
-                Spacer(); Button("キャンセル") { state.editing = false }; Button("保存") { save(remove: false) }.buttonStyle(.borderedProminent)
             }
-        }.padding(24).frame(width: 470)
+            Text(locked ? "翻訳と読み上げを停止すると編集できます。" : "訳語と読み方は片方だけでも登録できます。")
+                .font(.caption).foregroundStyle(.secondary)
+        }.padding(24)
+            .sheet(item: $state.draft) { value in
+                editor(value)
+            }
+            .onAppear(perform: openRequestedWord)
+            .onChange(of: model.dictionaryRequest) { _, _ in openRequestedWord() }
     }
-    private func save(remove: Bool) {
+
+    private func tableRow<Accessory: View>(_ left: String, _ middle: String, _ right: String,
+                                            @ViewBuilder accessory: () -> Accessory) -> some View {
+        HStack(alignment: .top, spacing: 10) {
+            Text(left).frame(maxWidth: .infinity, alignment: .leading).textSelection(.enabled)
+            Text(middle).frame(maxWidth: .infinity, alignment: .leading).textSelection(.enabled)
+            if mode == 0 { Text(right).frame(maxWidth: .infinity, alignment: .leading).textSelection(.enabled) }
+            accessory()
+        }.frame(maxWidth: .infinity, alignment: .leading)
+    }
+
+    private func openRequestedWord() {
+        guard let word = model.dictionaryRequest else { return }
+        model.dictionaryRequest = nil
         guard !locked else { return }
+        state.mode = 0
+        open(rows.first { $0.term.caseInsensitiveCompare(word) == .orderedSame } ?? Draft(term: word))
+    }
+
+    private func open(_ value: Draft) { state.error = ""; state.draft = value }
+
+    private func editor(_ value: Draft) -> some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text(value.original == nil ? "用語を追加" : "用語を編集").font(.title3.bold())
+            TextField(mode == 1 ? "誤認識された語" : "原語", text: draftField(\.term)).textFieldStyle(.roundedBorder)
+            TextField(mode == 0 ? "訳語" : "正しい表記", text: draftField(\.translation)).textFieldStyle(.roundedBorder)
+            if mode == 0 { TextField("読み方", text: draftField(\.pronunciation)).textFieldStyle(.roundedBorder) }
+            if !state.error.isEmpty { Text(state.error).font(.caption).foregroundStyle(.orange) }
+            HStack {
+                if value.original != nil { Button("削除", role: .destructive) { save(delete: true) } }
+                Spacer()
+                Button("キャンセル") { state.draft = nil }
+                Button("保存") { save(delete: false) }.buttonStyle(.borderedProminent)
+            }
+        }.padding(24).frame(width: 440)
+    }
+
+    private func draftField(_ path: WritableKeyPath<Draft, String>) -> Binding<String> {
+        Binding(get: { state.draft?[keyPath: path] ?? "" }, set: { state.draft?[keyPath: path] = $0 })
+    }
+
+    private func save(delete: Bool) {
+        guard !locked, let draft = state.draft else { return }
+        let term = draft.term.trimmingCharacters(in: .whitespacesAndNewlines)
+        let translation = draft.translation.trimmingCharacters(in: .whitespacesAndNewlines)
+        let pronunciation = draft.pronunciation.trimmingCharacters(in: .whitespacesAndNewlines)
         do {
-            preferences[keyPath: state.kind.key] = try DictionaryEdit.applying(to: preferences[keyPath: state.kind.key], original: state.original, source: state.source, target: state.target, deleting: remove)
-            model.voice.invalidatePrefetch(); state.editing = false; state.message = "保存済み"
-        } catch DictionaryEditError.tooManyEntries { state.validation = "各辞書は100件まで登録できます。" }
-        catch { state.validation = "用語は64文字、変換先は96文字まで。改行や用語内の=は使えません。" }
+            func update(_ current: String, _ target: String) throws -> String {
+                try DictionaryEdit.applying(to: current, original: draft.original, source: term,
+                                            target: target, deleting: delete || target.isEmpty)
+            }
+            guard delete || !translation.isEmpty || (mode == 0 && !pronunciation.isEmpty) else {
+                throw DictionaryEditError.invalidEntry
+            }
+            switch mode {
+            case 0:
+                let glossary = try update(preferences.glossary, translation)
+                let readings = try update(preferences.readings, pronunciation)
+                preferences.glossary = glossary
+                preferences.readings = readings
+            case 1: preferences.corrections = try update(preferences.corrections, translation)
+            default: preferences.displayTerms = try update(preferences.displayTerms, translation)
+            }
+            model.voice.invalidatePrefetch()
+            state.draft = nil
+        } catch DictionaryEditError.tooManyEntries {
+            state.error = "訳語と読み方は各100件まで登録できます。"
+        } catch {
+            state.error = "原語と変換先を確認してください。原語は64文字、変換先は96文字までです。"
+        }
     }
 }

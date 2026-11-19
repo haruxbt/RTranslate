@@ -9,3 +9,5 @@ The application code license does not relicense third-party materials.
 - Python, MLX, VOICEVOX Core and ONNX execution binaries are not included in this source repository. Any distributed app bundle must include the notices and satisfy the licenses for its exact runtime versions.
 
 This list is a boundary statement, not permission to use third-party trademarks or bypass model/audio-library terms.
+
+- **RSpeech**: The page extraction implementation and common Japanese reading entries are reused from RSpeech (Copyright © 2026 haruketh, MIT). See the MIT license included with RTranslate.

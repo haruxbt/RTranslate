@@ -10,6 +10,8 @@ async function fixture(options={}){
   if(request.type==='voice')model.voiceEnabled=request.enabled;if(request.type==='timeline')model.timelineVisible=request.visible;
   if(request.type==='dictionaryGet')return {ok:true,dictionary:{...dictionary}};
   if(request.type==='dictionarySave'){dictionary={...request.dictionary};return {ok:true};}
+  if(request.type==='pageStart')return {ok:true,reading:true};
+  if(request.type==='pageStop')return {ok:true,reading:false};
   if(request.type==='preview')return {ok:true,message:'試聴しています'};
   return {ok:true,...model};
  }}}});
@@ -55,4 +57,17 @@ test('engine and smoothing choices are saved and cannot switch during capture',a
 test('popup initializes controls even when Safari storage is unavailable',async()=>{
  const f=await fixture({storageFails:true});assert.equal(f.get('translate-label').textContent,'翻訳開始');
  assert.ok(f.calls.some(x=>x.type==='playbackGet'));await f.get('translate').onclick();assert.equal(f.get('translate-label').textContent,'翻訳停止');
+});
+
+test('page mode sends the chosen translation option and exposes a stop control',async()=>{
+ const f=await fixture(),g=f.get;
+ g('page-tab').onclick();await new Promise(resolve=>setImmediate(resolve));
+ assert.equal(g('page-panel').hidden,false);
+ assert.equal(g('video-panel').hidden,true);
+ g('page-mode').value='translate';
+ await g('page-read').onclick();
+ assert.equal(f.calls.find(x=>x.type==='pageStart').mode,'translate');
+ assert.equal(g('page-read-label').textContent,'読み上げ停止');
+ await g('page-read').onclick();
+ assert.equal(g('page-read-label').textContent,'読み上げ開始');
 });

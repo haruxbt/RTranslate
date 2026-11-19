@@ -8,7 +8,7 @@ final class SafariWebExtensionHandler: NSObject, NSExtensionRequestHandling {
         guard let item = context.inputItems.first as? NSExtensionItem,
               let message = item.userInfo?[SFExtensionMessageKey] as? [String: Any],
               let command = message["command"] as? String,
-              ["start", "stop", "status", "timeline", "timelineForPage", "pcm", "heartbeat", "voice", "settings", "preview", "dictionaryGet", "dictionarySave", "assetsStatus", "assetsPrepare", "openSettings", "playbackGet", "playbackSave", "uninstallReview", "uninstall"].contains(command),
+              ["start", "stop", "pageStart", "pageStop", "pageStatus", "status", "timeline", "timelineForPage", "pcm", "heartbeat", "voice", "settings", "preview", "dictionaryGet", "dictionarySave", "assetsStatus", "assetsPrepare", "openSettings", "playbackGet", "playbackSave", "uninstallReview", "uninstall"].contains(command),
               let body = try? JSONSerialization.data(withJSONObject: message), body.count <= 64_000 else {
             respond(["ok": false, "error": "未対応の操作です。"], to: context); return
         }
@@ -17,7 +17,7 @@ final class SafariWebExtensionHandler: NSObject, NSExtensionRequestHandling {
                 let result = try await send(body)
                 respond(result, to: context)
             } catch {
-                if command == "start" || command == "preview" || command == "dictionaryGet" || command == "assetsStatus" || command == "openSettings" || command == "playbackGet" {
+                if command == "start" || command == "pageStart" || command == "preview" || command == "dictionaryGet" || command == "assetsStatus" || command == "openSettings" || command == "playbackGet" {
                     // User initiated start: open the containing app without a new UI window.
                     let app = Bundle.main.bundleURL.deletingLastPathComponent().deletingLastPathComponent().deletingLastPathComponent()
                     let configuration = NSWorkspace.OpenConfiguration(); configuration.activates = false; configuration.arguments = ["--extension-service"]

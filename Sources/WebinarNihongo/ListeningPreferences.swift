@@ -20,7 +20,38 @@ final class ListeningPreferences: ObservableObject {
         didSet { UserDefaults.standard.set(displayTerms, forKey: "displayTerms") }
     }
     func displayed(_ text: String) -> String { PronunciationText.displayed(text, terms: ListeningText.terms(displayTerms)) }
-    func spoken(_ text: String) -> String { PronunciationText.replacing(text, terms: ListeningText.terms(readings)) }
+    private struct CommonEntry: Decodable { let word: String; let reading: String }
+    private struct CommonFile: Decodable { let entries: [CommonEntry] }
+    private lazy var commonReadings: [GlossaryTerm] = {
+        guard let url = Bundle.main.url(forResource: "rspeech-common-ja", withExtension: "json"),
+              let data = try? Data(contentsOf: url),
+              let file = try? JSONDecoder().decode(CommonFile.self, from: data) else { return [] }
+        return file.entries.map { GlossaryTerm(source: $0.word, target: $0.reading) }
+    }()
+    private var readingKey: [String] = []
+    private var userMatcher = PronunciationText.Matcher([])
+    private var pageMatcher: PronunciationText.Matcher?
+
+    func spoken(_ text: String, includeCommon: Bool = false) -> String {
+        let key = [readings, glossary]
+        if key != readingKey {
+            readingKey = key
+            userMatcher = PronunciationText.Matcher(pronunciationTerms)
+            pageMatcher = nil
+        }
+        guard includeCommon else { return userMatcher.replacing(text) }
+        if pageMatcher == nil { pageMatcher = PronunciationText.Matcher(commonReadings + pronunciationTerms) }
+        return pageMatcher?.replacing(text) ?? text
+    }
+
+    private var pronunciationTerms: [GlossaryTerm] {
+        let direct = ListeningText.terms(readings)
+        let byWord = Dictionary(direct.map { ($0.source.lowercased(), $0.target) }, uniquingKeysWith: { _, last in last })
+        let aliases = terms.compactMap { term in
+            byWord[term.source.lowercased()].map { GlossaryTerm(source: term.target, target: $0) }
+        }
+        return aliases + direct
+    }
     var terms: [GlossaryTerm] { Array(ListeningText.terms(glossary).prefix(100)) }
     var recognitionTerms: [String] { terms.map(\.source) + ["SOC", "Security Operations Center", "SIEM", "SOAR", "EDR", "XDR", "MDR"] }
     var parsedCorrections: [GlossaryTerm] { Array(ListeningText.terms(corrections).prefix(100)) }

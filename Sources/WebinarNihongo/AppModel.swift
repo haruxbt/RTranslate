@@ -11,6 +11,7 @@ import CoreImage
 final class AppModel: ObservableObject {
     private var lastStopReason: String?
     @Published var settingsPage: SettingsPage = .overview
+    @Published var dictionaryRequest: String?
     var safariRecentlyConnected: Bool { Date().timeIntervalSince(browserLastSeen) < 15 }
     @Published var status = "停止中：対象を選択してください"
     @Published var running = false
@@ -27,6 +28,10 @@ final class AppModel: ObservableObject {
     private var browserLastSeen = Date.distantPast
     private var uninstallSelection: [String: Bool]?
     private var uninstallToken: String?
+    @Published private(set) var pageReading = false
+    private var pageTask: Task<Void, Never>?
+    private var pageSession: UUID?
+    private var pageMessage = "読み上げを開始できます"
     private var browserSession: String?
     private var browserHistoryID: UUID?
     private var browserPageURL: String?
@@ -103,7 +108,7 @@ final class AppModel: ObservableObject {
         AppLifecycle.model = self
         updateObservation = updates.objectWillChange.sink { [weak self] _ in self?.objectWillChange.send() }
         updates.check()
-        voice.speechText = { [weak preferences = listening] text in preferences?.spoken(text) ?? text }
+        voice.speechText = { [weak self] text in self?.listening.spoken(text, includeCommon: self?.pageReading == true) ?? text }
         let worker = localWorker
         plamo.endpointProvider = { [weak worker] in worker?.endpoint }
         termination = NotificationCenter.default.publisher(for: NSApplication.willTerminateNotification).sink { [weak self] _ in
@@ -112,7 +117,11 @@ final class AppModel: ObservableObject {
         assets.onReady = { [weak self] in self?.loadPreparedAssets() }
         assets.prepare()
         voice.onBacklogLimit = { [weak self] in self?.stop(reason: "読み上げ待ちが120件を超えたため取得を停止。保存済みの訳は順に読み続けます。", finishVoice: true) }
-        voice.onFailure = { [weak self] message in self?.stop(reason: "読み上げエラー：\(message)。未読は履歴に残しています。") }
+        voice.onFailure = { [weak self] message in
+            guard let self else { return }
+            if self.pageReading { self.finishPage("ページの読み上げに失敗しました。\(message)") }
+            else { self.stop(reason: "読み上げエラー：\(message)。未読は履歴に残しています。") }
+        }
         if FileManager.default.fileExists(atPath: historyURL.path) {
             do {
                 let saved = try JSONDecoder().decode([TranscriptLine].self, from: Data(contentsOf: historyURL))
@@ -144,6 +153,7 @@ final class AppModel: ObservableObject {
             if self.historyTicks % 3600 == 0 { self.pruneHistory() }
             if self.historyTicks % 3 == 0 { self.persistHistory() }
             self.writeMeasurement("checkpoint", ["running": self.running, "busy": self.busy, "lines": self.lines.count, "translationQueue": self.pendingCount, "speechQueue": self.voice.waiting, "speechPrepared": self.voice.preparedCount, "speechPreparedBytes": self.voice.preparedBytes, "speechLag": self.voice.lag, "speechPaused": self.voice.pausedForLag, "thermal": ProcessInfo.processInfo.thermalState.rawValue, "audioRMS": self.audioLevel, "status": self.status, "backend": self.backend, "voiceEnabled": self.voice.enabled, "ocrEnabled": self.ocrEnabled])
+            if self.pageReading && !self.voice.enabled { self.finishPage("読み上げを停止しました。") }
             self.voice.updateLag()
             if self.running, self.browserAudio != nil, self.browserWatchdog.timedOut(at: ProcessInfo.processInfo.systemUptime) {
                 self.stop(reason: "タブからの音声転送が止まったため停止しました")
@@ -238,6 +248,7 @@ final class AppModel: ObservableObject {
         translationConfig = nil
     }
     func start() {
+        guard !pageReading else { status = "ページの読み上げを停止してから開始してください。"; return }
         guard !cropBusy else { status = "プレビュー取得の完了をお待ちください"; return }
         guard !running, !busy else { return }
         guard backend != "PLaMo" || localWorker.ready else { status = "設定でPLaMoモデルの準備を完了してください"; return }
@@ -291,6 +302,7 @@ final class AppModel: ObservableObject {
         }
     }
     func stop(reason: String = "操作による停止", finishVoice: Bool = false) {
+        if pageReading { finishPage("読み上げを停止しました。"); return }
         guard !busy || startTask != nil else { return }
         if !running && !busy && capture == nil && speech == nil && startTask == nil && translateTask == nil && slideTask == nil {
             if !finishVoice { voice.enabled = false }
@@ -366,14 +378,14 @@ final class AppModel: ObservableObject {
         if enqueue { pump() }
     }
     func translateTest() {
-        guard !running, !busy else { return }
+        guard !pageReading, !running, !busy else { return }
         sessionID = UUID(); beginTimelineSession()
         var test = ListeningAssembler()
         for unit in test.append(testText, audioEnd: nil, at: ProcessInfo.processInfo.systemUptime) { addUnit(unit) }
         for unit in test.flush(reason: "英文テスト") { addUnit(unit) }
     }
     func retryUntranslated() {
-        guard translateTask == nil else { return }
+        guard !pageReading, translateTask == nil else { return }
         pending = lines.filter { $0.japanese == nil && $0.skipTranslation != true }.map(\.id)
         pendingCount = pending.count; pump()
     }
@@ -488,10 +500,11 @@ final class AppModel: ObservableObject {
         }
     }
     func readAgain(_ line: TranscriptLine) {
-        guard let text = line.japanese else { return }
+        guard !pageReading, let text = line.japanese else { return }
         voice.enabled = true; voice.enqueue(id: line.id, text: text, manual: true)
     }
     func jumpLatest() {
+        guard !pageReading else { return }
         voice.halt(mark: "最新へ移動：未読・履歴に保存")
         if let line = lines.last(where: { $0.japanese != nil }) { readAgain(line) }
     }
@@ -565,21 +578,104 @@ final class AppModel: ObservableObject {
             SFSafariExtensionManager.getStateOfSafariExtension(withIdentifier: "local.webinarnihongo.app.safari") { state, _ in continuation.resume(returning: state?.isEnabled) }
         }
     }
+    private func finishPage(_ message: String) {
+        pageTask?.cancel()
+        pageTask = nil
+        pageReading = false
+        pageMessage = message
+        voice.enabled = false
+    }
+
+    private func pageReply(_ session: UUID) -> [String: Any] {
+        guard session == pageSession else { return ["ok": true, "reading": false] }
+        return ["ok": true, "reading": pageReading, "message": pageMessage]
+    }
+
+    private func handlePageRequest(_ command: String, _ request: [String: Any]) throws -> [String: Any] {
+        guard let raw = request["session"] as? String, let session = UUID(uuidString: raw) else {
+            throw AppError.message("対象のページを確認してください。")
+        }
+        if command == "pageStatus" { return pageReply(session) }
+        if command == "pageStop" {
+            if session == pageSession, pageReading { finishPage("読み上げを停止しました。") }
+            return pageReply(session)
+        }
+        guard !pageReading, !running, !busy, translateTask == nil, pending.isEmpty, !voice.reading else {
+            throw AppError.message("翻訳と読み上げを停止してから開始してください。")
+        }
+        guard let text = request["text"] as? String, text.utf8.count <= 48_000,
+              let mode = request["mode"] as? String, ["original", "translate"].contains(mode) else {
+            throw AppError.message("読み上げる本文と読み方を確認してください。")
+        }
+        let translate = mode == "translate"
+        let chunks = PageReading.chunks(text, separateLanguages: translate)
+        guard !chunks.isEmpty else { throw AppError.message("読み上げる本文が見つかりません。") }
+        guard !translate || localWorker.ready else { throw AppError.message("PLaMoを準備中です。設定のモデル管理をご確認ください。") }
+        guard voice.engine != "VOICEVOX" || voice.voicevox.ready else { throw AppError.message("VOICEVOXを準備中です。設定のモデル管理をご確認ください。") }
+
+        browserSession = nil // Ignore late video control messages during page reading.
+        pageSession = session
+        pageReading = true
+        pageMessage = translate ? "本文を翻訳しています…" : "読み上げを準備しています…"
+        voice.enabled = true
+        let pageTranslator = PlamoTranslator()
+        pageTranslator.endpointProvider = plamo.endpointProvider
+        pageTask = Task { [weak self] in
+            guard let self else { return }
+            do {
+                var context = ""
+                for chunk in chunks {
+                    while self.voice.waiting >= 4 { try await Task.sleep(for: .milliseconds(150)) }
+                    try Task.checkCancellation()
+                    let spoken: String
+                    if translate && PageReading.needsEnglishTranslation(chunk) {
+                        pageTranslator.glossary = self.listening.activeTerms(for: chunk + " " + context)
+                        let japanese = try await pageTranslator.translate(chunk, context: context)
+                        guard !PageReading.containsUntranslatedProse(japanese) else {
+                            throw AppError.message("日本語に訳せなかった英文があるため停止しました。")
+                        }
+                        spoken = self.listening.displayed(japanese)
+                    } else {
+                        spoken = chunk
+                    }
+                    try Task.checkCancellation()
+                    context = String(chunk.suffix(420))
+                    for fragment in PageReading.chunks(spoken) {
+                        while self.voice.waiting >= 4 { try await Task.sleep(for: .milliseconds(150)) }
+                        try Task.checkCancellation()
+                        self.voice.enqueue(id: UUID(), text: fragment)
+                    }
+                    self.pageMessage = "ページを読み上げています"
+                }
+                while self.voice.reading || self.voice.waiting > 0 { try await Task.sleep(for: .milliseconds(150)) }
+                try Task.checkCancellation()
+                self.finishPage("最後まで読み上げました。")
+            } catch {
+                if !Task.isCancelled { self.finishPage("読み上げを停止しました。\(error.localizedDescription)") }
+            }
+        }
+        return pageReply(session)
+    }
+
     private func extensionRequest(_ request: [String: Any]) async -> [String: Any] {
         do {
             guard let command = request["command"] as? String else { throw AppError.message("操作が不明です") }
             if request["client"] as? String == "safari-extension" { browserLastSeen = Date() }
+            if ["pageStart", "pageStop", "pageStatus"].contains(command) { return try handlePageRequest(command, request) }
             if command == "playbackGet" { return ["ok": true, "settings": playbackSettings()] }
             if command == "playbackSave" {
                 guard let values = request["settings"] as? [String: Any] else { throw AppError.message("設定を確認してください。") }
                 let changesEngine = (values["backend"] as? String ?? backend) != backend || (values["speechEngine"] as? String ?? voice.engine) != voice.engine
-                guard !changesEngine || (!running && !busy && pendingCount == 0) else { throw AppError.message("翻訳方式・音声方式を変える場合は翻訳を停止してください。") }
+                guard !changesEngine || (!pageReading && !running && !busy && pendingCount == 0) else { throw AppError.message("翻訳方式・音声方式を変える場合は翻訳を停止してください。") }
                 applyBrowserSettings(values)
                 return ["ok": true, "settings": playbackSettings()]
             }
             if command == "openSettings" {
                 guard let raw = request["page"] as? String, let page = SettingsPage(rawValue: raw) else { throw AppError.message("設定項目を確認してください。") }
                 settingsPage = page
+                if page == .dictionary, let word = request["word"] as? String, word.count <= 64 {
+                    dictionaryRequest = word
+                }
                 NotificationCenter.default.post(name: .rTranslateOpenSettings, object: nil)
                 return ["ok": true]
             }
@@ -589,11 +685,11 @@ final class AppModel: ObservableObject {
                 return ["ok": true, "ready": available, "diskReady": assets.ready, "message": assets.ready ? (available ? "利用可能（このMacの共通モデル）" : loading ? "モデルを読み込み中…" : "設定のモデルから再確認して読み込んでください。") : assets.message]
             }
             if command == "assetsPrepare" {
-                guard !running, !busy, pendingCount == 0, !voice.reading else { throw AppError.message("翻訳と読み上げを停止してから準備してください。") }
+                guard !pageReading, !running, !busy, pendingCount == 0, !voice.reading else { throw AppError.message("翻訳と読み上げを停止してから準備してください。") }
                 assets.prepare(); return ["ok": true]
             }
             if command == "uninstallReview" || command == "uninstall" {
-                guard !running, !busy else { throw AppError.message("翻訳を停止してから削除してください。") }
+                guard !pageReading, !running, !busy else { throw AppError.message("翻訳と読み上げを停止してから削除してください。") }
                 guard let selection = request["selection"] as? [String: Bool] else { throw AppError.message("削除内容を確認してください。") }
                 let enabled = await safariExtensionEnabled()
                 if request["managementOrigin"] as? String == "app", selection["models"] == true || selection["app"] == true {
@@ -648,7 +744,7 @@ final class AppModel: ObservableObject {
                 return ["ok": true]
             }
             if command == "preview" {
-                guard !voice.reading else { throw AppError.message("読み上げ中です。読み上げをOFFにしてから試聴してください。") }
+                guard !pageReading, !voice.reading else { throw AppError.message("読み上げ中です。読み上げをOFFにしてから試聴してください。") }
                 applyBrowserSettings(request["settings"] as? [String: Any] ?? [:])
                 if !voice.voicevox.ready, !voice.voicevox.state.contains("読み込み中"),
                    let root = BundledModels.resolve("voicevox", marker: "models/vvms", savedKey: "voicevoxRoot", overrideKey: "voicevoxExternalModel") { voice.voicevox.load(root: root) }
@@ -672,7 +768,7 @@ final class AppModel: ObservableObject {
             }
             if command == "start" {
                 guard assets.ready else { throw AppError.message("設定 → モデル管理で準備状況を確認してください。" ) }
-                guard !running, !busy else { throw AppError.message("既に翻訳中です。停止してから開始してください。") }
+                guard !pageReading, !running, !busy else { throw AppError.message("翻訳と読み上げを停止してから開始してください。") }
                 guard let key = request["session"] as? String, UUID(uuidString: key) != nil,
                       let raw = request["url"] as? String, raw.count <= 8000, let url = URL(string: raw),
                       ["http", "https"].contains(url.scheme?.lowercased() ?? "") else { throw AppError.message("対象タブを確認してください") }
@@ -782,7 +878,7 @@ final class AppModel: ObservableObject {
         ["volume": Int((voice.volume * 100).rounded()), "speed": voice.speed, "speaker": voice.speakerID, "autoSpeed": voice.autoSpeed, "backend": backend, "speechEngine": voice.engine, "smooth": listening.smooth]
     }
     private func applyBrowserSettings(_ values: [String: Any]) {
-        if !running && !busy && pendingCount == 0 {
+        if !pageReading && !running && !busy && pendingCount == 0 {
             if let selected = values["backend"] as? String, ["PLaMo", "Apple"].contains(selected) { backend = selected }
             if let selected = values["speechEngine"] as? String, ["VOICEVOX", "Apple"].contains(selected) { voice.engine = selected }
         }

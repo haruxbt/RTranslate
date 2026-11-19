@@ -6,7 +6,7 @@ Safariで再生する英語ウェビナーを、日本語字幕と日本語音�
 
 Apple Silicon（Mシリーズ）・macOS 26以降が対象です。
 
-1. [インストーラ RTranslate-v0.3.10-macOS-arm64.pkg](https://github.com/haruxbt/RTranslate/releases/download/v0.3.10/RTranslate-v0.3.10-macOS-arm64.pkg) をダウンロードします。その他の版は[Releases](https://github.com/haruxbt/RTranslate/releases)で確認できます。
+1. [インストーラ RTranslate-v0.4.0-macOS-arm64.pkg](https://github.com/haruxbt/RTranslate/releases/download/v0.4.0/RTranslate-v0.4.0-macOS-arm64.pkg) をダウンロードします。その他の版は[Releases](https://github.com/haruxbt/RTranslate/releases)で確認できます。
 
    <strong>注：個人開発版（未公証・仮署名）のため、初回はmacOSでこのインストーラを個別に許可する操作と、Safariの開発版拡張の許可が必要です。[スクリーンショット付きインストール手順](docs/INSTALL.md)を参照してください。</strong>
 
@@ -18,6 +18,12 @@ Apple Silicon（Mシリーズ）・macOS 26以降が対象です。
 更新通知後も完成済みのPKGで更新します。ワンクリック自動更新は未実装です。モデル・履歴・設定は引き継ぎます。起動中のR翻訳へはインストーラが通常終了を要求し、終了できなければ更新を中止します。[アップデートの手順](docs/INSTALL.md#アップデートするとき)も確認してください。
 
 旧名「Webinar Nihongo」からの更新では、同じアプリと確認できた旧版だけを復旧用に退避します。モデル・履歴・設定の保存場所は変わりません。
+
+## ページの読み上げ（v0.4.0）
+
+Safari拡張の「ページ」タブで「表示中の本文を読む」か「日本語に訳して読む」を選びます。後者は英文をPLaMoで段落・文ごとに翻訳し、準備できたところから順に読み上げます。ページは書き換えず、内容はローカル処理して履歴に保存しません。本文を選択するとその位置から読み始めます。入力は約48 KBまでで、本文を取得できないページや埋め込み文書もあります。
+
+辞書は「原語・訳語・読み方」を一行に表示します。ページ読み上げはRSpeechの共通読み辞書を参照し、R翻訳に登録した読みを優先します。RSpeechの個人辞書は自動移行しません。
 
 ## v0.3.10の容量削減
 

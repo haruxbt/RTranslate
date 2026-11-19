@@ -1,0 +1,9209 @@
+{
+  "schemaVersion": 1,
+  "version": "2026.11.18.2",
+  "description": "IT・プログラミング・AI開発・セキュリティの読み。読みは編集方針による日本語表記、アクセント0は平板の初期値。個人辞書が優先。",
+  "sources": [
+    {
+      "id": "security",
+      "title": "SoftBank セキュリティ用語解説",
+      "url": "https://www.softbank.jp/biz/content/security-glossary/",
+      "status": "ok"
+    },
+    {
+      "id": "zerotrust",
+      "title": "JPNIC ゼロトラスト",
+      "url": "https://www.nic.ad.jp/ja/basics/terms/zerotrust.html",
+      "status": "ok"
+    },
+    {
+      "id": "bedrock",
+      "title": "Amazon Bedrock 主要な用語",
+      "url": "https://docs.aws.amazon.com/ja_jp/bedrock/latest/userguide/key-definitions.html",
+      "status": "ok"
+    },
+    {
+      "id": "kubernetes",
+      "title": "Kubernetes 概要",
+      "url": "https://kubernetes.io/ja/docs/concepts/overview/",
+      "status": "ok"
+    },
+    {
+      "id": "mcp",
+      "title": "Model Context Protocol Introduction",
+      "url": "https://modelcontextprotocol.io/docs/getting-started/intro",
+      "status": "ok"
+    },
+    {
+      "id": "agents",
+      "title": "Ubie クラウドエージェント基盤",
+      "url": "https://zenn.dev/ubie_dev/articles/45501469c9c044",
+      "status": "ok"
+    },
+    {
+      "id": "http",
+      "title": "MDN HTTP request methods",
+      "url": "https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Methods",
+      "status": "ok"
+    },
+    {
+      "id": "javascript",
+      "title": "MDN JavaScript reference",
+      "url": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference",
+      "status": "ok"
+    }
+  ],
+  "entries": [
+    {
+      "id": "ce133646-2ac6-5df5-a518-4bf671b3c8ab",
+      "word": "Intent",
+      "reading": "インテント",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "f627634b-6438-5be2-ae99-e0aa7f86c521",
+      "word": "Planner",
+      "reading": "プランナー",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "6a51f1e4-0c4f-5e28-a01a-acf5b612b36e",
+      "word": "Write",
+      "reading": "ライト",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "agents",
+        "javascript"
+      ]
+    },
+    {
+      "id": "29d580d0-b663-5951-a3a3-b5bdc2a16d45",
+      "word": "Read",
+      "reading": "リード",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "agents"
+      ]
+    },
+    {
+      "id": "c2302ba6-9e3c-5854-b81f-9269749aec59",
+      "word": "Put",
+      "reading": "プット",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "http"
+      ]
+    },
+    {
+      "id": "377ba4fc-d335-5213-9fb7-a62cca07a19d",
+      "word": "Get",
+      "reading": "ゲット",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "mcp",
+        "http",
+        "javascript"
+      ]
+    },
+    {
+      "id": "341e51bb-c3dc-5d2f-b9e8-f61de2df50c5",
+      "word": "Post",
+      "reading": "ポスト",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "http"
+      ]
+    },
+    {
+      "id": "f5b251a4-3666-5987-9dc5-1ea2794d6517",
+      "word": "Head",
+      "reading": "ヘッド",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "http"
+      ]
+    },
+    {
+      "id": "930db45a-8168-5eaa-b3a6-09d37732c6c2",
+      "word": "Delete",
+      "reading": "デリート",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "http",
+        "javascript"
+      ]
+    },
+    {
+      "id": "5608eb79-fa97-5f05-8257-c363971ef0e0",
+      "word": "Patch",
+      "reading": "パッチ",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "http"
+      ]
+    },
+    {
+      "id": "47e83d71-43fe-512f-81b1-9e3b152b93f4",
+      "word": "Options",
+      "reading": "オプションズ",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "mcp",
+        "http"
+      ]
+    },
+    {
+      "id": "52025310-02f7-56a9-ace9-8b540598fdff",
+      "word": "Connect",
+      "reading": "コネクト",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "mcp",
+        "http"
+      ]
+    },
+    {
+      "id": "bcf993bc-a2a7-598e-a73e-0824d4666a17",
+      "word": "Trace",
+      "reading": "トレース",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "http"
+      ]
+    },
+    {
+      "id": "f31f4ff2-2053-532a-abc7-27f4a035eea8",
+      "word": "Query",
+      "reading": "クエリ",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "http"
+      ]
+    },
+    {
+      "id": "5fab92b9-fe2e-5a2b-9584-998ec8ae4651",
+      "word": "Fetch",
+      "reading": "フェッチ",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "mcp"
+      ]
+    },
+    {
+      "id": "2b01c0eb-92f6-501c-934b-6db2de0dbc7e",
+      "word": "Parse",
+      "reading": "パース",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "3bd7388b-7d6a-501e-aad9-759f2a1913db",
+      "word": "Render",
+      "reading": "レンダー",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "2a56ca7c-51bc-50b5-957a-77c64c991d97",
+      "word": "Resolve",
+      "reading": "リゾルブ",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "b74f86a4-8eb2-5017-89d4-40bac21add9d",
+      "word": "Reject",
+      "reading": "リジェクト",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "521e5b19-aff8-519c-aaa0-b70936fff076",
+      "word": "Return",
+      "reading": "リターン",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "mcp",
+        "javascript"
+      ]
+    },
+    {
+      "id": "08527cf3-e676-5df4-9eef-b1f0e77a04cb",
+      "word": "Input",
+      "reading": "インプット",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "javascript"
+      ]
+    },
+    {
+      "id": "75abbccc-32d2-5aee-b5d7-660a680de44e",
+      "word": "Output",
+      "reading": "アウトプット",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "9c9105f8-2556-5555-b293-13019699a832",
+      "word": "Request",
+      "reading": "リクエスト",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "agents",
+        "http"
+      ]
+    },
+    {
+      "id": "9574bc58-697c-56b9-9e9c-7677b58858f3",
+      "word": "Response",
+      "reading": "レスポンス",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "http"
+      ]
+    },
+    {
+      "id": "6827f8ca-0029-5feb-ac3d-7b962709194d",
+      "word": "Header",
+      "reading": "ヘッダー",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "mcp",
+        "http"
+      ]
+    },
+    {
+      "id": "2094006c-5de6-5051-a217-99e28deb3da6",
+      "word": "Body",
+      "reading": "ボディー",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "mcp",
+        "http"
+      ]
+    },
+    {
+      "id": "32e52b88-b587-5a1a-88b8-e88cd94aa124",
+      "word": "Method",
+      "reading": "メソッド",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "http",
+        "javascript"
+      ]
+    },
+    {
+      "id": "6c2812c7-d0b5-5a37-b58c-183e2a3a5f92",
+      "word": "Function",
+      "reading": "ファンクション",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "mcp",
+        "javascript"
+      ]
+    },
+    {
+      "id": "1dfa561f-2eea-5f2f-9b40-63a6bceafc22",
+      "word": "Class",
+      "reading": "クラス",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "javascript"
+      ]
+    },
+    {
+      "id": "86857e06-4890-5e9f-a188-2d231e80d256",
+      "word": "Object",
+      "reading": "オブジェクト",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "mcp",
+        "javascript"
+      ]
+    },
+    {
+      "id": "60599fbb-11ca-514b-b1e4-8222692a2c5a",
+      "word": "Instance",
+      "reading": "インスタンス",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "32c35f54-bfd2-56af-aab3-9a04429ce5bf",
+      "word": "Interface",
+      "reading": "インターフェース",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "c18c0b8e-59f7-5aad-8cb7-0d51e2fcd960",
+      "word": "Protocol",
+      "reading": "プロトコル",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "mcp"
+      ]
+    },
+    {
+      "id": "02fc7e78-31ba-5c38-926f-e213cad56fce",
+      "word": "Property",
+      "reading": "プロパティー",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "mcp",
+        "javascript"
+      ]
+    },
+    {
+      "id": "91b51c0c-4e3c-5b21-9d2b-1cc90362c1a1",
+      "word": "Attribute",
+      "reading": "アトリビュート",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "94c9a003-bf4c-5b75-b85c-376c422c8a5f",
+      "word": "Variable",
+      "reading": "バリアブル",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "bc794bc9-8725-5510-8c40-922d9ca9802a",
+      "word": "Constant",
+      "reading": "コンスタント",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "43d85dab-0e30-594e-98a3-ce0c81997671",
+      "word": "Parameter",
+      "reading": "パラメーター",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "60da6b2c-a7dc-532c-94fa-fb5743cd3221",
+      "word": "Argument",
+      "reading": "アーギュメント",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "e0256d7b-0b12-502f-bc1f-199388f965c8",
+      "word": "Value",
+      "reading": "バリュー",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "javascript"
+      ]
+    },
+    {
+      "id": "4c441b00-c25f-5356-8b74-90969973526f",
+      "word": "Type",
+      "reading": "タイプ",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "mcp"
+      ]
+    },
+    {
+      "id": "9a617cfe-404e-56d5-b8d9-06516d9f096e",
+      "word": "String",
+      "reading": "ストリング",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "mcp",
+        "javascript"
+      ]
+    },
+    {
+      "id": "8cdcd05e-4cb3-5bb2-ae0d-edca0268c652",
+      "word": "Number",
+      "reading": "ナンバー",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "javascript"
+      ]
+    },
+    {
+      "id": "4520868a-5ee6-5da3-8fab-f355b4a77394",
+      "word": "Integer",
+      "reading": "インテジャー",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "7b88eb25-306d-5ed3-a218-964388e7d592",
+      "word": "Float",
+      "reading": "フロート",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "214f54b6-41a3-5091-9d90-b4e7bbcf8d79",
+      "word": "Double",
+      "reading": "ダブル",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "8ae262d4-a94e-519d-947c-0e10c322cfcd",
+      "word": "Boolean",
+      "reading": "ブーリアン",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "javascript"
+      ]
+    },
+    {
+      "id": "af45e863-914d-5bb2-b58d-106924bf5e3e",
+      "word": "Array",
+      "reading": "アレー",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "javascript"
+      ]
+    },
+    {
+      "id": "5e6cb9f4-eab9-55f9-9512-2e92776274f7",
+      "word": "List",
+      "reading": "リスト",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "mcp"
+      ]
+    },
+    {
+      "id": "c35a0a02-bb6c-5df2-82f3-a7b075480e23",
+      "word": "Map",
+      "reading": "マップ",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "javascript"
+      ]
+    },
+    {
+      "id": "28c8739b-cdcb-5b44-b1b3-af429e58beae",
+      "word": "Set",
+      "reading": "セット",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "http",
+        "javascript"
+      ]
+    },
+    {
+      "id": "5778315e-0b93-5530-8f26-323be19722db",
+      "word": "Tuple",
+      "reading": "タプル",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "d1e354e0-5f1a-5b77-a57a-0291ddd7cc90",
+      "word": "Dictionary",
+      "reading": "ディクショナリー",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "6bd52ef5-5bc8-5ad6-a939-a5b9c03ffa59",
+      "word": "Enum",
+      "reading": "イーナム",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "35df448b-21c7-530d-8644-0e5ef66b05a7",
+      "word": "Struct",
+      "reading": "ストラクト",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "c4434c76-773c-5baa-bfcd-3f01872978fc",
+      "word": "Union",
+      "reading": "ユニオン",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "4e9ac3d3-ca80-567f-a642-3f9ced8e10b3",
+      "word": "Null",
+      "reading": "ヌル",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "mcp"
+      ]
+    },
+    {
+      "id": "248e2196-0960-53de-bab2-853a456563b7",
+      "word": "Undefined",
+      "reading": "アンディファインド",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "javascript"
+      ]
+    },
+    {
+      "id": "b0305350-f66c-52d1-8154-421631d17699",
+      "word": "True",
+      "reading": "トゥルー",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "mcp"
+      ]
+    },
+    {
+      "id": "948cc3af-f2ed-523e-9040-3cc3dc374e34",
+      "word": "False",
+      "reading": "フォルス",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "mcp"
+      ]
+    },
+    {
+      "id": "15300f5b-8f4f-5b03-85e6-4979803ef686",
+      "word": "None",
+      "reading": "ナン",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "mcp"
+      ]
+    },
+    {
+      "id": "c0e846e1-8a8d-57af-8f07-822965ded1ac",
+      "word": "Void",
+      "reading": "ボイド",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "javascript"
+      ]
+    },
+    {
+      "id": "671458e6-33e5-54e2-8532-2c21c0779078",
+      "word": "Optional",
+      "reading": "オプショナル",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "db58a08b-d4b0-535c-b065-b124736bd371",
+      "word": "Result",
+      "reading": "リザルト",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "http"
+      ]
+    },
+    {
+      "id": "7b0d2fd6-e10d-5032-add1-dcd109a40bb8",
+      "word": "Error",
+      "reading": "エラー",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "mcp",
+        "javascript"
+      ]
+    },
+    {
+      "id": "08db9e54-2c3b-56fe-8dd2-ad8ca59de8d5",
+      "word": "Exception",
+      "reading": "エクセプション",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "0126f49b-0ef8-5b3a-8772-47ab63950729",
+      "word": "Throw",
+      "reading": "スロー",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "mcp",
+        "javascript"
+      ]
+    },
+    {
+      "id": "7b78401a-86a4-59be-b62e-4cf7a4901645",
+      "word": "Catch",
+      "reading": "キャッチ",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "mcp"
+      ]
+    },
+    {
+      "id": "a1e91b89-87cf-5d60-b1b2-0fcd9d8757ed",
+      "word": "Try",
+      "reading": "トライ",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "mcp"
+      ]
+    },
+    {
+      "id": "b5c131f5-c488-56b6-a076-af449354110f",
+      "word": "Finally",
+      "reading": "ファイナリー",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "7608b97e-a2d2-596a-aca3-54b3c40f2818",
+      "word": "Async",
+      "reading": "アシンク",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "javascript"
+      ]
+    },
+    {
+      "id": "4217f4c9-eab3-5580-b92b-e1898ee9a9e4",
+      "word": "Await",
+      "reading": "アウェイト",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "javascript"
+      ]
+    },
+    {
+      "id": "73e09b9d-bbda-5c46-a5e6-25d8d56e2bfe",
+      "word": "Promise",
+      "reading": "プロミス",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "javascript"
+      ]
+    },
+    {
+      "id": "e872b552-924c-5bbc-ade2-35cdd549e106",
+      "word": "Future",
+      "reading": "フューチャー",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "a797d0b7-be28-54da-a2b7-1f1403758e05",
+      "word": "Callback",
+      "reading": "コールバック",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "3e53f361-e95f-56ca-a96a-9828851031ed",
+      "word": "Closure",
+      "reading": "クロージャー",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "1c6985e7-bdaf-52db-b5c7-952dd02da281",
+      "word": "Lambda",
+      "reading": "ラムダ",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "42c36857-9317-56c7-ae05-03716a53bd8e",
+      "word": "Delegate",
+      "reading": "デリゲート",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "30058983-a194-5c24-8111-284ae7650a0d",
+      "word": "Observer",
+      "reading": "オブザーバー",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "e7d0175d-9a0f-54be-bfb0-f9bfa2d22b7d",
+      "word": "Observable",
+      "reading": "オブザーバブル",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "14eb9c08-088a-5c45-ad20-1107a4fd3939",
+      "word": "Event",
+      "reading": "イベント",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "b4a9f8fe-056f-5c8e-860a-c85a43868638",
+      "word": "Listener",
+      "reading": "リスナー",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "47760f14-a9ab-514e-93d8-bc121a10e760",
+      "word": "Handler",
+      "reading": "ハンドラー",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "fe3799e0-81f4-5c14-9502-f85aeb6e1a1a",
+      "word": "Dispatch",
+      "reading": "ディスパッチ",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "37bc8c44-884c-5c0a-8416-659e3cc75863",
+      "word": "Queue",
+      "reading": "キュー",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "5d600547-8107-5b9f-87b1-4d1b8eeda6ff",
+      "word": "Stack",
+      "reading": "スタック",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "kubernetes"
+      ]
+    },
+    {
+      "id": "af344aef-6ba5-52b0-8bdc-8cbb4ca3be0c",
+      "word": "Heap",
+      "reading": "ヒープ",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "3023f6e3-2550-57a8-8146-457b303bd38c",
+      "word": "Buffer",
+      "reading": "バッファー",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "01914034-93e8-5176-a749-a821c86ac2c7",
+      "word": "Stream",
+      "reading": "ストリーム",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "e1b4be3a-588a-5555-9a71-f2af736959d8",
+      "word": "Socket",
+      "reading": "ソケット",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "263e84c3-371d-55d5-8664-7bd77bcfcaad",
+      "word": "Thread",
+      "reading": "スレッド",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "6ea582ce-b681-5d13-a321-3b74783b200e",
+      "word": "Process",
+      "reading": "プロセス",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "http"
+      ]
+    },
+    {
+      "id": "77ead8dd-4110-52f8-9966-9a1f2d662b6f",
+      "word": "Task",
+      "reading": "タスク",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "ff6ba77b-4386-5154-a13b-767c1261f164",
+      "word": "Worker",
+      "reading": "ワーカー",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "agents"
+      ]
+    },
+    {
+      "id": "0d3932fc-7335-5eec-ba75-e24d7322cf41",
+      "word": "Scheduler",
+      "reading": "スケジューラー",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "f5dc2d4b-931e-5c14-86db-8674d970b867",
+      "word": "Semaphore",
+      "reading": "セマフォ",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "3ceaa4ac-010c-51f0-a9f5-5606d0f7394a",
+      "word": "Mutex",
+      "reading": "ミューテックス",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "005509de-fdc2-5937-bb75-5b69a598829e",
+      "word": "Lock",
+      "reading": "ロック",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "mcp"
+      ]
+    },
+    {
+      "id": "5190a802-1c73-5232-8d6b-b1f51c54897c",
+      "word": "Deadlock",
+      "reading": "デッドロック",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "19204355-33f0-5f46-82c3-a57529bb9d68",
+      "word": "Race",
+      "reading": "レース",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "497130e5-372b-5b3b-9f81-3f8384d1f359",
+      "word": "Atomic",
+      "reading": "アトミック",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "504fd6f5-51e2-5193-abb2-b9ec3c9c6edb",
+      "word": "Concurrent",
+      "reading": "コンカレント",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "71638370-927c-5ba7-876a-9b9973fbddbc",
+      "word": "Parallel",
+      "reading": "パラレル",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "28a2fb8f-db9f-5f07-833a-c2fdb1c45030",
+      "word": "Cache",
+      "reading": "キャッシュ",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "0cd9bc05-3427-535b-8b5c-9bec930277e6",
+      "word": "Prefetch",
+      "reading": "プリフェッチ",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "3ff951d6-5c3c-5ef2-b293-e963a66df8ce",
+      "word": "Timeout",
+      "reading": "タイムアウト",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "85ed829b-4158-5364-a27a-2d1f3c6ebea0",
+      "word": "Retry",
+      "reading": "リトライ",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "91537b70-98a1-539a-8d7d-5e21701b4d97",
+      "word": "Cancel",
+      "reading": "キャンセル",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "889a5087-a04c-5c7d-8ea4-0ff429ae33d6",
+      "word": "Abort",
+      "reading": "アボート",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "bbf8be23-e695-5e8f-82e6-780a6f6bb9fa",
+      "word": "Start",
+      "reading": "スタート",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "mcp",
+        "javascript"
+      ]
+    },
+    {
+      "id": "ec3bc637-d81b-5e9b-b57d-59fd0c313b89",
+      "word": "Stop",
+      "reading": "ストップ",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "cb26b1fc-8a48-5d88-b495-733607621484",
+      "word": "Pause",
+      "reading": "ポーズ",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "01b1f07e-ef52-5eca-8c56-c0076b12c9bf",
+      "word": "Resume",
+      "reading": "レジューム",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "f1d44372-f419-5669-88ec-68fead84f0d3",
+      "word": "Play",
+      "reading": "プレイ",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "1c40d3e8-d834-54a9-8567-31d9a8dd92d1",
+      "word": "Load",
+      "reading": "ロード",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "bac7355d-7ce2-57cb-8ba4-5ea087160d3b",
+      "word": "Unload",
+      "reading": "アンロード",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "04f92be6-55fc-5799-87fe-09762b41f7f8",
+      "word": "Save",
+      "reading": "セーブ",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "14154a7b-5c2b-563f-9240-7b02d8ccaafa",
+      "word": "Open",
+      "reading": "オープン",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "kubernetes",
+        "mcp"
+      ]
+    },
+    {
+      "id": "6b309a9f-5eef-5612-ad37-b990cc0d7e79",
+      "word": "Close",
+      "reading": "クローズ",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "17877866-c7e6-5a5e-8100-e677b9187abe",
+      "word": "Create",
+      "reading": "クリエイト",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "mcp"
+      ]
+    },
+    {
+      "id": "283a633b-74bc-58f5-bdca-f179a9671b6f",
+      "word": "Update",
+      "reading": "アップデート",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "kubernetes"
+      ]
+    },
+    {
+      "id": "82aa2b41-18de-5751-a37d-c7e1bfc33599",
+      "word": "Insert",
+      "reading": "インサート",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "717cb5af-5412-56fa-afff-fb7b68f054a0",
+      "word": "Remove",
+      "reading": "リムーブ",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "mcp"
+      ]
+    },
+    {
+      "id": "a0755d30-c0bd-53f5-a034-86bbfc8ff3af",
+      "word": "Append",
+      "reading": "アペンド",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "0f561019-3b00-5c1d-919c-c2f69a3de057",
+      "word": "Push",
+      "reading": "プッシュ",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "86d09045-6e02-52cb-b6fa-d393c0d01cb7",
+      "word": "Pop",
+      "reading": "ポップ",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "9a6db27f-e5ea-52f2-b080-8dc050e52867",
+      "word": "Shift",
+      "reading": "シフト",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "javascript"
+      ]
+    },
+    {
+      "id": "1ef959fa-19ca-5a98-b7ab-4a533efe7755",
+      "word": "Unshift",
+      "reading": "アンシフト",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "0755025f-3760-50d3-bc1f-50deb8efceaf",
+      "word": "Slice",
+      "reading": "スライス",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "ad2edc6c-35b7-591f-9089-a98fb3737313",
+      "word": "Splice",
+      "reading": "スプライス",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "4a0176be-70ac-57fa-8442-41ce500baa72",
+      "word": "Split",
+      "reading": "スプリット",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "b8acb0bf-16a9-534d-8e43-c869a7d1a03c",
+      "word": "Join",
+      "reading": "ジョイン",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "bc72a223-caa2-5479-81e1-ed2101b796fb",
+      "word": "Sort",
+      "reading": "ソート",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "3b9ab9e6-c21b-55cb-bdcd-f5fc6676e63c",
+      "word": "Reverse",
+      "reading": "リバース",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "a9b094f3-c3bf-50fc-99bf-8a9871fc2744",
+      "word": "Filter",
+      "reading": "フィルター",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "5b52b51c-8846-5157-a6c5-c8cc409a6c9d",
+      "word": "Reduce",
+      "reading": "リデュース",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "d6b81dfb-7011-557d-bba8-e96c4fde60d7",
+      "word": "Find",
+      "reading": "ファインド",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "7b4ede58-1bdf-5eee-90ab-208db18a4f7b",
+      "word": "Search",
+      "reading": "サーチ",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "mcp",
+        "http",
+        "javascript"
+      ]
+    },
+    {
+      "id": "ea7d1ea7-15a0-581e-8d12-f36ffc914c68",
+      "word": "Match",
+      "reading": "マッチ",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "06cece79-6a60-51b8-ad56-a8d07059d017",
+      "word": "Replace",
+      "reading": "リプレイス",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "67e3fda7-622e-5e7a-8607-6907d9c8a618",
+      "word": "Include",
+      "reading": "インクルード",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "http"
+      ]
+    },
+    {
+      "id": "9ca811af-d00d-5421-b9df-2358b60fb3c4",
+      "word": "Import",
+      "reading": "インポート",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "mcp",
+        "javascript"
+      ]
+    },
+    {
+      "id": "798d8bae-4ce6-53c5-bedd-5364f44f4bd8",
+      "word": "Export",
+      "reading": "エクスポート",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "javascript"
+      ]
+    },
+    {
+      "id": "237cd190-e7a1-5d8a-908a-6c66a9516397",
+      "word": "Require",
+      "reading": "リクワイア",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "1be69d88-09b2-5adc-9c7b-f5729474940b",
+      "word": "Default",
+      "reading": "デフォルト",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "mcp",
+        "javascript"
+      ]
+    },
+    {
+      "id": "4cc78a4e-b948-56af-81d1-b101195a57b5",
+      "word": "Public",
+      "reading": "パブリック",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "javascript"
+      ]
+    },
+    {
+      "id": "529ffcbf-9075-5375-a1ab-606b87bafc56",
+      "word": "Private",
+      "reading": "プライベート",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "javascript"
+      ]
+    },
+    {
+      "id": "b99125a5-52d7-555a-8fe5-81713cff8590",
+      "word": "Protected",
+      "reading": "プロテクテッド",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "c6f25bcd-132b-53be-a45c-487135cc26ad",
+      "word": "Static",
+      "reading": "スタティック",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "javascript"
+      ]
+    },
+    {
+      "id": "6828d34c-081d-5321-9c47-ea778a0c02c4",
+      "word": "Final",
+      "reading": "ファイナル",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "mcp"
+      ]
+    },
+    {
+      "id": "fae710ee-7b78-5b95-bfff-1ac68e942c4c",
+      "word": "Abstract",
+      "reading": "アブストラクト",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "ec49eee9-a016-59f1-a5fa-cca7f025e18c",
+      "word": "Override",
+      "reading": "オーバーライド",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "355cf798-f08e-538f-a6a7-e1bae2c7e3e8",
+      "word": "Extend",
+      "reading": "エクステンド",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "6d2717f1-c563-5169-a373-fb4e79a7312b",
+      "word": "Implement",
+      "reading": "インプリメント",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "fbc16cb9-a9e2-51ab-a244-145948371232",
+      "word": "Inherit",
+      "reading": "インヘリット",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "mcp"
+      ]
+    },
+    {
+      "id": "f635793b-bae5-53a3-934d-e9c0d072fe62",
+      "word": "Initialize",
+      "reading": "イニシャライズ",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "96935e6d-0ef1-590e-a64b-9facdb2db31a",
+      "word": "Constructor",
+      "reading": "コンストラクター",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "javascript"
+      ]
+    },
+    {
+      "id": "bf2f047d-2eba-55b6-a45c-46ec26dabf88",
+      "word": "Destructor",
+      "reading": "デストラクター",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "a171396e-0f28-5db5-9638-1275d61c36ab",
+      "word": "Getter",
+      "reading": "ゲッター",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "javascript"
+      ]
+    },
+    {
+      "id": "eb5c3453-05f4-5e93-95ad-4e81b475b0f0",
+      "word": "Setter",
+      "reading": "セッター",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "javascript"
+      ]
+    },
+    {
+      "id": "129f3676-783d-5432-a560-c9df098d36e0",
+      "word": "Serialize",
+      "reading": "シリアライズ",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "2a16e92d-8c96-5272-99fb-b18066ce094f",
+      "word": "Deserialize",
+      "reading": "デシリアライズ",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "e04b8eb1-b98d-5fde-9aa6-c9fe668fff1c",
+      "word": "Encode",
+      "reading": "エンコード",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "01ae0928-6bef-5fd0-8637-b19aebe4eb1d",
+      "word": "Decode",
+      "reading": "デコード",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "cd3f8660-96b9-58ba-b9d3-56ac821cb8e4",
+      "word": "Validate",
+      "reading": "バリデート",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "7f81d6dc-7400-5726-b6f1-f8cc62232dbd",
+      "word": "Sanitize",
+      "reading": "サニタイズ",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "066f024b-30b7-51c2-a21d-2dc93f89e17a",
+      "word": "Escape",
+      "reading": "エスケープ",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "javascript"
+      ]
+    },
+    {
+      "id": "6834e299-6223-5fde-ab99-38431dae7343",
+      "word": "Format",
+      "reading": "フォーマット",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "mcp"
+      ]
+    },
+    {
+      "id": "5f272d2f-6587-56ef-b2d8-dd89978393e5",
+      "word": "Convert",
+      "reading": "コンバート",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "b81dd9c0-db67-5319-909b-dcb61dc64187",
+      "word": "Transform",
+      "reading": "トランスフォーム",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "76a2f048-c3f4-5b49-8c7a-867dc2a0beec",
+      "word": "Compile",
+      "reading": "コンパイル",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "4b9b8d19-951e-5bce-ad97-198757d6e3d2",
+      "word": "Build",
+      "reading": "ビルド",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "mcp",
+        "agents"
+      ]
+    },
+    {
+      "id": "58508e66-319d-576d-975a-7e82aa923055",
+      "word": "Run",
+      "reading": "ラン",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "mcp"
+      ]
+    },
+    {
+      "id": "8f3bedf5-ccd4-54ff-bbae-bdbbaa158c3f",
+      "word": "Execute",
+      "reading": "エグゼキュート",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "fa8a34ae-5357-598a-b341-15ec50229bcb",
+      "word": "Test",
+      "reading": "テスト",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "http"
+      ]
+    },
+    {
+      "id": "27167422-9b92-58e0-90a4-de8b2c508e20",
+      "word": "Mock",
+      "reading": "モック",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "ea546d65-5af5-5713-a8ba-6c88cdbc23c3",
+      "word": "Stub",
+      "reading": "スタブ",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "1a5f5b33-c939-55cd-8c5b-94edc1760e8e",
+      "word": "Fixture",
+      "reading": "フィクスチャー",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "0ea19789-1d28-5ec7-9a6f-a29cf39322e2",
+      "word": "Assert",
+      "reading": "アサート",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "32f8a41d-a728-533a-af50-7e93b77170ee",
+      "word": "Expect",
+      "reading": "エクスペクト",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "8a63571d-fb1b-53d0-bc6a-d0846276ead9",
+      "word": "Debug",
+      "reading": "デバッグ",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "b9d9540e-2f88-5243-bd07-ed3e8c43c8a8",
+      "word": "Log",
+      "reading": "ログ",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "1d9ae5fb-0289-5624-862e-a4cc3d039fb1",
+      "word": "Traceback",
+      "reading": "トレースバック",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "f42b6241-e437-565a-8dcc-985f168f9718",
+      "word": "Breakpoint",
+      "reading": "ブレークポイント",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "e6d0ad5e-7161-581b-820f-269c3014b14b",
+      "word": "Profile",
+      "reading": "プロファイル",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "1dfdda14-42c5-5a18-9b08-ab175e38b4d6",
+      "word": "Benchmark",
+      "reading": "ベンチマーク",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "e4752523-fc3d-5db9-9b85-629cea53f777",
+      "word": "Lint",
+      "reading": "リント",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "333de513-8897-5ecc-b049-0575f3ea5972",
+      "word": "Refactor",
+      "reading": "リファクター",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "2d44fd82-8ce4-5166-acd1-35c54ab9ac4c",
+      "word": "Commit",
+      "reading": "コミット",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "62c83c32-3987-5259-bf0e-b5ec30ab98e7",
+      "word": "Branch",
+      "reading": "ブランチ",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "d405bc6c-f501-5afe-9bb1-520cc9754078",
+      "word": "Merge",
+      "reading": "マージ",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "b47eb31f-e84f-580f-83ff-50276e622c96",
+      "word": "Rebase",
+      "reading": "リベース",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "ddcbd9b5-a5cb-5384-9473-bd45307d065b",
+      "word": "Cherry-pick",
+      "reading": "チェリーピック",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "39fda225-f48e-5421-931f-55ad3a1765f5",
+      "word": "Checkout",
+      "reading": "チェックアウト",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "0714e0c1-4a0f-5b90-ba89-1707ee76bb56",
+      "word": "Clone",
+      "reading": "クローン",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "88641222-a49b-5b92-9269-4efa132e262d",
+      "word": "Pull",
+      "reading": "プル",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "agents"
+      ]
+    },
+    {
+      "id": "2e85304a-aef6-5d29-a6a1-e2e6721698fb",
+      "word": "Diff",
+      "reading": "ディフ",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "0d36ace3-4867-5fc8-bbfc-bf5dbd48b2e2",
+      "word": "Stash",
+      "reading": "スタッシュ",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "0182c827-9d9d-5cec-8a78-8b46f5184c85",
+      "word": "Tag",
+      "reading": "タグ",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "mcp"
+      ]
+    },
+    {
+      "id": "fa7a2132-78e3-5403-ba5c-269869c52d29",
+      "word": "Release",
+      "reading": "リリース",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "e9d3fb54-6e8a-5ca0-9cef-da4eaa4641e9",
+      "word": "Deploy",
+      "reading": "デプロイ",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "32bd9abd-ed2c-50a4-b0d9-9eaeeb22de00",
+      "word": "Rollback",
+      "reading": "ロールバック",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "2a93ba19-e36e-5e43-96b5-ae0d72cc6f66",
+      "word": "Repository",
+      "reading": "リポジトリー",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "javascript"
+      ]
+    },
+    {
+      "id": "d45791fc-422f-51ab-acb7-9c86335501db",
+      "word": "Issue",
+      "reading": "イシュー",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "kubernetes"
+      ]
+    },
+    {
+      "id": "8ce5893f-76af-5702-baba-b2e3b94c5f7f",
+      "word": "Review",
+      "reading": "レビュー",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "1fad4a16-7876-551e-9cc5-28962de7edf2",
+      "word": "Workflow",
+      "reading": "ワークフロー",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "agents"
+      ]
+    },
+    {
+      "id": "0bd706eb-21ea-52ca-b9ff-d0d6c558ffd5",
+      "word": "Pipeline",
+      "reading": "パイプライン",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "4205b0bb-5286-5503-afb2-00216f73e9ba",
+      "word": "Artifact",
+      "reading": "アーティファクト",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "6f9fa171-adc3-5335-a5ec-da8bdd86c1a2",
+      "word": "Package",
+      "reading": "パッケージ",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "ef09f9cd-a1f6-5463-8e0b-4d1c18190903",
+      "word": "Module",
+      "reading": "モジュール",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "4210562e-f137-5184-b53f-ac6758bc08d6",
+      "word": "Library",
+      "reading": "ライブラリー",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "5aebae17-a645-500e-9d9a-761b2e326679",
+      "word": "Framework",
+      "reading": "フレームワーク",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "e282c11c-c057-55c8-9009-91b9171a459a",
+      "word": "Runtime",
+      "reading": "ランタイム",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "ea69af5f-1bfd-5622-b326-4dcea43a13d0",
+      "word": "Dependency",
+      "reading": "ディペンデンシー",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "1068d1a6-f6f3-5198-958e-ed6644bfcbcb",
+      "word": "Dependencies",
+      "reading": "ディペンデンシーズ",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "b44289e0-0ae9-5e9e-9f2f-c72083908d56",
+      "word": "Version",
+      "reading": "バージョン",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "bedrock",
+        "mcp"
+      ]
+    },
+    {
+      "id": "1893aa24-8d2c-5cdc-aad9-588bf6124594",
+      "word": "Config",
+      "reading": "コンフィグ",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "mcp"
+      ]
+    },
+    {
+      "id": "b48d806d-9e34-5692-83fd-3e945d61d5c9",
+      "word": "Configuration",
+      "reading": "コンフィギュレーション",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "mcp"
+      ]
+    },
+    {
+      "id": "878d3599-fc6a-5263-aec8-d6f155c37f82",
+      "word": "Setting",
+      "reading": "セッティング",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "225b5f71-9f93-528e-bfad-24e387fd9e9a",
+      "word": "Settings",
+      "reading": "セッティングズ",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "90fc3379-056a-5bee-b298-5ad5cf9eb34d",
+      "word": "Environment",
+      "reading": "エンバイロメント",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "javascript"
+      ]
+    },
+    {
+      "id": "220b2634-0e8a-5be7-adc7-f55cd82fc1ad",
+      "word": "Path",
+      "reading": "パス",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "http"
+      ]
+    },
+    {
+      "id": "1223e6ee-ae08-5913-8b6b-971bc3ee782e",
+      "word": "File",
+      "reading": "ファイル",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "mcp"
+      ]
+    },
+    {
+      "id": "4acb259e-f29b-5fd2-be6f-a7adf14fe5bf",
+      "word": "Directory",
+      "reading": "ディレクトリー",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "d513290c-4e91-5406-a52b-ab1c50b39d92",
+      "word": "Folder",
+      "reading": "フォルダー",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "1f4b0bef-53ec-54bf-a856-a60f4f3399cb",
+      "word": "Root",
+      "reading": "ルート",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "eac56590-bc0e-53fb-b33e-8e56fa0951c7",
+      "word": "Home",
+      "reading": "ホーム",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "062d12cc-5a09-59d7-90a5-73f2848fe786",
+      "word": "Local",
+      "reading": "ローカル",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "mcp"
+      ]
+    },
+    {
+      "id": "a049b175-f44f-5809-b785-49a98536e32a",
+      "word": "Remote",
+      "reading": "リモート",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "mcp"
+      ]
+    },
+    {
+      "id": "b5681c6e-2d2d-5d09-b1dd-ec030cf25908",
+      "word": "Client",
+      "reading": "クライアント",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "mcp"
+      ]
+    },
+    {
+      "id": "49eebc71-580c-5341-be7b-88ab44446922",
+      "word": "Server",
+      "reading": "サーバー",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "mcp",
+        "agents",
+        "http"
+      ]
+    },
+    {
+      "id": "a3aa53ab-d5c1-5c04-97f6-13d8a266dfc2",
+      "word": "Frontend",
+      "reading": "フロントエンド",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "c760cf58-5aab-56ab-a819-457331ca9f7a",
+      "word": "Backend",
+      "reading": "バックエンド",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "71d5df04-4b54-5777-a57f-3a1e07f6a4e1",
+      "word": "Endpoint",
+      "reading": "エンドポイント",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "cbc9d19a-d801-5ddd-9908-7811c4655134",
+      "word": "Payload",
+      "reading": "ペイロード",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "e403551f-66a3-5324-81bc-ef185d4732e0",
+      "word": "Schema",
+      "reading": "スキーマ",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "mcp"
+      ]
+    },
+    {
+      "id": "e5043fe9-331c-55a9-8aa0-b8e65144d550",
+      "word": "Database",
+      "reading": "データベース",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "46f80d4c-16d6-5d26-89a2-85dc7f5a720d",
+      "word": "Table",
+      "reading": "テーブル",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "http"
+      ]
+    },
+    {
+      "id": "0734debc-bc6a-57ac-9266-e74e295a179c",
+      "word": "Column",
+      "reading": "カラム",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "2600403e-4b0b-58cb-8af4-84c4d0542e9e",
+      "word": "Row",
+      "reading": "ロー",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "3483e593-e3eb-5eae-b1bf-a834105cc97c",
+      "word": "Record",
+      "reading": "レコード",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "c443d31a-0be9-5498-8281-d93701b33a62",
+      "word": "Index",
+      "reading": "インデックス",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "mcp"
+      ]
+    },
+    {
+      "id": "8136454f-fdd8-5d90-8824-bb91cc4cadb0",
+      "word": "Transaction",
+      "reading": "トランザクション",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "d0dbd006-34d4-525b-9f4d-aff7455a2e04",
+      "word": "Migration",
+      "reading": "マイグレーション",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "54fb8ab8-9c20-5d83-bcc1-cc0614469498",
+      "word": "Connection",
+      "reading": "コネクション",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "mcp"
+      ]
+    },
+    {
+      "id": "51a64e31-562d-5b59-91a3-bc7436dcdd0a",
+      "word": "Session",
+      "reading": "セッション",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "140dc67f-f05c-5403-8812-65ac91b69f63",
+      "word": "Context",
+      "reading": "コンテキスト",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "mcp"
+      ]
+    },
+    {
+      "id": "1ccafd00-1ae3-5d4a-8a5d-f07a35dc85a0",
+      "word": "State",
+      "reading": "ステート",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "http"
+      ]
+    },
+    {
+      "id": "76b28863-511d-53ce-b680-a5df14b60d6b",
+      "word": "Store",
+      "reading": "ストア",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "2f26e9bd-bb98-5fa3-9adb-fb02bd3b96d7",
+      "word": "Provider",
+      "reading": "プロバイダー",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "2b7cd358-277d-570a-850d-481b8ac8dc70",
+      "word": "Factory",
+      "reading": "ファクトリー",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "agents"
+      ]
+    },
+    {
+      "id": "76f1897a-44f6-57e7-b278-44247a05bf30",
+      "word": "Builder",
+      "reading": "ビルダー",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "3c73c56b-451a-555d-931d-ce3e79737c78",
+      "word": "Adapter",
+      "reading": "アダプター",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "87a78928-0c47-55a8-a655-b2d7aa51f7fc",
+      "word": "Middleware",
+      "reading": "ミドルウェア",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "35b0ca3b-5d7f-5e36-be3f-5798f3281627",
+      "word": "Router",
+      "reading": "ルーター",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "765485c3-b778-5ab1-a949-f3f0dc53795f",
+      "word": "Route",
+      "reading": "ルート",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "2698f6fa-30c5-5a58-9aef-4efe716d6eeb",
+      "word": "Controller",
+      "reading": "コントローラー",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "4ee5d330-07d4-5a88-9096-db495a7ed2f5",
+      "word": "View",
+      "reading": "ビュー",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "bedrock",
+        "mcp",
+        "http",
+        "javascript"
+      ]
+    },
+    {
+      "id": "acf42d4f-cc55-551b-a252-26a492d8e106",
+      "word": "Model",
+      "reading": "モデル",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "mcp",
+        "javascript"
+      ]
+    },
+    {
+      "id": "66a6b54f-6eaf-552d-a6f6-9723f0cd0e94",
+      "word": "Component",
+      "reading": "コンポーネント",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "mcp"
+      ]
+    },
+    {
+      "id": "d29d56d9-e1cf-5672-b1d9-bd5b73c3f0f6",
+      "word": "Template",
+      "reading": "テンプレート",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "dbf31dcb-574f-5444-b0f9-ef379109e7da",
+      "word": "Layout",
+      "reading": "レイアウト",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "f1b4b5e1-c0b8-5b2a-b85f-9be4fe1867f0",
+      "word": "Style",
+      "reading": "スタイル",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "3a63a0e4-c4bd-59b5-b987-2e0c6c837cb7",
+      "word": "Theme",
+      "reading": "テーマ",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "mcp"
+      ]
+    },
+    {
+      "id": "f6675238-08a7-5c2a-bff5-9ecbd38463a5",
+      "word": "Widget",
+      "reading": "ウィジェット",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "8d8efcb6-9d32-5e82-8a74-6ed7c9e196b9",
+      "word": "Binding",
+      "reading": "バインディング",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "7523c0a0-8f4f-5ec3-a476-b94eb9601e00",
+      "word": "Hook",
+      "reading": "フック",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "c646bc15-d760-5baf-89e7-943467d27731",
+      "word": "Effect",
+      "reading": "エフェクト",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "a96a130e-88aa-520c-a12c-3e228dc98cc3",
+      "word": "Memo",
+      "reading": "メモ",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "f11628e9-d177-530d-ad8a-4579558f6ad7",
+      "word": "Reference",
+      "reading": "リファレンス",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "mcp",
+        "javascript"
+      ]
+    },
+    {
+      "id": "b82d86a6-ee58-5670-8cd8-24ee22e1112e",
+      "word": "Pointer",
+      "reading": "ポインター",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "58c1a491-d38f-5bc2-b3db-f8ba0c24273c",
+      "word": "Address",
+      "reading": "アドレス",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "4c354fb9-09ea-5fbe-8e80-17507bce3b51",
+      "word": "Memory",
+      "reading": "メモリー",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "javascript"
+      ]
+    },
+    {
+      "id": "0f63de2c-5d3b-557a-86f1-10e72b0bef37",
+      "word": "Garbage",
+      "reading": "ガベージ",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "3ffaeb6e-f266-5de2-85da-9cfc47cd637c",
+      "word": "Collector",
+      "reading": "コレクター",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "a88a58a1-0956-5263-920f-23a463f15d4b",
+      "word": "Allocate",
+      "reading": "アロケート",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "c7c696cc-2e93-525d-bb56-5a6965c5c0f6",
+      "word": "Deallocate",
+      "reading": "ディーアロケート",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "11f9c7c2-aba6-576c-8f11-f6eab816d38b",
+      "word": "Permission",
+      "reading": "パーミッション",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "f2a5ca9a-03a6-502f-bce5-a51ba79a335b",
+      "word": "Authentication",
+      "reading": "オーセンティケーション",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "af199a6a-d604-5ce0-8ab7-52bd1a7a2c8a",
+      "word": "Authorization",
+      "reading": "オーソライゼーション",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "mcp"
+      ]
+    },
+    {
+      "id": "1aacf774-d95f-5212-84c3-93b6c39850cc",
+      "word": "Credential",
+      "reading": "クレデンシャル",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "8d5a7758-bd68-54fc-8f7e-4a55ecd9fddd",
+      "word": "Credentials",
+      "reading": "クレデンシャルズ",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "3960e93c-9d71-5aaa-90a7-af2b6cef644b",
+      "word": "Token",
+      "reading": "トークン",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "c26e4d97-e547-5a38-9baf-84065c3c937b",
+      "word": "Secret",
+      "reading": "シークレット",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "0c9cdc90-bc4c-58a3-804e-b500a5f9cb4d",
+      "word": "Encrypt",
+      "reading": "エンクリプト",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "df524ef3-1d64-57d4-99c6-73a52caf7c95",
+      "word": "Decrypt",
+      "reading": "デクリプト",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "f429a40a-d73f-5c41-93ee-29c2a66aac1f",
+      "word": "Hash",
+      "reading": "ハッシュ",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "956a4d47-a0d1-56c3-8876-9787cce0b2d0",
+      "word": "Salt",
+      "reading": "ソルト",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "c014aa0f-92f6-5c5e-83b5-7081f5a7b95e",
+      "word": "Signature",
+      "reading": "シグネチャー",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "98368e89-2c3b-534e-9e29-40433696d170",
+      "word": "Certificate",
+      "reading": "サーティフィケート",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "a453f10a-7a38-549d-a282-c16fba35d1d3",
+      "word": "Key",
+      "reading": "キー",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "mcp"
+      ]
+    },
+    {
+      "id": "36a0a510-91ee-5c21-9b0e-8ea6019bc422",
+      "word": "Keychain",
+      "reading": "キーチェーン",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "6e5bca26-f6fc-5e34-bda6-69f41da57681",
+      "word": "Sandbox",
+      "reading": "サンドボックス",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "agents"
+      ]
+    },
+    {
+      "id": "9d6d443d-3efa-559f-affb-632a8cbd52d5",
+      "word": "Firewall",
+      "reading": "ファイアウォール",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "0577a0e5-5dee-5b28-bf3a-26c3a9c5bc47",
+      "word": "Proxy",
+      "reading": "プロキシー",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "javascript"
+      ]
+    },
+    {
+      "id": "a54151b9-860f-54a3-8643-863f419f9881",
+      "word": "Gateway",
+      "reading": "ゲートウェイ",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "zerotrust"
+      ]
+    },
+    {
+      "id": "b623ed00-e130-5045-827a-43e12b77e714",
+      "word": "Tunnel",
+      "reading": "トンネル",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "http"
+      ]
+    },
+    {
+      "id": "c06c3d1b-8302-58b7-a3a9-e05b09939e29",
+      "word": "Network",
+      "reading": "ネットワーク",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "security",
+        "zerotrust"
+      ]
+    },
+    {
+      "id": "0e8464db-dd72-513c-b653-a9604042633a",
+      "word": "Packet",
+      "reading": "パケット",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "9e154d1a-c13e-5a2d-87ba-65f2e38f97a7",
+      "word": "Port",
+      "reading": "ポート",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "mcp"
+      ]
+    },
+    {
+      "id": "55a28024-35cf-5a5f-8a48-5001890d5d3b",
+      "word": "Domain",
+      "reading": "ドメイン",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "6dda0670-0042-5532-947c-a9a6de063a83",
+      "word": "Hostname",
+      "reading": "ホストネーム",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "31cc6dc0-974e-5754-956d-2231ff2a0d43",
+      "word": "Subnet",
+      "reading": "サブネット",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "7588936e-d3d5-5c50-b78a-0ea9d1faa919",
+      "word": "Routing",
+      "reading": "ルーティング",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "02fe18e5-2165-5d5e-9949-06dec1986a7a",
+      "word": "DNS",
+      "reading": "ディーエヌエス",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "zerotrust",
+        "kubernetes"
+      ]
+    },
+    {
+      "id": "7268407e-1e25-5814-8903-9be021afe2e9",
+      "word": "HTTP",
+      "reading": "エイチティーティーピー",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "zerotrust",
+        "mcp",
+        "http"
+      ]
+    },
+    {
+      "id": "fe99de96-9193-5a46-bced-4549ff4f5af1",
+      "word": "HTTPS",
+      "reading": "エイチティーティーピーエス",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "mcp",
+        "agents"
+      ]
+    },
+    {
+      "id": "5c41eeaa-9f87-5321-bdaa-9b6ef0afc082",
+      "word": "TCP",
+      "reading": "ティーシーピー",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "4cf677ec-e364-5033-8973-2524e2d84de3",
+      "word": "UDP",
+      "reading": "ユーディーピー",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "1ba761df-81d4-57cb-a9f5-102d727a9fa4",
+      "word": "TLS",
+      "reading": "ティーエルエス",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "0bedac62-e407-5e96-9e97-e7f208d9f2fe",
+      "word": "SSL",
+      "reading": "エスエスエル",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "480d8f21-1211-5332-924f-ab6e2648fb5d",
+      "word": "SSH",
+      "reading": "エスエスエイチ",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "kubernetes"
+      ]
+    },
+    {
+      "id": "4e17ad83-4d79-5ca3-8e0e-5cd68da84d96",
+      "word": "FTP",
+      "reading": "エフティーピー",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "79743ea7-a5cd-5e58-99a3-4e1295b6f552",
+      "word": "SMTP",
+      "reading": "エスエムティーピー",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "2db35bec-793b-5a0e-88c5-51aba1a5c1df",
+      "word": "IMAP",
+      "reading": "アイマップ",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "de850892-a1df-5f53-a666-9071d7eed01a",
+      "word": "POP3",
+      "reading": "ポップスリー",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "c8be3c8b-4585-5b30-a412-bc0d87df69e5",
+      "word": "URL",
+      "reading": "ユーアールエル",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "mcp",
+        "agents"
+      ]
+    },
+    {
+      "id": "0087ee1e-aa59-5f3b-a3e9-eb43fbe2cbd9",
+      "word": "URI",
+      "reading": "ユーアールアイ",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "02c8201b-0bfe-557a-8791-ea6afe2c4abf",
+      "word": "UUID",
+      "reading": "ユーユーアイディー",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "2e330c15-96c1-50fa-a47c-77e89e3b413d",
+      "word": "JSON",
+      "reading": "ジェイソン",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "javascript"
+      ]
+    },
+    {
+      "id": "94ecd09e-36b7-5896-9e0a-299a89af4f43",
+      "word": "JSONL",
+      "reading": "ジェイソンエル",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "123d5deb-1037-5172-bc8d-681e12829c50",
+      "word": "YAML",
+      "reading": "ヤムル",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "f3c60ce9-668e-5102-b7da-af5befaade72",
+      "word": "XML",
+      "reading": "エックスエムエル",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "mcp"
+      ]
+    },
+    {
+      "id": "aea801d4-512d-5978-a51f-d15637467bb7",
+      "word": "HTML",
+      "reading": "エイチティーエムエル",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "360eb9ab-f787-565b-9914-0f29045cfcf0",
+      "word": "CSS",
+      "reading": "シーエスエス",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "93f4c003-faaa-53e0-91c6-9f18867cd44c",
+      "word": "CSV",
+      "reading": "シーエスブイ",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "af97c56d-eb77-55a8-8c7f-375e1b246197",
+      "word": "SQL",
+      "reading": "エスキューエル",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "56386f93-98dc-51ee-ac52-9e7d176f8071",
+      "word": "GraphQL",
+      "reading": "グラフキューエル",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "agents"
+      ]
+    },
+    {
+      "id": "819053d7-7349-5c1b-bb8e-e9fb56884e48",
+      "word": "REST",
+      "reading": "レスト",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "agents",
+        "javascript"
+      ]
+    },
+    {
+      "id": "f0902be7-7e7a-5569-b1df-fcbc141756a8",
+      "word": "RPC",
+      "reading": "アールピーシー",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "8570789c-8bd8-5b06-ac35-cdd8648b6042",
+      "word": "gRPC",
+      "reading": "ジーアールピーシー",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "4891ad76-2e1f-576f-9310-b5e52745449b",
+      "word": "WebSocket",
+      "reading": "ウェブソケット",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "5e2b6532-b02f-5990-a66e-e46e7ffbd44f",
+      "word": "OAuth",
+      "reading": "オーオース",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "kubernetes",
+        "agents"
+      ]
+    },
+    {
+      "id": "8831e192-728c-5897-af19-278ebe7fad7c",
+      "word": "OIDC",
+      "reading": "オーアイディーシー",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "c9acc0ae-a84e-5cb1-bb65-2859bdcff4b9",
+      "word": "JWT",
+      "reading": "ジェーダブリューティー",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "8a6a8646-9a26-5b7d-9666-2db38ae79636",
+      "word": "SAML",
+      "reading": "サムル",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "2069e729-6161-5086-9ff0-a4e4c51c07af",
+      "word": "SSO",
+      "reading": "エスエスオー",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "bb05a508-8234-533a-9d27-424ed44e8c8f",
+      "word": "MFA",
+      "reading": "エムエフエー",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "89b5a065-e552-5899-9530-cf8994914a4c",
+      "word": "2FA",
+      "reading": "ツーファクター",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "3b9d954d-10a6-5f38-a8c8-070d96e2975d",
+      "word": "FIDO",
+      "reading": "ファイド",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "78b2efd6-644e-5dc3-9d3d-5cd67111810c",
+      "word": "Passkey",
+      "reading": "パスキー",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "32d1f33a-88e4-54ff-a14c-f87823fe5baf",
+      "word": "WebAuthn",
+      "reading": "ウェブオースン",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "98d79f6a-16d5-5ec3-95e3-76e4f623379a",
+      "word": "Zero Trust",
+      "reading": "ゼロトラスト",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "d77bd327-ed46-5c27-9447-e7d7e6d18325",
+      "word": "ZeroTrust",
+      "reading": "ゼロトラスト",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "e14ab3b9-a86f-5cae-beea-678e8b1050d6",
+      "word": "SASE",
+      "reading": "サシー",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "security"
+      ]
+    },
+    {
+      "id": "5b106523-06c9-5bdb-a411-e7d31928093e",
+      "word": "ZTNA",
+      "reading": "ゼットティーエヌエー",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "security"
+      ]
+    },
+    {
+      "id": "576ce82c-6e8e-569b-88fa-1bd9cb934675",
+      "word": "CASB",
+      "reading": "キャスビー",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "security"
+      ]
+    },
+    {
+      "id": "29b88944-7e4d-5468-ba89-2bc2fc050023",
+      "word": "CSPM",
+      "reading": "シーエスピーエム",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "security"
+      ]
+    },
+    {
+      "id": "77003f2d-3192-56a5-918d-9c245a81256c",
+      "word": "CNAPP",
+      "reading": "シーナップ",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "d537f554-b028-580a-a6f6-98f222a740d1",
+      "word": "CWPP",
+      "reading": "シーダブリューピーピー",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "3d91d8bc-3fea-5c3a-8e97-dbe6961c773d",
+      "word": "WAF",
+      "reading": "ワフ",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "19ad985c-fda6-551c-adb8-11ded526867a",
+      "word": "IDS",
+      "reading": "アイディーエス",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "74de6204-433d-5938-8ebf-453c765b7de2",
+      "word": "IPS",
+      "reading": "アイピーエス",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "bff4202f-12db-578b-8a22-987f4c2daf6b",
+      "word": "EDR",
+      "reading": "イーディーアール",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "security"
+      ]
+    },
+    {
+      "id": "319eeecf-113a-55a3-a95f-fbfb71a3cceb",
+      "word": "XDR",
+      "reading": "エックスディーアール",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "security"
+      ]
+    },
+    {
+      "id": "1974742a-c617-5247-9162-144a07ac97aa",
+      "word": "NDR",
+      "reading": "エヌディーアール",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "0fb02f4a-685f-5a45-a141-cc8b47b8a0a8",
+      "word": "SIEM",
+      "reading": "シーム",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "5c537d1e-de12-5fba-a4c9-c38c4fba1a71",
+      "word": "SOAR",
+      "reading": "ソアー",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "1d128b10-ba59-5768-8d22-39190aecb3a9",
+      "word": "SOC",
+      "reading": "ソック",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "security"
+      ]
+    },
+    {
+      "id": "c164116e-2fc2-5258-a15a-feef3a876dbd",
+      "word": "CSIRT",
+      "reading": "シーサート",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "security"
+      ]
+    },
+    {
+      "id": "d7110f2c-f21a-5489-b488-0d6cb7bc9e76",
+      "word": "CERT",
+      "reading": "サート",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "8f6e4775-ca29-5939-83df-f0edd9521d3e",
+      "word": "NIST",
+      "reading": "ニスト",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "security"
+      ]
+    },
+    {
+      "id": "e5012f33-3bb0-51cb-9e9c-f4fda2e72ef9",
+      "word": "MITRE",
+      "reading": "マイター",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "73e1d1ed-1443-5213-a576-406ab9ecb212",
+      "word": "ATT&CK",
+      "reading": "アタック",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "ef6f8a49-7e4a-53c1-b00f-125d80fab09d",
+      "word": "OWASP",
+      "reading": "オワスプ",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "74f065b7-21a9-56fc-8198-ed0e8dd6328b",
+      "word": "OSINT",
+      "reading": "オシント",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "90bf190f-f994-56dd-acfc-260d7c8c22db",
+      "word": "CVE",
+      "reading": "シーブイイー",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "agents"
+      ]
+    },
+    {
+      "id": "5cf3fef1-0be7-5993-b970-7c6b541bac10",
+      "word": "CWE",
+      "reading": "シーダブリューイー",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "6378a87d-e96a-54ad-af83-9f34d290781f",
+      "word": "CVSS",
+      "reading": "シーブイエスエス",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "94801c18-2f71-55c3-a963-879d563b551a",
+      "word": "CISA",
+      "reading": "シーアイエスエー",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "ae6f4f7d-bb37-58a4-b29b-cc3c782a570a",
+      "word": "ISC2",
+      "reading": "アイエスシーツー",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "0ca814fa-4255-5690-a1ae-2f5d00a0aae9",
+      "word": "CISSP",
+      "reading": "シーアイエスエスピー",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "12c40418-b73f-5791-8646-5b70a5aa2aec",
+      "word": "CIA",
+      "reading": "シーアイエー",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "e21a1edc-1286-586f-aa13-08340551e801",
+      "word": "DLP",
+      "reading": "ディーエルピー",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "6f1e7f14-1377-589d-8c3d-574d8d0e192d",
+      "word": "IAM",
+      "reading": "アイアム",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "86287436-80fb-5d9d-bcb4-1cd4dfdd0d78",
+      "word": "RBAC",
+      "reading": "アールバック",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "a3b6fec8-b919-56ae-b2ac-b2c8ee0926a5",
+      "word": "ABAC",
+      "reading": "エーバック",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "ddbc85c1-ed60-5bfe-82e4-4ff6741d4581",
+      "word": "PAM",
+      "reading": "パム",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "f53beda5-444c-5a0a-ad63-286b6a375e9f",
+      "word": "ACL",
+      "reading": "エーシーエル",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "8cc33120-4abb-5ffc-a8fe-1d0d9ddfaf55",
+      "word": "VPN",
+      "reading": "ブイピーエヌ",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "security"
+      ]
+    },
+    {
+      "id": "637c514d-a266-59d5-b3d5-5996c15733eb",
+      "word": "DDoS",
+      "reading": "ディードス",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "security"
+      ]
+    },
+    {
+      "id": "0272048c-cd7b-5d0d-a30c-f90186553e54",
+      "word": "DoS",
+      "reading": "ドス",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "ad4efdab-32f9-5c87-89ac-5192a6a1d0b4",
+      "word": "XSS",
+      "reading": "クロスサイトスクリプティング",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "5f66d647-7e3c-5082-bb59-aafe9b14be73",
+      "word": "CSRF",
+      "reading": "シーエスアールエフ",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "05bdb48c-980c-5277-8a85-68c167d105d0",
+      "word": "SSRF",
+      "reading": "エスエスアールエフ",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "a9a7b175-f872-5467-aa24-bfd1fa9c8995",
+      "word": "RCE",
+      "reading": "アールシーイー",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "ef258291-5ce0-567b-a9df-08961e6a9572",
+      "word": "APT",
+      "reading": "エーピーティー",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "931dcc64-de3f-5c49-a8da-1393da242d37",
+      "word": "TTP",
+      "reading": "ティーティーピー",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "90c6620a-4678-528d-a042-9acdd06fcdab",
+      "word": "IoC",
+      "reading": "アイオーシー",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "78bb0d00-0ae4-5eec-98e4-6512ec8f6b57",
+      "word": "Malware",
+      "reading": "マルウェア",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "8eff0d05-9531-5f44-8fa2-3d3259cb8d84",
+      "word": "Ransomware",
+      "reading": "ランサムウェア",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "24b30ae2-4369-5ee5-850b-4a0829b00cdd",
+      "word": "Phishing",
+      "reading": "フィッシング",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "1562c9f4-88c1-5a2e-99c7-aa1f6895a61d",
+      "word": "Exploit",
+      "reading": "エクスプロイト",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "a8e43d10-eb08-5b49-b991-a390ed77a955",
+      "word": "Payloads",
+      "reading": "ペイロードズ",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "99d9d4fd-27d0-596f-8420-1abe1edbc6bd",
+      "word": "Vulnerability",
+      "reading": "バルネラビリティー",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "4cb0be64-959e-518c-b912-0bf9998e17e4",
+      "word": "Vulnerabilities",
+      "reading": "バルネラビリティーズ",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "fceae3ba-6b64-58c4-984b-1a441ef256b6",
+      "word": "Pentest",
+      "reading": "ペンテスト",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "1e927141-856d-5996-91f9-d0a2a7224837",
+      "word": "Pentesting",
+      "reading": "ペンテスティング",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "f9ab4644-64e3-53b6-b06a-35a1758054d4",
+      "word": "Red Team",
+      "reading": "レッドチーム",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "2c64e76e-994f-5997-9c8c-cd17f0697da8",
+      "word": "Blue Team",
+      "reading": "ブルーチーム",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "4b8f55f1-7031-56f7-8290-7dc2d8a7be66",
+      "word": "Purple Team",
+      "reading": "パープルチーム",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "ccb6ac08-6531-5e4a-a1ae-f84e15e23c52",
+      "word": "Threat",
+      "reading": "スレット",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "d99d3535-ff71-5fbc-9e96-00061c881bc1",
+      "word": "Actor",
+      "reading": "アクター",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "78c559cf-143c-5473-86f3-2cce9faecd85",
+      "word": "Attack",
+      "reading": "アタック",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "security"
+      ]
+    },
+    {
+      "id": "b5d112cc-f933-51f6-beef-519e7419388e",
+      "word": "Defense",
+      "reading": "ディフェンス",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "3ec39629-aabd-516e-8a6d-f3e0e9dec590",
+      "word": "Detection",
+      "reading": "ディテクション",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "e67004f2-d39d-55e6-b7c3-01fc11e450d5",
+      "word": "Response Team",
+      "reading": "レスポンスチーム",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "07d0192b-03cc-5b42-9924-c1bdb1fb0b26",
+      "word": "Forensics",
+      "reading": "フォレンジックス",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "9bea24cd-2ee3-5bc0-9c89-78c3747e9da5",
+      "word": "Honeypot",
+      "reading": "ハニーポット",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "1a9c301a-297f-5c2d-8bc4-2315b2b46476",
+      "word": "Backdoor",
+      "reading": "バックドア",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "2272db55-fe47-589e-beac-85bb0be75ddd",
+      "word": "Rootkit",
+      "reading": "ルートキット",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "4c631943-8338-5622-ae82-c482deeea64d",
+      "word": "Botnet",
+      "reading": "ボットネット",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "e1111c02-2362-5509-bdca-4497e495a9a3",
+      "word": "Beacon",
+      "reading": "ビーコン",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "4f1f302d-f7df-5c9f-bbe9-6e11e5ef8a24",
+      "word": "Cobalt Strike",
+      "reading": "コバルトストライク",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "3cd8b612-b298-5314-b2f4-1a5eff7bfcb0",
+      "word": "Metasploit",
+      "reading": "メタスプロイト",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "d4ad5260-4a13-55e7-90ee-4acb0fb29869",
+      "word": "Nmap",
+      "reading": "エヌマップ",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "2343f4ae-c99e-5a37-9387-785ef1d223d4",
+      "word": "Nuclei",
+      "reading": "ニュークライ",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "cdb709dc-7973-5db2-a2ca-58bdc7d15317",
+      "word": "Burp Suite",
+      "reading": "バープスイート",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "53872910-84a6-53b0-924b-51d048a1b1ac",
+      "word": "Wireshark",
+      "reading": "ワイヤーシャーク",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "37721526-f472-55d4-88f6-c3f4e2823d01",
+      "word": "Kali",
+      "reading": "カーリー",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "8ef2a6c6-1b88-59fd-b25f-6b56451cea9c",
+      "word": "ARTEX",
+      "reading": "アルテックス",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "81c5e89b-b732-558c-acf0-501f725ea8d3",
+      "word": "AI",
+      "reading": "エーアイ",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "bedrock",
+        "mcp",
+        "agents"
+      ]
+    },
+    {
+      "id": "fd6a9cbe-bfac-5f71-ab63-cbf388584f6a",
+      "word": "ML",
+      "reading": "エムエル",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "dbd4478f-9be4-51a8-9084-9147ba0c3591",
+      "word": "LLM",
+      "reading": "エルエルエム",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "agents"
+      ]
+    },
+    {
+      "id": "689d11d0-5600-57a3-bf28-8a8f276136aa",
+      "word": "LLMs",
+      "reading": "エルエルエムズ",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "06d231d7-7f0b-52fc-914a-28538dadc522",
+      "word": "RAG",
+      "reading": "ラグ",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "bedrock"
+      ]
+    },
+    {
+      "id": "0ad19b78-c529-59b1-bb61-710965118330",
+      "word": "MCP",
+      "reading": "エムシーピー",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "mcp",
+        "agents"
+      ]
+    },
+    {
+      "id": "e5f59a73-b2f6-5c80-addb-48ba20a925de",
+      "word": "A2A",
+      "reading": "エートゥーエー",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "8699d7e5-7377-5dab-b20a-ec0099b1ee39",
+      "word": "AGI",
+      "reading": "エージーアイ",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "74b1b271-6e17-54f3-84a9-aa3dc4586baa",
+      "word": "ASI",
+      "reading": "エーエスアイ",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "2487c527-f251-593d-ac6d-f3c9a95b2733",
+      "word": "NLP",
+      "reading": "エヌエルピー",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "ceb7832f-2027-5b56-a677-490e1413b993",
+      "word": "ASR",
+      "reading": "エーエスアール",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "36fef56d-c344-5a4f-8ca8-eb0c9134269b",
+      "word": "TTS",
+      "reading": "ティーティーエス",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "cd2daf1c-19c1-50f8-bdd7-09319686f7e9",
+      "word": "STT",
+      "reading": "エスティーティー",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "ab8fefb6-fe10-5ce9-81cc-d56a17f64310",
+      "word": "OCR",
+      "reading": "オーシーアール",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "5046333a-8729-57b3-a5a3-bf0d481abced",
+      "word": "GPU",
+      "reading": "ジーピーユー",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "b1ec3300-815e-5279-b7bd-5b3f52f75fb3",
+      "word": "CPU",
+      "reading": "シーピーユー",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "kubernetes"
+      ]
+    },
+    {
+      "id": "02ad05eb-69e7-552f-8eb5-c25ba69b1802",
+      "word": "NPU",
+      "reading": "エヌピーユー",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "46aa04f7-7a07-56ba-9e20-f14d8f5ada8e",
+      "word": "RAM",
+      "reading": "ラム",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "kubernetes"
+      ]
+    },
+    {
+      "id": "df2a8208-26ef-51ee-beb2-277de88b19d8",
+      "word": "VRAM",
+      "reading": "ブイラム",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "498404af-468c-52e7-bdd4-875a59268a90",
+      "word": "CUDA",
+      "reading": "クーダ",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "7197a1f9-4977-56f3-931e-0a5ee4530197",
+      "word": "ONNX",
+      "reading": "オニックス",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "02e12d77-7c9b-56eb-b25c-c50ae9324377",
+      "word": "LoRA",
+      "reading": "ローラ",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "272d6615-ad24-5f33-833c-8ca9c3577795",
+      "word": "QLoRA",
+      "reading": "キューローラ",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "67bced69-5408-5f61-8742-0ec568019b4c",
+      "word": "RLHF",
+      "reading": "アールエルエイチエフ",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "c36d4ffa-e862-5183-a922-5de311cec572",
+      "word": "DPO",
+      "reading": "ディーピーオー",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "007e2769-2037-5484-aa8b-dc5fa1d9a347",
+      "word": "SFT",
+      "reading": "エスエフティー",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "f93939c5-267e-5c7d-a89c-e2a7e7dec4dc",
+      "word": "MoE",
+      "reading": "エムオーイー",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "b1a705c5-2f0d-5bf1-80ca-90a11ebc0f9e",
+      "word": "Embedding",
+      "reading": "エンベディング",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "74a23294-424b-5028-a3d8-46ee6b5370cf",
+      "word": "Embeddings",
+      "reading": "エンベディングズ",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "bb16dc5d-760e-5de9-9f64-d89670bf982a",
+      "word": "Transformer",
+      "reading": "トランスフォーマー",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "3c819ac5-c4e0-523b-b680-9a8d7a0e4054",
+      "word": "Attention",
+      "reading": "アテンション",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "2e52024d-c331-598b-b426-e8ce4e3ffe15",
+      "word": "Inference",
+      "reading": "インファレンス",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "6fed9ca0-ff9a-5b9a-ba8c-5059b23f74ff",
+      "word": "Training",
+      "reading": "トレーニング",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "c8114e2c-5dc3-56b5-8187-a723a6ef01f0",
+      "word": "Fine-tuning",
+      "reading": "ファインチューニング",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "155e31f6-b304-51f3-a760-3cba1cc1c6a5",
+      "word": "Quantization",
+      "reading": "クオンタイゼーション",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "b731db36-5adc-58dd-a24b-d4e422fdcdcb",
+      "word": "Prompt",
+      "reading": "プロンプト",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "8cfc23dd-06d7-53ea-aba3-49d680ba54c5",
+      "word": "Prompts",
+      "reading": "プロンプツ",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "mcp"
+      ]
+    },
+    {
+      "id": "48d455f8-3a06-5e80-add0-b3175cac0672",
+      "word": "Agent",
+      "reading": "エージェント",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "mcp",
+        "agents"
+      ]
+    },
+    {
+      "id": "4e30324f-130d-5c38-8597-39592a5c3268",
+      "word": "Agents",
+      "reading": "エージェンツ",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "mcp"
+      ]
+    },
+    {
+      "id": "2ab68c67-074b-500d-90d3-5f29c52677a7",
+      "word": "Agentic",
+      "reading": "エージェンティック",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "agents"
+      ]
+    },
+    {
+      "id": "bddf5a7c-e12a-547f-b774-af1effe4f59d",
+      "word": "Tool",
+      "reading": "ツール",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "78d8d30b-67cd-51b1-a57e-51ab49d203db",
+      "word": "Tools",
+      "reading": "ツールズ",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "mcp"
+      ]
+    },
+    {
+      "id": "41701230-8789-503f-9f70-edfae7fc78ea",
+      "word": "Skill",
+      "reading": "スキル",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "agents"
+      ]
+    },
+    {
+      "id": "c8f72762-a5e0-5f69-a66a-8aff3248ac20",
+      "word": "Skills",
+      "reading": "スキルズ",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "mcp"
+      ]
+    },
+    {
+      "id": "63667e0c-3bc6-5bf0-849d-24e5d1275a81",
+      "word": "Planning",
+      "reading": "プランニング",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "53b940c9-2ce5-55a7-88b8-7742493cede8",
+      "word": "Reasoning",
+      "reading": "リーズニング",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "372a9ac9-d1e6-5b9e-831d-a169182c0495",
+      "word": "Thinking",
+      "reading": "シンキング",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "355246e3-6bd0-53a6-bb26-a019bd3a77e4",
+      "word": "Retrieval",
+      "reading": "リトリーバル",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "69e94b81-bdb4-5e05-994b-073256426f53",
+      "word": "Generation",
+      "reading": "ジェネレーション",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "087e605b-38e9-5f7b-9321-afebe42f6b9e",
+      "word": "Evaluation",
+      "reading": "エバリュエーション",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "ba42d852-250c-5000-9599-0c27134323a7",
+      "word": "Evals",
+      "reading": "イーバルズ",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "38903a8c-cbba-5e53-b2c8-4121eb86677a",
+      "word": "Benchmarking",
+      "reading": "ベンチマーキング",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "156010ec-0e57-54e6-8283-9fba040b3177",
+      "word": "Guardrail",
+      "reading": "ガードレール",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "39202b68-b5c0-52d5-8bc6-09fae45836c6",
+      "word": "Guardrails",
+      "reading": "ガードレールズ",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "9b70d609-9679-59e9-b18d-0191f0dbe48b",
+      "word": "Grounding",
+      "reading": "グラウンディング",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "0a88cc47-0f90-5ad8-aa80-2a97e5fcdf4c",
+      "word": "Hallucination",
+      "reading": "ハルシネーション",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "c4ca70d4-d969-54ca-8dd5-07947884277a",
+      "word": "Multimodal",
+      "reading": "マルチモーダル",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "13aa7b98-2ed0-5a1d-9d86-b95b3e670fb8",
+      "word": "Function Calling",
+      "reading": "ファンクションコーリング",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "8fa0be5e-4a42-5be1-bb20-3e4a7f2a808e",
+      "word": "Tool Calling",
+      "reading": "ツールコーリング",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "d1c5317d-01d1-5aed-b339-353e5d025cf6",
+      "word": "Chain of Thought",
+      "reading": "チェーンオブソート",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "f30516a4-c362-5426-b04e-1fa2c63c9b63",
+      "word": "ReAct",
+      "reading": "リアクト",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "a18bc3af-e8f4-51cb-a642-4bdc5d7901ef",
+      "word": "Reinforcement",
+      "reading": "リインフォースメント",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "862aa28e-606c-5c4e-a1de-83431254f0a6",
+      "word": "Reward",
+      "reading": "リワード",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "0c54b0fd-90a1-5767-a4c2-78706989a0e3",
+      "word": "Policy",
+      "reading": "ポリシー",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "bc6ce8ff-c9b5-59a7-8740-d843d88e2733",
+      "word": "Tokenization",
+      "reading": "トークナイゼーション",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "f55617ca-886f-5c23-90f4-bb0975e044fa",
+      "word": "Tokenizer",
+      "reading": "トークナイザー",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "56344772-de74-5621-bbb5-26034c5360d3",
+      "word": "Chunk",
+      "reading": "チャンク",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "0a794386-d543-55dd-9ddd-ba45076a3741",
+      "word": "Chunks",
+      "reading": "チャンクス",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "mcp"
+      ]
+    },
+    {
+      "id": "971d74af-2078-5a90-90fb-fb5d82083564",
+      "word": "Chunking",
+      "reading": "チャンキング",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "321bbc85-7481-53b7-9202-0e65eb1a13b2",
+      "word": "Vector",
+      "reading": "ベクトル",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "1003a7b2-ec52-57c4-990e-27b6c0db3752",
+      "word": "Vectors",
+      "reading": "ベクトルズ",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "8fec34ad-0027-532f-abad-69dbae7e104b",
+      "word": "Rerank",
+      "reading": "リランク",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "54d4b4da-0154-5387-b077-4bf43366c02f",
+      "word": "Reranking",
+      "reading": "リランキング",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "7407ec23-9eab-5b23-9038-4a091a67f7d0",
+      "word": "Latency",
+      "reading": "レイテンシー",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "690476b3-4cbf-51be-9927-2d0f6962afa9",
+      "word": "Throughput",
+      "reading": "スループット",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "7d59bbd8-54a0-585a-8145-5b93ca557184",
+      "word": "Streaming",
+      "reading": "ストリーミング",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "8007c09e-8110-5d71-ba0a-20fb52b4fdc0",
+      "word": "Batch",
+      "reading": "バッチ",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "b61e2c52-327d-5540-8f58-45a555167bab",
+      "word": "Batching",
+      "reading": "バッチング",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "347e3f8d-1bd7-535e-b87c-448f9fa84d38",
+      "word": "Checkpoint",
+      "reading": "チェックポイント",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "9b2e9eb2-c3ef-5d46-828e-54809845c5ba",
+      "word": "Weights",
+      "reading": "ウェイツ",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "c5a8dfc8-7f0e-589b-b855-f5ec576ae5ce",
+      "word": "Tensor",
+      "reading": "テンソル",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "ad1c044a-97dc-5b98-bfd2-5c123bf93e66",
+      "word": "OpenAI",
+      "reading": "オープンエーアイ",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "82013c58-a2b8-5335-b753-6a0600e14c8a",
+      "word": "ChatGPT",
+      "reading": "チャットジーピーティー",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "mcp"
+      ]
+    },
+    {
+      "id": "ef0b8d21-28e9-5531-adfe-c0cc869d8786",
+      "word": "GPT",
+      "reading": "ジーピーティー",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "agents"
+      ]
+    },
+    {
+      "id": "9fff3bbe-d87f-5493-a6c5-9940fe17c56c",
+      "word": "Codex",
+      "reading": "コーデックス",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "46f5053e-2ddf-5321-a6ed-18bcbbd5044e",
+      "word": "Anthropic",
+      "reading": "アンソロピック",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "agents"
+      ]
+    },
+    {
+      "id": "6458511a-6ad3-5048-bf2e-a9d5a236c6f2",
+      "word": "Claude",
+      "reading": "クロード",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "mcp",
+        "agents"
+      ]
+    },
+    {
+      "id": "ec5637ad-434c-5318-85d8-0f4993fd5b87",
+      "word": "Gemini",
+      "reading": "ジェミニ",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "agents"
+      ]
+    },
+    {
+      "id": "4767818e-b906-5931-b28d-3d7e8d885717",
+      "word": "DeepSeek",
+      "reading": "ディープシーク",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "fb6d8655-c072-5fa9-8ca5-24f786e97a99",
+      "word": "Llama",
+      "reading": "ラマ",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "b7924b76-672c-511c-ac74-e0ecd445eafd",
+      "word": "Qwen",
+      "reading": "クウェン",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "ede1b677-19e9-5254-a44c-333a11a8a32f",
+      "word": "Mistral",
+      "reading": "ミストラル",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "1d748f75-63c7-5a1a-b65c-7ee55c960dee",
+      "word": "Gemma",
+      "reading": "ジェマ",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "8575920c-48c4-5991-81b4-65a75dd2196e",
+      "word": "Ollama",
+      "reading": "オラマ",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "8da60ef0-d435-54b3-bd3e-5aeefe7f1f1c",
+      "word": "Hugging Face",
+      "reading": "ハギングフェイス",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "3e45e236-b0e4-570a-9712-eea0ec59663e",
+      "word": "HuggingFace",
+      "reading": "ハギングフェイス",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "af24055f-038c-5856-94b6-793a85799533",
+      "word": "LangChain",
+      "reading": "ラングチェーン",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "1db438dd-5ce3-5da6-894e-6c6b7f98134f",
+      "word": "LangGraph",
+      "reading": "ランググラフ",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "0721df51-e271-5547-a5ef-486888c2430a",
+      "word": "LlamaIndex",
+      "reading": "ラマインデックス",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "b9efc684-28e5-5677-80d9-59842a0b82e5",
+      "word": "PyTorch",
+      "reading": "パイトーチ",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "7e19f28f-e182-5970-bad2-72f43499deda",
+      "word": "TensorFlow",
+      "reading": "テンソルフロー",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "5213bc30-800f-579e-b14f-44eb3daf4773",
+      "word": "Transformers",
+      "reading": "トランスフォーマーズ",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "d0594295-aa10-5f7e-812f-8c5ce184b607",
+      "word": "vLLM",
+      "reading": "ブイエルエルエム",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "936da48b-3f79-5ded-bce0-50bdc2178268",
+      "word": "SGLang",
+      "reading": "エスジーラング",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "27f87101-b024-50ca-8aae-70d96c4891fe",
+      "word": "MLX",
+      "reading": "エムエルエックス",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "092786e8-e7bf-54f3-b846-3f1eebe5a8e3",
+      "word": "PLaMo",
+      "reading": "プラモ",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "6cf410d2-8b56-5d0f-b88f-e6e96ba467cd",
+      "word": "VOICEVOX",
+      "reading": "ボイスボックス",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "ce50cc68-6eab-5379-8d16-cc41b04942a5",
+      "word": "Whisper",
+      "reading": "ウィスパー",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "f24abbf4-738f-5259-a546-4344de6b6fde",
+      "word": "Scribe",
+      "reading": "スクライブ",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "44cc8136-db95-57dc-9ea1-14d81df33cf3",
+      "word": "ElevenLabs",
+      "reading": "イレブンラボ",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "763823d0-3ade-5d12-a6ec-738b2d38d470",
+      "word": "Python",
+      "reading": "パイソン",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "8166a1db-8c05-59e4-9d78-3a93d0df334a",
+      "word": "JavaScript",
+      "reading": "ジャバスクリプト",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "zerotrust",
+        "bedrock",
+        "http",
+        "javascript"
+      ]
+    },
+    {
+      "id": "2ae7ff61-0913-53b6-8ce6-5520cf426b86",
+      "word": "TypeScript",
+      "reading": "タイプスクリプト",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "13e6b033-0896-518c-805d-8ed57bf426e0",
+      "word": "Java",
+      "reading": "ジャバ",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "de7f5b9d-0c34-56fc-91dc-6b41a7eb6018",
+      "word": "Kotlin",
+      "reading": "コトリン",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "2f198603-b9e1-5ef5-81eb-d3a30b3dfb24",
+      "word": "Swift",
+      "reading": "スウィフト",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "5a46c539-65d0-5e7a-a02c-32e8c9f82572",
+      "word": "Rust",
+      "reading": "ラスト",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "1b8fe9ad-92e1-5d6f-a36c-2e4eba6698f1",
+      "word": "Golang",
+      "reading": "ゴーラング",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "740c0af1-8505-5b67-ba3b-5215176cfec8",
+      "word": "Ruby",
+      "reading": "ルビー",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "943447bb-262b-5e45-875f-d781b9299247",
+      "word": "PHP",
+      "reading": "ピーエイチピー",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "4b37c5d7-fed5-585c-b365-836e865226c0",
+      "word": "Perl",
+      "reading": "パール",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "28eca73e-7692-551d-a12d-8b2a17b89ee4",
+      "word": "Scala",
+      "reading": "スカラ",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "d0111839-e9d4-59d0-914a-bb54fdaacf45",
+      "word": "Haskell",
+      "reading": "ハスケル",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "3266b179-5246-5029-a2c9-40238db92df7",
+      "word": "Elixir",
+      "reading": "エリクサー",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "2fd726b7-a550-5f72-8bfc-a0e366c363f0",
+      "word": "Dart",
+      "reading": "ダート",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "d5c4363b-c380-522f-a6c7-45c17a667af6",
+      "word": "Bash",
+      "reading": "バッシュ",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "agents"
+      ]
+    },
+    {
+      "id": "f89902c3-7877-52b0-977e-ea96f91f8ec0",
+      "word": "Zsh",
+      "reading": "ゼットシェル",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "fe25ed04-8e50-500f-a0d2-e22b8cc52895",
+      "word": "PowerShell",
+      "reading": "パワーシェル",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "ec067d2b-a38c-51f8-ae65-b8ef101cd552",
+      "word": "Regex",
+      "reading": "レゲックス",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "c025a869-5fbf-51d8-bbcb-71a60e9e468f",
+      "word": "RegExp",
+      "reading": "レグエクスプ",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "javascript"
+      ]
+    },
+    {
+      "id": "54a79e6a-29bb-5fd4-af26-c0f08a0bdf79",
+      "word": "Git",
+      "reading": "ギット",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "2495c94f-2208-535d-9dd0-eec1b0df5f0b",
+      "word": "GitHub",
+      "reading": "ギットハブ",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "kubernetes",
+        "mcp",
+        "agents",
+        "http",
+        "javascript"
+      ]
+    },
+    {
+      "id": "6222037d-9336-5218-ac54-148f198ccaeb",
+      "word": "GitLab",
+      "reading": "ギットラボ",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "7713e4cd-363a-5b3a-a323-4704e5df1041",
+      "word": "Bitbucket",
+      "reading": "ビットバケット",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "855c4c36-32d7-5867-ac9d-ce11dd3fa4de",
+      "word": "Copilot",
+      "reading": "コパイロット",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "mcp"
+      ]
+    },
+    {
+      "id": "092b0214-984b-554b-a6a8-c976f91eebcc",
+      "word": "Cursor",
+      "reading": "カーソル",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "mcp",
+        "agents"
+      ]
+    },
+    {
+      "id": "0370c217-1818-5cec-b5db-0990002b2572",
+      "word": "VSCode",
+      "reading": "ブイエスコード",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "6d61b491-5950-5ebd-b2c6-1c042853c52f",
+      "word": "Visual Studio",
+      "reading": "ビジュアルスタジオ",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "3abfaa64-5212-5521-8d36-7f0d32fe1ff1",
+      "word": "Xcode",
+      "reading": "エックスコード",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "8af7ae26-2eef-5d16-9a97-38181543d7c9",
+      "word": "IntelliJ",
+      "reading": "インテリジェイ",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "71cf550a-ed44-5a9b-818a-c07a6d2086a4",
+      "word": "Vim",
+      "reading": "ビム",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "9e8d63a7-3868-552f-941d-8923df177af9",
+      "word": "Neovim",
+      "reading": "ネオビム",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "aa4c6550-06f0-52e1-99e5-e1c11edc22b1",
+      "word": "Emacs",
+      "reading": "イーマックス",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "c72fb865-7ecd-5bf6-93ca-f28a4d1c87ff",
+      "word": "Node",
+      "reading": "ノード",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "747a12f7-6445-559f-b978-0ad9b647d828",
+      "word": "Node.js",
+      "reading": "ノードジェイエス",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "0d72dd59-c09e-5606-8439-fcc181534d98",
+      "word": "Deno",
+      "reading": "ディーノ",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "c37b64c8-6552-5ceb-91bb-3d353b702d81",
+      "word": "Bun",
+      "reading": "バン",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "3247b78f-a583-56f0-8088-b878642bddcd",
+      "word": "npm",
+      "reading": "エヌピーエム",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "32f76cd4-86f3-5350-9da3-1cd69a66cccb",
+      "word": "pnpm",
+      "reading": "ピーエヌピーエム",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "052d78fa-ebc9-57ee-9081-e1448913db07",
+      "word": "yarn",
+      "reading": "ヤーン",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "3501b69e-fb47-58b0-ab64-46b2922b43e9",
+      "word": "pip",
+      "reading": "ピップ",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "068e11f2-a6c1-538b-9656-d1fe6ee03a27",
+      "word": "uv",
+      "reading": "ユーブイ",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "6c126e0b-5150-563c-be7f-44661c4244aa",
+      "word": "Poetry",
+      "reading": "ポエトリー",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "172bba7d-4a4f-5fb7-91a2-38837c86eadf",
+      "word": "Cargo",
+      "reading": "カーゴ",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "3be71606-4b18-5754-9916-a842db699c0e",
+      "word": "Gradle",
+      "reading": "グレードル",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "03cfdac4-f529-549d-ad56-f9f4f74517f5",
+      "word": "Maven",
+      "reading": "メイブン",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "c075fa03-17b7-5d25-b361-c22848d5f61e",
+      "word": "Webpack",
+      "reading": "ウェブパック",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "eb4fa49c-601e-540f-8223-b5a37654742a",
+      "word": "Vite",
+      "reading": "ビート",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "dced1cf6-d718-5280-b524-77aad67a1b1c",
+      "word": "Rollup",
+      "reading": "ロールアップ",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "49e4a75e-4e11-5c45-9fb4-13f1b7881c7e",
+      "word": "Babel",
+      "reading": "バベル",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "5633b2d2-11b6-5b2a-86d7-201fc0d163bc",
+      "word": "ESLint",
+      "reading": "イーエスリント",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "9b84c37c-30d7-5488-a419-51ed9fe7b017",
+      "word": "Prettier",
+      "reading": "プリティア",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "bad886d8-5ddb-54ec-9659-4d26660685aa",
+      "word": "Jest",
+      "reading": "ジェスト",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "f56be55e-ec9d-550a-8180-8ebf22f8470b",
+      "word": "Vitest",
+      "reading": "ビーテスト",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "7db22561-e8fe-55e4-b65b-c0cc44b21979",
+      "word": "Playwright",
+      "reading": "プレイライト",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "0d599cdb-4a2a-5f05-b50d-885381c088df",
+      "word": "Cypress",
+      "reading": "サイプレス",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "212d228d-ad05-5eb1-a58e-7c7f78cb52e1",
+      "word": "Selenium",
+      "reading": "セレニウム",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "e40ce9fd-85e0-5d99-9894-0821154f217d",
+      "word": "Pytest",
+      "reading": "パイテスト",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "29caaa91-0aa7-5942-915c-4a6bfe693800",
+      "word": "Next.js",
+      "reading": "ネクストジェイエス",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "b36e4812-8d12-5999-a2ef-fe7023e74bbd",
+      "word": "Vue",
+      "reading": "ビュー",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "dfb90bb6-1808-5432-b145-6e6d47e7a11b",
+      "word": "Nuxt",
+      "reading": "ナクスト",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "43f73ef5-c40c-5efb-8ed0-77d56e582672",
+      "word": "Svelte",
+      "reading": "スベルト",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "ffecf877-2487-590a-948a-ab342cb89115",
+      "word": "Angular",
+      "reading": "アンギュラー",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "1d91ab2e-96fe-5792-ba99-0486226f82a9",
+      "word": "Astro",
+      "reading": "アストロ",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "0c1b127f-f459-5762-b63e-ee27269449fa",
+      "word": "Express",
+      "reading": "エクスプレス",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "03d05cc9-0008-5f41-b1a8-62ebd5ab2448",
+      "word": "FastAPI",
+      "reading": "ファストエーピーアイ",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "2fcd4902-ff3e-56a1-83f5-cef5b19ae7e9",
+      "word": "Django",
+      "reading": "ジャンゴ",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "567a05e9-a02e-5f5b-a031-a1ab934bc17b",
+      "word": "Flask",
+      "reading": "フラスク",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "fd5e81cb-baa7-5c28-92f8-93d83dc4378c",
+      "word": "Rails",
+      "reading": "レイルズ",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "40608418-8265-57f9-9266-b1c66807bcbf",
+      "word": "Spring",
+      "reading": "スプリング",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "8d42d18f-804a-5d70-a988-da474054158f",
+      "word": "Laravel",
+      "reading": "ララベル",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "69fcc6d3-eca3-55cc-8fce-5fa131a7cf19",
+      "word": "Prisma",
+      "reading": "プリズマ",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "144fcfa0-6de7-5954-bacf-4d5ce1e0a4e6",
+      "word": "Drizzle",
+      "reading": "ドリズル",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "ee745e53-bc2a-5ab8-91e2-ed47e8425097",
+      "word": "PostgreSQL",
+      "reading": "ポストグレスキューエル",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "f98d980d-dd72-50e9-be62-18ea88cfd3b3",
+      "word": "Postgres",
+      "reading": "ポストグレス",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "63d987db-98a1-57c0-82cd-489c7aa5a33c",
+      "word": "MySQL",
+      "reading": "マイエスキューエル",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "kubernetes"
+      ]
+    },
+    {
+      "id": "5971cd7d-d804-51d8-a3a7-4f83749879fb",
+      "word": "SQLite",
+      "reading": "エスキューライト",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "c54c6688-0390-53a7-a9e1-7b05094135ea",
+      "word": "Redis",
+      "reading": "レディス",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "67bba631-78f7-5733-81aa-62133d7f81cb",
+      "word": "MongoDB",
+      "reading": "モンゴディービー",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "29dc999a-897b-578d-bf3e-61df7b968245",
+      "word": "Elasticsearch",
+      "reading": "エラスティックサーチ",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "6f33c60c-9357-57bb-a8df-4dca16017576",
+      "word": "OpenSearch",
+      "reading": "オープンサーチ",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "3effa344-26cd-579b-adda-43af8aec7519",
+      "word": "Qdrant",
+      "reading": "クドラント",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "8137b259-e4c9-52ea-a5f7-a88d94271cbd",
+      "word": "Pinecone",
+      "reading": "パインコーン",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "40e2a382-e934-5ec2-9805-6fa7bb4679a4",
+      "word": "Milvus",
+      "reading": "ミルバス",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "61c09f45-a057-5a6c-9a0b-718888fb81f2",
+      "word": "Supabase",
+      "reading": "スーパーベース",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "a0e3ab33-f83a-5554-941b-15b152d11168",
+      "word": "Firebase",
+      "reading": "ファイアベース",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "7120f529-c50e-5009-bc1b-08b64e5c463a",
+      "word": "AWS",
+      "reading": "エーダブリューエス",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "bedrock"
+      ]
+    },
+    {
+      "id": "3563e40e-fb1f-5f3e-90fc-8f7c7837928d",
+      "word": "Azure",
+      "reading": "アジュール",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "968b603e-8ec0-58d2-8e7a-1de97de74715",
+      "word": "GCP",
+      "reading": "ジーシーピー",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "9a4adf1a-f812-5baf-86a0-64c8e2f34d55",
+      "word": "EC2",
+      "reading": "イーシーツー",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "63a1f02e-8584-51b5-ab96-d961cda620d6",
+      "word": "S3",
+      "reading": "エススリー",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "c925bc05-9860-5415-903d-d645e2f09988",
+      "word": "Lambda Function",
+      "reading": "ラムダファンクション",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "802ebfe2-5dee-5356-bc6b-31f1035bc852",
+      "word": "Bedrock",
+      "reading": "ベッドロック",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "bedrock"
+      ]
+    },
+    {
+      "id": "2dae2ddf-09db-5093-bbde-13ef2ad75a46",
+      "word": "SageMaker",
+      "reading": "セージメーカー",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "c51493bc-7601-5132-8044-882469e07177",
+      "word": "CloudFront",
+      "reading": "クラウドフロント",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "2af3aa7c-6d85-5cec-a27f-1db94d00e075",
+      "word": "CloudWatch",
+      "reading": "クラウドウォッチ",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "bab59f8f-c529-5d7b-adcc-e6e3d2f10b07",
+      "word": "Cloudflare",
+      "reading": "クラウドフレア",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "204e7e62-841c-5da7-b76f-515fca237f80",
+      "word": "Vercel",
+      "reading": "バーセル",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "0f83fe6f-442d-5bd9-b992-d748d919c321",
+      "word": "Netlify",
+      "reading": "ネットリファイ",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "1c233067-376b-5843-b428-b73602f99d28",
+      "word": "Docker",
+      "reading": "ドッカー",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "agents"
+      ]
+    },
+    {
+      "id": "882fa8b0-5822-5482-902a-be97ceb60ceb",
+      "word": "Kubernetes",
+      "reading": "クバネティス",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "kubernetes"
+      ]
+    },
+    {
+      "id": "73d3e8a5-a1a5-5f47-9e56-d8c60913f0fd",
+      "word": "K8s",
+      "reading": "ケーエイツ",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "kubernetes"
+      ]
+    },
+    {
+      "id": "a3bb244f-0e63-5036-8bdb-de4b3bc40ead",
+      "word": "Pod",
+      "reading": "ポッド",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "kubernetes"
+      ]
+    },
+    {
+      "id": "ebcfab40-fed6-5bdf-94f7-69da187dc214",
+      "word": "Container",
+      "reading": "コンテナー",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "kubernetes"
+      ]
+    },
+    {
+      "id": "9e081632-5245-5b12-8db7-4b4f7b09b109",
+      "word": "Containerd",
+      "reading": "コンテナーディー",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "ce6593e4-e2a0-50e0-824a-daaa3c7a8ca6",
+      "word": "Helm",
+      "reading": "ヘルム",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "c966917e-6536-56b0-aa55-68f4f4b6c851",
+      "word": "Terraform",
+      "reading": "テラフォーム",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "d465cb11-8317-5b13-84ba-aa749192cdd7",
+      "word": "Pulumi",
+      "reading": "プルミ",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "ab00ba9a-afde-55e9-89cf-fa4fdd336ae1",
+      "word": "Ansible",
+      "reading": "アンシブル",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "c0d5601d-a360-53b7-a8e7-2f373d77f435",
+      "word": "Jenkins",
+      "reading": "ジェンキンス",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "5f3fcf6d-5d64-5337-babf-2c5ebd15895b",
+      "word": "CircleCI",
+      "reading": "サークルシーアイ",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "56da753d-db80-5c12-947f-b8a253238f96",
+      "word": "ArgoCD",
+      "reading": "アルゴシーディー",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "a9fa3c36-801c-5ae3-8a72-78390e6dfdc4",
+      "word": "GitOps",
+      "reading": "ギットオプス",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "a04d5f06-862d-56a9-8269-1be2afd08e60",
+      "word": "DevOps",
+      "reading": "デブオプス",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "550761d6-4c53-5eaf-a09e-5631142b06a2",
+      "word": "DevSecOps",
+      "reading": "デブセックオプス",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "2e14d921-bb08-5b50-86df-105280d35413",
+      "word": "MLOps",
+      "reading": "エムエルオプス",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "3f23766e-1589-52b0-bc17-e1b09bebed89",
+      "word": "SRE",
+      "reading": "エスアールイー",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "48f55d44-c30d-52cd-9fcb-f5c435a8a8b7",
+      "word": "SLA",
+      "reading": "エスエルエー",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "58e5469e-d397-5764-b671-d684f8aab557",
+      "word": "SLO",
+      "reading": "エスエルオー",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "f8274750-7cc4-5299-861d-35f621472f06",
+      "word": "SLI",
+      "reading": "エスエルアイ",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "250a64c2-5103-559f-b31e-0303cb9ae0bf",
+      "word": "CI",
+      "reading": "シーアイ",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "kubernetes"
+      ]
+    },
+    {
+      "id": "5f715b17-556f-5d08-9ae6-76bd91fc1668",
+      "word": "CD",
+      "reading": "シーディー",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "kubernetes"
+      ]
+    },
+    {
+      "id": "4746321d-3089-517c-b9b4-4445a8a5661a",
+      "word": "CI/CD",
+      "reading": "シーアイシーディー",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "fed6680f-f0ab-58d7-84bb-231bee0cf3a2",
+      "word": "IaC",
+      "reading": "アイエーシー",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "2887e40e-1614-5e05-8243-f5f6a2a9ba17",
+      "word": "IaaS",
+      "reading": "イアース",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "005ea68d-de39-5d24-a15c-9fa10ec12182",
+      "word": "PaaS",
+      "reading": "パース",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "kubernetes"
+      ]
+    },
+    {
+      "id": "443e29fa-5f92-5b72-a1cb-d1801d7aee3d",
+      "word": "SaaS",
+      "reading": "サース",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "security"
+      ]
+    },
+    {
+      "id": "e52a0dff-f3a0-587e-9bd2-f89f327a7d61",
+      "word": "FaaS",
+      "reading": "ファース",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "db5654ba-e54c-58fe-a268-9ab5423b931a",
+      "word": "BaaS",
+      "reading": "バース",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "dfd6198c-40bc-549a-a976-84a9303d1af6",
+      "word": "OpenTelemetry",
+      "reading": "オープンテレメトリー",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "f30e9070-07ef-5f7b-a302-e15e8a201693",
+      "word": "Prometheus",
+      "reading": "プロメテウス",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "0f57cbeb-ce6b-5b1d-92ad-d890df9e4ac0",
+      "word": "Grafana",
+      "reading": "グラファナ",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "27243da1-26e9-5055-8363-1b509994a208",
+      "word": "Datadog",
+      "reading": "データドッグ",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "fe985acd-3b94-5f5f-9d2e-b1b227a1011b",
+      "word": "Sentry",
+      "reading": "セントリー",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "agents"
+      ]
+    },
+    {
+      "id": "882c1220-5712-5560-92f5-7191e6c9c9dc",
+      "word": "Temporal",
+      "reading": "テンポラル",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "agents",
+        "javascript"
+      ]
+    },
+    {
+      "id": "4f7841e2-21e2-5fb7-adcf-0d599a795691",
+      "word": "gVisor",
+      "reading": "ジーバイザー",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "55d814fe-4df4-582a-b527-0cbf3235c32c",
+      "word": "Kata",
+      "reading": "カタ",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "agents"
+      ]
+    },
+    {
+      "id": "5ca875c9-4e81-5bfa-998b-4f223dfd7a40",
+      "word": "microVM",
+      "reading": "マイクロブイエム",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "agents"
+      ]
+    },
+    {
+      "id": "570e5562-82b1-5cfa-a726-11928abfbf35",
+      "word": "WebRTC",
+      "reading": "ウェブアールティーシー",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "f6500b3a-94ec-5442-b84d-7db3dda1f17d",
+      "word": "WebAssembly",
+      "reading": "ウェブアセンブリー",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "f5e7d183-2afb-580f-b9ec-ae33398a477d",
+      "word": "WASM",
+      "reading": "ワズム",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "718b0545-bb7d-59a3-87da-0b71a44f1e18",
+      "word": "WASI",
+      "reading": "ワジ",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "13ab1767-c065-5375-8b5c-e2edbed660a8",
+      "word": "Electron",
+      "reading": "エレクトロン",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "9edf2744-4b23-5c0d-9b33-74b8e0427cac",
+      "word": "Tauri",
+      "reading": "タウリ",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "1578457f-b251-50ac-a95b-4e06b0663d0d",
+      "word": "Flutter",
+      "reading": "フラッター",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "e7a8c73e-f606-5c44-85d8-b28e82547131",
+      "word": "SwiftUI",
+      "reading": "スウィフトユーアイ",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "820cc304-d1b6-5758-ba79-f25e52a7c3de",
+      "word": "AppKit",
+      "reading": "アップキット",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "c3a0e70b-6594-5974-9930-596278fbf687",
+      "word": "UIKit",
+      "reading": "ユーアイキット",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "84956771-07bb-5af4-866c-9b80edf05821",
+      "word": "Combine",
+      "reading": "コンバイン",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "494a501e-bf01-5b0f-bd19-8e4d28652adb",
+      "word": "Core Data",
+      "reading": "コアデータ",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "3374d7da-635b-5853-a213-3b718fd74d96",
+      "word": "CoreML",
+      "reading": "コアエムエル",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "4ed78e28-3b95-5ecd-a9af-e35cb89b8ef4",
+      "word": "Metal",
+      "reading": "メタル",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "8c18ca83-e2fc-513c-bbd3-20115cec5fca",
+      "word": "Safari",
+      "reading": "サファリ",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "1bf428ad-3ad5-590e-8796-1846671bdd4e",
+      "word": "Chrome",
+      "reading": "クローム",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "34ece629-c4ef-5f5c-ac2f-cf81eafd08a1",
+      "word": "Chromium",
+      "reading": "クロミウム",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "1e4515c8-b8da-51ab-8485-b15a7527930d",
+      "word": "Firefox",
+      "reading": "ファイアフォックス",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "4b3da269-c166-5214-bb6e-3aeaa92bbb33",
+      "word": "Brave",
+      "reading": "ブレイブ",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "20301c8b-c376-5a81-ae6e-d4c7c96c5eea",
+      "word": "Edge",
+      "reading": "エッジ",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "15a47fd0-6f83-56c0-a7cd-c4217cc7c79e",
+      "word": "macOS",
+      "reading": "マックオーエス",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "c095d6ca-7111-533a-964f-e49ea5627fc6",
+      "word": "iOS",
+      "reading": "アイオーエス",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "6de3a45f-98b7-5af7-a6ca-415de55e837b",
+      "word": "Android",
+      "reading": "アンドロイド",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "59fd86ae-8f44-5b7b-a318-053413a817ff",
+      "word": "Linux",
+      "reading": "リナックス",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "c7b68f75-4e7c-5bc8-9a6c-9132104939a8",
+      "word": "Ubuntu",
+      "reading": "ウブントゥ",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "kubernetes"
+      ]
+    },
+    {
+      "id": "751c068f-bc50-5999-a423-15997e0ed4a8",
+      "word": "Debian",
+      "reading": "デビアン",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "ea4c3b06-5d69-5af4-aa45-085651f0386a",
+      "word": "Fedora",
+      "reading": "フェドラ",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "34c5d993-d319-551c-b4ac-15620afb30bd",
+      "word": "Alpine",
+      "reading": "アルパイン",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "cb587cfb-59fb-545d-9eda-13dce6ebf403",
+      "word": "Windows",
+      "reading": "ウィンドウズ",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "df9c365d-1a03-5db0-a05f-21e82b803360",
+      "word": "WSL",
+      "reading": "ダブリューエスエル",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "769d04c2-ec8c-53ef-af10-cf8af7dcf7e5",
+      "word": "POSIX",
+      "reading": "ポジックス",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "e21ac572-4c4d-5333-81d5-951ec76d50d2",
+      "word": "Unix",
+      "reading": "ユニックス",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "5cb21bf1-0031-5cc7-a103-9d5337f54bf8",
+      "word": "BSD",
+      "reading": "ビーエスディー",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "3d633cd3-8e93-5ae4-acc0-c9c518009e72",
+      "word": "ARM",
+      "reading": "アーム",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "201649b3-fa7a-5e33-8b75-4aa5934a18e5",
+      "word": "ARM64",
+      "reading": "アームロクジュウヨン",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "93a64b94-d257-59ef-ba54-f3a6bdc860f6",
+      "word": "x86",
+      "reading": "エックスハチジュウロク",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "0171a6c4-f74f-5478-98dc-276cb02e3d56",
+      "word": "x64",
+      "reading": "エックスロクジュウヨン",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "c365f1e1-b8a0-5754-9d2b-d2daf34cebca",
+      "word": "RISC-V",
+      "reading": "リスクファイブ",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "b001cde4-40d8-5f68-91aa-84f5ca0fa40e",
+      "word": "API",
+      "reading": "エーピーアイ",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "bedrock",
+        "kubernetes",
+        "mcp",
+        "agents"
+      ]
+    },
+    {
+      "id": "ff7b014c-122b-5408-87f6-253934016d17",
+      "word": "APIs",
+      "reading": "エーピーアイズ",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "b6d2b99c-dc2a-5b8e-b690-52d6fbdec5a0",
+      "word": "SDK",
+      "reading": "エスディーケー",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "mcp"
+      ]
+    },
+    {
+      "id": "36b6db9a-1160-580d-99c7-9f35bc951712",
+      "word": "CLI",
+      "reading": "シーエルアイ",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "mcp"
+      ]
+    },
+    {
+      "id": "b4ba5b81-6ed5-5ea5-8dbc-d76c16087aff",
+      "word": "GUI",
+      "reading": "ジーユーアイ",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "b5c0d1f4-824e-5cb1-b929-61ee07a1eb20",
+      "word": "IDE",
+      "reading": "アイディーイー",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "8b002c6e-eff0-5ea2-aff9-36892d4914d3",
+      "word": "UI",
+      "reading": "ユーアイ",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "kubernetes",
+        "agents"
+      ]
+    },
+    {
+      "id": "21da66ab-1f6c-524b-9ae7-5cd52f52060d",
+      "word": "UX",
+      "reading": "ユーエックス",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "af5cb0bb-77cb-5559-8d57-6da800b1f37d",
+      "word": "DOM",
+      "reading": "ドム",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "81d56701-8bbb-58c2-941d-b754d6b76d2a",
+      "word": "BOM",
+      "reading": "ボム",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "b75a6a00-3b9f-5490-a745-a138f6c4f1b4",
+      "word": "AST",
+      "reading": "エーエスティー",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "8ce73144-bcf6-5841-82c3-b1d5e637ac9f",
+      "word": "CRUD",
+      "reading": "クラッド",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "d3d0eb1a-a8d6-5192-932a-d9099770cc97",
+      "word": "MVC",
+      "reading": "エムブイシー",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "5956fe33-35ed-5691-85d1-e2a2d0c9eeb7",
+      "word": "MVVM",
+      "reading": "エムブイブイエム",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "8c0cb2ab-d3ae-5bc6-a7fe-6bd3d98abf28",
+      "word": "DDD",
+      "reading": "ディーディーディー",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "c5aa6632-378e-522d-bbf1-b57c6c8a8269",
+      "word": "TDD",
+      "reading": "ティーディーディー",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "6894536d-b52f-5d59-a93c-d3a002f78ba3",
+      "word": "BDD",
+      "reading": "ビーディーディー",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "a136dc2c-0d14-5ed6-bcad-6c03e1ed9e71",
+      "word": "SOLID",
+      "reading": "ソリッド",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "mcp"
+      ]
+    },
+    {
+      "id": "fee90171-9731-57db-bb93-a1841e20e44a",
+      "word": "DRY",
+      "reading": "ドライ",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "2cd18c7a-ed56-5351-91ef-9a57d52ea689",
+      "word": "KISS",
+      "reading": "キス",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "1f5f4665-906f-53e6-8c9f-539ab4642b02",
+      "word": "YAGNI",
+      "reading": "ヤグニ",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "71cefdbb-7842-5dc7-b98e-09d415b596f1",
+      "word": "Cisco",
+      "reading": "シスコ",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "642f855f-5c7f-563e-8468-1d0e69afd390",
+      "word": "Catalyst",
+      "reading": "カタリスト",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "1eeaca7c-f02b-53fe-b218-e5f50ec4245a",
+      "word": "Paloalto",
+      "reading": "パロアルト",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "a838f37c-01a8-5b12-8172-d25e5f812e32",
+      "word": "Palo Alto",
+      "reading": "パロアルト",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "e33ffce3-c036-5cf6-873a-724019ea6221",
+      "word": "Palo Alto Networks",
+      "reading": "パロアルトネットワークス",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "a83675c7-99bc-5e89-9a41-fa79f4965309",
+      "word": "Fortinet",
+      "reading": "フォーティネット",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "e5377915-1b65-5242-9e38-01d8428c1def",
+      "word": "Fortigate",
+      "reading": "フォーティゲート",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "b75bc8fa-c991-50b7-a3ed-62f868c1faad",
+      "word": "Juniper",
+      "reading": "ジュニパー",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "d425cab0-60b4-5797-820b-5feab1a6f08b",
+      "word": "Juniper Networks",
+      "reading": "ジュニパーネットワークス",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "e1f1dfd2-29ed-5f01-b3dc-4564523a77b1",
+      "word": "Arista",
+      "reading": "アリスタ",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "308f5888-446b-5ce7-89b4-d2b4eb053e93",
+      "word": "Arista Networks",
+      "reading": "アリスタネットワークス",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "f8ccb089-9811-59e8-af6b-400757fb6b81",
+      "word": "A10",
+      "reading": "エーテン",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "63b7250c-cb3f-5580-95fb-156f10ccbd9e",
+      "word": "A10 Networks",
+      "reading": "エーテンネットワークス",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "99509d88-5d90-5ae8-ac91-1233bef98c70",
+      "word": "F5",
+      "reading": "エフファイブ",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "e1734d45-4e91-51ef-a0d6-5fdcc320edde",
+      "word": "F5 Networks",
+      "reading": "エフファイブネットワークス",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "b6f10cd0-dbef-5125-999d-d251b4b51ae1",
+      "word": "CrowdStrike",
+      "reading": "クラウドストライク",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "673862a4-3867-5115-a522-863962701283",
+      "word": "Zscaler",
+      "reading": "ゼットスケーラー",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "b380b264-40e1-5dbb-bdaf-24ab10cefa1b",
+      "word": "Infoblox",
+      "reading": "インフォブロックス",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "22f94533-a899-59d8-92d1-96c1c4cfafb3",
+      "word": "FortiOS",
+      "reading": "フォーティオーエス",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "7cf692dc-a129-56d2-8f2f-105acc27052a",
+      "word": "FortiManager",
+      "reading": "フォーティマネージャー",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "f9b10261-9924-54f6-893a-64471da590b8",
+      "word": "FortiAnalyzer",
+      "reading": "フォーティアナライザー",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "c5a09dc5-3ee7-5a00-9363-07662f377409",
+      "word": "FortiClient",
+      "reading": "フォーティクライアント",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "f5b6ceae-f833-5f45-b940-f184f09f853e",
+      "word": "PAN-OS",
+      "reading": "パンオーエス",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "dbad1418-09ba-59d8-ae45-bc19f693e56c",
+      "word": "Prisma Access",
+      "reading": "プリズマアクセス",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "eeab7b71-fc68-5f4a-9081-3c2cf0dde5e0",
+      "word": "Junos",
+      "reading": "ジュノス",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "ab13d7b7-cd3c-5be0-8c0e-8dece34a388f",
+      "word": "Meraki",
+      "reading": "メラキ",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "de66e59e-5e2e-547f-a3a3-c2dd72476beb",
+      "word": "Nexus",
+      "reading": "ネクサス",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "a183eed6-3d5b-56d4-bc49-526a2d25eee8",
+      "word": "Umbrella",
+      "reading": "アンブレラ",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "3e664821-2e24-5716-bb97-fc4303c8a536",
+      "word": "Firepower",
+      "reading": "ファイアパワー",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "2e9e5b37-a6c6-571e-b1b5-c877b4d41a09",
+      "word": "ISE",
+      "reading": "アイエスイー",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "69b275d4-e35b-5b7d-841d-93f4dfc02424",
+      "word": "ASA",
+      "reading": "エーエスエー",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "45f48659-68cc-5497-8107-dd345aeb682a",
+      "word": "BIG-IP",
+      "reading": "ビッグアイピー",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "f4315669-3c2e-5348-ace6-92c92f5a845f",
+      "word": "Thunder",
+      "reading": "サンダー",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "b79d6348-51fe-5b60-80e0-dd80820aff45",
+      "word": "Falcon",
+      "reading": "ファルコン",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "0f7b9e26-3203-5c03-add6-4471a0ecca83",
+      "word": "Check Point",
+      "reading": "チェックポイント",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "56815d00-85a1-5bce-8958-91df6f93c9e9",
+      "word": "SonicWall",
+      "reading": "ソニックウォール",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "e2b457c5-f657-52b8-a51c-7f68c0f27043",
+      "word": "WatchGuard",
+      "reading": "ウォッチガード",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "75b2ee16-401b-54d8-a5b1-57003310c897",
+      "word": "Netskope",
+      "reading": "ネットスコープ",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "f9ca423a-bca7-53c5-b7be-f6bdff10e3c9",
+      "word": "Proofpoint",
+      "reading": "プルーフポイント",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "4a277579-ba08-5898-b1de-517067c903c6",
+      "word": "Trellix",
+      "reading": "トレリックス",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "f913388b-5269-5751-a2c8-f96cf82a72c9",
+      "word": "Sophos",
+      "reading": "ソフォス",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "f09515f1-77cc-530d-9a0a-7f2b820f4a6b",
+      "word": "Trend Micro",
+      "reading": "トレンドマイクロ",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "2a4a9df3-ebdc-5f75-a947-88a67ff46590",
+      "word": "SentinelOne",
+      "reading": "センチネルワン",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "456d0962-8f55-5ee6-9549-81a9150f19e6",
+      "word": "Okta",
+      "reading": "オクタ",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "99ad68f3-dbc4-5503-b290-20bf8d142ec6",
+      "word": "CyberArk",
+      "reading": "サイバーアーク",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "f0341ded-d67c-5458-8866-c1bddbd0f561",
+      "word": "Thales",
+      "reading": "タレス",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "f46ccf16-6656-5cd0-967b-d74671d5e44c",
+      "word": "Radware",
+      "reading": "ラドウェア",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "39e320e6-8d9f-506d-8bb6-de0ddfea2d56",
+      "word": "Akamai",
+      "reading": "アカマイ",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "ead1b782-a5cb-59ec-8a8f-916807a5bd78",
+      "word": "Fastly",
+      "reading": "ファストリー",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "9e71b110-2900-573e-94d9-10cc3de211f7",
+      "word": "Imperva",
+      "reading": "インパーバ",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "c4a1ee74-c12a-598c-9ba0-2b57c3ef8bdf",
+      "word": "Forcepoint",
+      "reading": "フォースポイント",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "bd5483b8-0371-5793-8a46-9603296719a4",
+      "word": "Aruba",
+      "reading": "アルバ",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "eab68e77-bcdb-5a05-a407-80f2b50eafb4",
+      "word": "ClearPass",
+      "reading": "クリアパス",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "348af78e-c159-58b9-a604-fce84b91aa13",
+      "word": "HPE",
+      "reading": "エイチピーイー",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "2d333298-96a2-5972-8355-a7b3a5443592",
+      "word": "Extreme Networks",
+      "reading": "エクストリームネットワークス",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "1dbf27d2-9cce-5ec4-8a04-9d0b58a995e1",
+      "word": "Nutanix",
+      "reading": "ニュータニックス",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "0ccbf530-21c6-5d20-9e89-f5c0473544f6",
+      "word": "VMware",
+      "reading": "ブイエムウェア",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "aeff6193-ffb6-575b-87bb-7c6c9db24ca1",
+      "word": "Broadcom",
+      "reading": "ブロードコム",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "d8ff6112-e20e-556b-9c58-9296dfc56080",
+      "word": "NetApp",
+      "reading": "ネットアップ",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "d399e791-fcc2-52ec-9553-54e0567acf88",
+      "word": "Dell",
+      "reading": "デル",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "9fdbbf6a-d22f-578f-8d81-f2677cdd6568",
+      "word": "Lenovo",
+      "reading": "レノボ",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "2e09d3bf-aef5-5ffa-9d65-06ddd653c8e3",
+      "word": "Attack Surface",
+      "reading": "アタックサーフェス",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "678984bd-a5a2-511f-a975-eb97fc1c778a",
+      "word": "Attack Surface Management",
+      "reading": "アタックサーフェスマネジメント",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "fb9a10f7-abb0-5c75-83c4-0b520d7c1a57",
+      "word": "Surface",
+      "reading": "サーフェス",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "41cb72f0-b947-5949-bda8-ce5163cbd14f",
+      "word": "MITRE ATT&CK",
+      "reading": "マイターアタック",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "fe76e3ee-d846-5614-b0f7-6a35604d4b02",
+      "word": "MITRE Att@ck",
+      "reading": "マイターアタック",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "ed6e7cdb-5d0b-5b46-96cc-56bbdedca838",
+      "word": "ATT@CK",
+      "reading": "アタック",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "2e76d867-318f-5317-bec7-bd4743f69fa7",
+      "word": "Tor",
+      "reading": "トア",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "d11c90ab-c8f4-5435-b518-986470c39500",
+      "word": "Tor Browser",
+      "reading": "トアブラウザー",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "690db8d1-03a9-50f2-a3d1-97b0d419137f",
+      "word": "Dark Web",
+      "reading": "ダークウェブ",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "5cf0701c-97f6-5574-9e61-c579eaf925a5",
+      "word": "Darkweb",
+      "reading": "ダークウェブ",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "a4c83277-1126-5395-ba35-66b40d0979bb",
+      "word": "Darknet",
+      "reading": "ダークネット",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "34aaf789-8112-527e-adaa-f9041a7c532f",
+      "word": "Deep Web",
+      "reading": "ディープウェブ",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "0f668921-82ec-5d5d-b685-c16cb8e3a2e9",
+      "word": "Onion",
+      "reading": "オニオン",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "dde5cc9e-54ad-5d2d-9df7-714f8ed64f1d",
+      "word": "Onion Routing",
+      "reading": "オニオンルーティング",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "c1d4a521-a116-5173-9e1f-b929b63e78f9",
+      "word": "EASM",
+      "reading": "イーエーエスエム",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "3ed14e73-0398-5887-a1fd-3abac47b3b01",
+      "word": "ASM",
+      "reading": "エーエスエム",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "security"
+      ]
+    },
+    {
+      "id": "e8bd3a6e-78f9-52ec-9cee-ae62c0828c96",
+      "word": "CTEM",
+      "reading": "シーティーイーエム",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "2d333a7f-4550-5d51-a96f-ffa92e8f0374",
+      "word": "Threat Hunting",
+      "reading": "スレットハンティング",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "9ad54274-defe-5082-9bc4-75e7ba8bec40",
+      "word": "Threat Intelligence",
+      "reading": "スレットインテリジェンス",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "3751e03c-d377-5270-bb9d-3c104fc41dbc",
+      "word": "Kill Chain",
+      "reading": "キルチェーン",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "625866e1-067c-5f47-89be-6922ccdd4c32",
+      "word": "Cyber Kill Chain",
+      "reading": "サイバーキルチェーン",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "a82da794-3914-53bb-bec3-02c7c6beddfa",
+      "word": "Adversary",
+      "reading": "アドバーサリー",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "f89bae75-3882-55eb-b94b-9d59ea2d621c",
+      "word": "Adversarial",
+      "reading": "アドバーサリアル",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "5ecbe6d8-8171-5a48-8dc4-3e7c1372a9c3",
+      "word": "Tactics",
+      "reading": "タクティクス",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "18c526db-dece-5d68-85e6-09dacef1797f",
+      "word": "Techniques",
+      "reading": "テクニークス",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "ff0e668d-05ad-502b-b38c-e30c21a7b5d2",
+      "word": "Procedures",
+      "reading": "プロシージャーズ",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "c0bb6fcd-3c70-5c05-bd9c-51b31c65e682",
+      "word": "Command and Control",
+      "reading": "コマンドアンドコントロール",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "3e152b15-be71-5bfd-820e-f7454bc041b8",
+      "word": "C2",
+      "reading": "シーツー",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "c7fe1744-6f63-5cd5-b7c8-8255aa248c07",
+      "word": "C&C",
+      "reading": "シーアンドシー",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "20efe611-f91f-57f1-8d5e-5eecadcab7c8",
+      "word": "Lateral Movement",
+      "reading": "ラテラルムーブメント",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "0a6abfb1-0080-597a-8bb3-d7a9b1353bdb",
+      "word": "Privilege Escalation",
+      "reading": "プリビレッジエスカレーション",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "2f6daaca-6b47-5116-9a9b-73ed6efccd2b",
+      "word": "Persistence",
+      "reading": "パーシステンス",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "f6f7d250-5b74-5349-af26-853b93f1ced0",
+      "word": "Exfiltration",
+      "reading": "エクスフィルトレーション",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "e5c96302-877f-5fd4-b7f0-0d2cdd250bc7",
+      "word": "Reconnaissance",
+      "reading": "リコネサンス",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "fee1134e-5945-584e-a215-3bf9d0ab88d6",
+      "word": "Credential Stuffing",
+      "reading": "クレデンシャルスタッフィング",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "867f3ed2-2f37-5865-9ded-925f94381a8d",
+      "word": "Password Spraying",
+      "reading": "パスワードスプレーイング",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "4ad3f857-08f2-5c45-9fa4-23ffd3eac6a3",
+      "word": "Brute Force",
+      "reading": "ブルートフォース",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "9442b547-d02b-5deb-bebe-213989705fdc",
+      "word": "Kerberos",
+      "reading": "ケルベロス",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "d10972e8-85b5-5219-8e02-0bb4fbdf299f",
+      "word": "NTLM",
+      "reading": "エヌティーエルエム",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "388154dc-c9d2-5902-ac88-9db15116dc6b",
+      "word": "LDAP",
+      "reading": "エルダップ",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "dc974dbd-29c9-5986-bbfc-fdbc5786feaa",
+      "word": "Active Directory",
+      "reading": "アクティブディレクトリー",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "83702f66-54d9-56d1-84f8-6adfeb81e534",
+      "word": "Zero Day",
+      "reading": "ゼロデイ",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "4e71f848-b841-5817-b700-4fcb73033b54",
+      "word": "Zero-day",
+      "reading": "ゼロデイ",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "f10ea59c-0cd2-59fb-8a5b-556fd2ce3c69",
+      "word": "Supply Chain",
+      "reading": "サプライチェーン",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "28a8c5d2-ef49-5107-90a9-62e2534ecb17",
+      "word": "JPCERT",
+      "reading": "ジェーピーサート",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "379f02ec-e8ea-5250-a5a2-69d29290191d",
+      "word": "Cairn",
+      "reading": "ケルン",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "15be098a-6741-5641-b025-d8eb22de6ef6",
+      "word": "Intelligence",
+      "reading": "インテリジェンス",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "dc7c5c93-1361-5771-95a5-72673150da6d",
+      "word": "Tencent",
+      "reading": "テンセント",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "747a97c1-e951-5969-a451-bd6cf27e96aa",
+      "word": "Cloud",
+      "reading": "クラウド",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "security",
+        "agents"
+      ]
+    },
+    {
+      "id": "dec2db7e-e0ba-546a-8fc7-4ded697c52ac",
+      "word": "Dispatcher",
+      "reading": "ディスパッチャー",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "31b6adb1-c0a7-5977-8267-233b9c71f9d9",
+      "word": "README",
+      "reading": "リードミー",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "06a4c91d-a4be-5feb-9c6f-0faa2c24a702",
+      "word": "goal",
+      "reading": "ゴール",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "baa18e14-acec-56ce-8fd4-db7a8fcbd961",
+      "word": "fact",
+      "reading": "ファクト",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "ca6216dd-a18d-5499-9047-0631ca228642",
+      "word": "Architecture",
+      "reading": "アーキテクチャー",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "mcp"
+      ]
+    },
+    {
+      "id": "bd44cc8c-3ba5-5026-8f2b-22810aca19ae",
+      "word": "feature",
+      "reading": "フィーチャー",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "mcp"
+      ]
+    },
+    {
+      "id": "5e538d40-176d-53ac-be4f-f0a6e4642282",
+      "word": "Strix",
+      "reading": "ストリックス",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "91c487a7-4cbf-5c2c-94c8-c7d6d9446a0e",
+      "word": "Hermes",
+      "reading": "ヘルメス",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "b8a32b8d-b271-5abe-8779-05c981f5c734",
+      "word": "Unit 42",
+      "reading": "ユニットフォーティーツー",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "50ba1b94-8a4e-514e-abb6-bbdefb17ef7e",
+      "word": "Mandiant",
+      "reading": "マンディアント",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "b1f10c10-db56-5d28-b7ed-a39aea12e22e",
+      "word": "Wiz",
+      "reading": "ウィズ",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "b3b98f7b-f667-573c-a6c5-c17830655f1d",
+      "word": "Goals",
+      "reading": "ゴールズ",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "8e46c762-2868-5c21-8497-a0bdf4c200fd",
+      "word": "Cyber",
+      "reading": "サイバー",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "ae6ee358-2b78-528c-83f4-836dae7d36e6",
+      "word": "Strike",
+      "reading": "ストライク",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "80f8d8b8-359e-56a4-9808-6c9462a53d93",
+      "word": "Fastener",
+      "reading": "ファスナー",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "91e20b54-3685-550d-9d3f-6a4c5d192c55",
+      "word": "User",
+      "reading": "ユーザー",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "mcp"
+      ]
+    },
+    {
+      "id": "965e47d8-d2b0-5f44-82bb-71b5e3243f9a",
+      "word": "Name",
+      "reading": "ネーム",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "mcp",
+        "javascript"
+      ]
+    },
+    {
+      "id": "8d998488-7660-575a-ae5a-66d1b61bdf89",
+      "word": "Parser",
+      "reading": "パーサー",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "62f5c14f-e491-587c-b46b-c9e852b0373b",
+      "word": "Reader",
+      "reading": "リーダー",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "2684431b-a08d-5988-b43c-2ac20fd5da60",
+      "word": "Writer",
+      "reading": "ライター",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "ee3f63db-5014-574b-ae14-00bea9bb3e30",
+      "word": "Helper",
+      "reading": "ヘルパー",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "cc688051-a4ec-5091-9e5f-3eecedfaa641",
+      "word": "Mapper",
+      "reading": "マッパー",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "ee7166bb-644a-5bc8-a223-9932eec2c30e",
+      "word": "Entity",
+      "reading": "エンティティ",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "agents",
+        "http"
+      ]
+    },
+    {
+      "id": "ab5e3250-832a-5385-be28-9db5a26a9266",
+      "word": "Resolver",
+      "reading": "リゾルバー",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "414fe5cb-111b-56d3-bc87-aa3b12c397e7",
+      "word": "Manager",
+      "reading": "マネージャー",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "49cf0170-cf72-58f0-ae33-6f047768111e",
+      "word": "Top",
+      "reading": "トップ",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "mcp"
+      ]
+    },
+    {
+      "id": "48b95576-76af-5dc1-bb20-01594ef4db3c",
+      "word": "Sign",
+      "reading": "サイン",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "733100a8-0a5e-5a5b-bf18-a0c898e7008a",
+      "word": "Up",
+      "reading": "アップ",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "87237af7-8892-528a-9c57-7d6be1520643",
+      "word": "Talos",
+      "reading": "タロス",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "fae6b20d-98b5-520b-adcf-54a1c17efb80",
+      "word": "Mythos",
+      "reading": "ミュトス",
+      "accent": 1,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "02d92c31-7bed-5fea-9f47-bde4071c6568",
+      "word": "MiniMax",
+      "reading": "ミニマックス",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "2b64bf28-d268-5203-a636-63f9537062b0",
+      "word": "Flash",
+      "reading": "フラッシュ",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "926de890-2c92-5482-b9c5-2f820108f221",
+      "word": "Meta",
+      "reading": "メタ",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "626902c9-55ba-525e-8ef9-271524eee25a",
+      "word": "Muse",
+      "reading": "ミューズ",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "2a57eb39-4e9a-5186-be4c-400093bcc6f1",
+      "word": "Fusion",
+      "reading": "フュージョン",
+      "accent": 1,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "530bc736-47c4-5489-8a31-f7e791fb7877",
+      "word": "Decision",
+      "reading": "ディシジョン",
+      "accent": 2,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "e45d5dbb-5ba6-5b56-8e74-e205bfa2b6b3",
+      "word": "password",
+      "reading": "パスワード",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "4372fdf3-a7a0-5e27-88c9-ef4715c96270",
+      "word": "Resource",
+      "reading": "リソース",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "http"
+      ]
+    },
+    {
+      "id": "52fc71e8-8b42-5780-a0c3-bbe883f24917",
+      "word": "Cognito",
+      "reading": "コグニート",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "886c241a-3a2b-5535-835e-ef9f7e5cc003",
+      "word": "Alibaba",
+      "reading": "アリババ",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "6198d400-a64e-5225-9e45-2e671242e4ef",
+      "word": "exe",
+      "reading": "エグゼ",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "5292e023-756c-52b9-abe8-a3260a504622",
+      "word": "Vault",
+      "reading": "ボルト",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "c9e79702-3047-5b12-a529-d0cfe21e53a1",
+      "word": "Identity",
+      "reading": "アイデンティティー",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "fb845e74-1ae1-5341-aa0d-682f58323b31",
+      "word": "Hub",
+      "reading": "ハブ",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "7f6d2a3a-3355-52d3-8f12-db0207e6d6c7",
+      "word": "Censys",
+      "reading": "センシス",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "c3eea021-2d87-5730-b167-ba86022f2cc7",
+      "word": "Shodan",
+      "reading": "ショーダン",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "3d19e04c-8c20-5ccd-97c5-5c5034e25431",
+      "word": "CAPTCHA",
+      "reading": "キャプチャ",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "51134e52-f805-5209-910f-7ee5776e66a1",
+      "word": "Telegram",
+      "reading": "テレグラム",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "f40e81ca-ea31-5272-8a3c-b897aa258550",
+      "word": "PentAGI",
+      "reading": "ペントエエジイアイ",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "1852087a-ce76-53ee-8593-dcab74442558",
+      "word": "Infostealer",
+      "reading": "インフォスティーラー",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "7fc79114-1e79-55bb-afe0-3921186086c3",
+      "word": "VShell",
+      "reading": "ブイシェル",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "11d30a03-ae00-5ff9-b4d2-2445b76c39c2",
+      "word": "GoPhish",
+      "reading": "ゴオフィッシュ",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "8111b4de-0b42-58ed-a929-d61cc12ca5b7",
+      "word": "VAPOR",
+      "reading": "ベイパア",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "d8d2c0de-0690-5759-bf95-ce8dc8def3f0",
+      "word": "PANDA",
+      "reading": "パンダ",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "8b09306b-5a5e-5d7e-9619-449a2dc4264e",
+      "word": "Graph",
+      "reading": "グラフ",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "mcp"
+      ]
+    },
+    {
+      "id": "43c475b7-63ad-55e3-b7db-17608510a357",
+      "word": "Nessus",
+      "reading": "ネサス",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "286d457c-9750-57c9-9c2c-af97f8c954cf",
+      "word": "Tenable",
+      "reading": "テナブル",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "bbdc35f3-2476-584e-acff-7a285398ce79",
+      "word": "Fscan",
+      "reading": "エフスキャン",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "63102e66-e569-5626-9cbc-45da908febb6",
+      "word": "PIN",
+      "reading": "ピン",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "dd0328fa-45db-57ff-bd2f-e92b73998abc",
+      "word": "Snort",
+      "reading": "スノート",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "b38c2d2d-a4b5-50da-a6d1-a75cd9ec2678",
+      "word": "Downloader",
+      "reading": "ダウンローダー",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "593ed1e0-92a0-53a6-ab86-1536efd9996c",
+      "word": "CyberStrikeAI",
+      "reading": "サイバーストライクエーアイ",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "bf6b5f47-cf80-5fcb-89f9-dfdb8dddb002",
+      "word": "AutoHunter",
+      "reading": "オートハンター",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "f77c3e29-0c41-5cbd-ac84-b90c291c77cc",
+      "word": "DeepAudit",
+      "reading": "ディープオーディット",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "70981df7-c301-5803-b6db-1bf8f30c2990",
+      "word": "Cortex",
+      "reading": "コーテックス",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "bc756f21-85fb-5b77-ad2a-8f39142c30d9",
+      "word": "XSIAM",
+      "reading": "エックスサイアム",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "447cd0c1-0c2c-589b-9f0a-4d0082c8a1d2",
+      "word": "Unit",
+      "reading": "ユニット",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "d13a1deb-d297-50e7-a90c-980befb9e71d",
+      "word": "Incident",
+      "reading": "インシデント",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "7d60429e-4ed9-52da-8718-bf255ed099f6",
+      "word": "GenAI",
+      "reading": "ジェンエーアイ",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "ec84bab8-0182-5f6f-8d88-8629b95dc20c",
+      "word": "NAS",
+      "reading": "ナス",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "curated-it"
+      ]
+    },
+    {
+      "id": "dd0457ae-e995-5890-adc8-7e20b232895e",
+      "word": "Opus",
+      "reading": "オーパス",
+      "accent": 0,
+      "priority": 5,
+      "sources": [
+        "agents"
+      ]
+    }
+  ]
+}
