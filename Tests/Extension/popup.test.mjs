@@ -4,7 +4,7 @@ async function fixture(options={}){
  const html=await fs.readFile(new URL('../../SafariExtension/Resources/popup.html',import.meta.url),'utf8'),ids=new Set([...html.matchAll(/id="([^"]+)"/g)].map(x=>x[1]));
  const elements=new Map(),calls=[];let dictionary={glossary:'SOC = SOC',readings:'Square = スクエア',displayTerms:''};const get=id=>{assert.ok(ids.has(id),'Missing popup element: '+id);if(!elements.has(id))elements.set(id,new Element());return elements.get(id);};
  let model={running:false,voiceEnabled:false,timelineVisible:false,host:'example.test',effectiveSpeed:1.75};
- const context=vm.createContext({document:{getElementById:get,createElement:()=>new Element(),body:{dataset:{}}},setInterval(){},console,browser:{storage:{local:{get:async()=>{if(options.storageFails)throw Error('invalid schema version');return {settings:{speaker:14,volume:80,speed:1.25,autoSpeed:false}};}}},runtime:{sendMessage:async request=>{
+ const context=vm.createContext({document:{getElementById:get,createElement:()=>new Element(),body:{dataset:{}}},setInterval(){},console,browser:{storage:{local:{get:async()=>{if(options.storageFails)throw Error('invalid schema version');return {settings:{speaker:14,volume:80,speed:1.2,autoSpeed:false}};}}},runtime:{sendMessage:async request=>{
   calls.push(request);if(request.type==='start')Object.assign(model,{running:true,voiceEnabled:true,timelineVisible:true});
   if(request.type==='stop')Object.assign(model,{running:false,voiceEnabled:false});
   if(request.type==='voice')model.voiceEnabled=request.enabled;if(request.type==='timeline')model.timelineVisible=request.visible;
@@ -19,15 +19,15 @@ async function fixture(options={}){
  const popup=new vm.SourceTextModule(await fs.readFile(new URL('../../SafariExtension/Resources/popup.js',import.meta.url),'utf8'),{context});await popup.link(()=>protocol);await popup.evaluate();return {get,calls};
 }
 test('popup restores settings and one start enables speech and timeline independently',async()=>{
- const f=await fixture(),g=f.get;assert.equal(Number(g('speaker').value),14);assert.equal(g('speed-value').textContent,'1.25×');assert.equal(g('voice').disabled,true);
+ const f=await fixture(),g=f.get;assert.equal(Number(g('speaker').value),14);assert.equal(g('speed-value').textContent,'1.2×');assert.equal(g('voice').disabled,true);
  await g('translate').onclick();assert.equal(g('voice').attributes['aria-checked'],'true');assert.equal(g('timeline').attributes['aria-checked'],'true');
  await g('voice').onclick();await g('timeline').onclick();assert.equal(g('voice').attributes['aria-checked'],'false');assert.equal(g('timeline').attributes['aria-checked'],'false');assert.equal(g('translate-label').textContent,'翻訳停止');
  await g('translate').onclick();assert.equal(g('translate-label').textContent,'翻訳開始');
 });
 test('volume numeric entry and preset speed reach settings; preview uses the current choice',async()=>{
  const f=await fixture(),g=f.get;g('volume-number').value='25';g('volume-number').oninput();assert.equal(Number(g('volume').value),25);
- g('speed').value='5';g('speaker').value='52';g('speed').onchange();await new Promise(resolve=>setImmediate(resolve));
- const last=f.calls.filter(x=>x.type==='settings').at(-1);assert.equal(last.value.volume,25);assert.equal(last.value.speed,2);assert.equal(last.value.speaker,52);assert.equal(last.value.autoSpeed,false);
+ g('speed').value='4';g('speaker').value='52';g('speed').onchange();await new Promise(resolve=>setImmediate(resolve));
+ const last=f.calls.filter(x=>x.type==='settings').at(-1);assert.equal(last.value.volume,25);assert.equal(last.value.speed,1.4);assert.equal(last.value.speaker,52);assert.equal(last.value.autoSpeed,false);
  await g('preview').onclick();assert.equal(g('preview-status').textContent,'試聴しています');assert.ok(f.calls.some(x=>x.type==='preview'));
 });
 

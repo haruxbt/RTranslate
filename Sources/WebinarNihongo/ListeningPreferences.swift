@@ -20,37 +20,55 @@ final class ListeningPreferences: ObservableObject {
         didSet { UserDefaults.standard.set(displayTerms, forKey: "displayTerms") }
     }
     func displayed(_ text: String) -> String { PronunciationText.displayed(text, terms: ListeningText.terms(displayTerms)) }
-    private struct CommonEntry: Decodable { let word: String; let reading: String }
-    private struct CommonFile: Decodable { let entries: [CommonEntry] }
-    private lazy var commonReadings: [GlossaryTerm] = {
-        guard let url = Bundle.main.url(forResource: "rspeech-common-ja", withExtension: "json"),
-              let data = try? Data(contentsOf: url),
-              let file = try? JSONDecoder().decode(CommonFile.self, from: data) else { return [] }
-        return file.entries.map { GlossaryTerm(source: $0.word, target: $0.reading) }
-    }()
+    let shared = SharedPronunciations()
     private var readingKey: [String] = []
-    private var userMatcher = PronunciationText.Matcher([])
-    private var pageMatcher: PronunciationText.Matcher?
+    private var fallbackMatcher = PronunciationText.Matcher([])
+    private var nativeMatcher = PronunciationText.Matcher([])
+    private var nativeRows: [String: SpeechPronunciation] = [:]
 
-    func spoken(_ text: String, includeCommon: Bool = false) -> String {
-        let key = [readings, glossary]
-        if key != readingKey {
-            readingKey = key
-            userMatcher = PronunciationText.Matcher(pronunciationTerms)
-            pageMatcher = nil
+    var inheritedReadings: [GlossaryTerm] { (shared.common + shared.personal).map(\.replacement) }
+
+    private func refreshMatchers() {
+        let key = [readings, glossary, String(shared.revision)]
+        guard key != readingKey else { return }
+        readingKey = key
+        let direct = ListeningText.terms(readings)
+        var native = Dictionary((shared.common + shared.personal).map { ($0.word.lowercased(), $0) },
+                                uniquingKeysWith: { _, last in last })
+        let speechTerms = inheritedReadings + direct
+        let byWord = Dictionary(speechTerms.map { ($0.source.lowercased(), $0.target) },
+                                uniquingKeysWith: { _, last in last })
+        let localKeys = Set(direct.map { $0.source.lowercased() })
+        let aliases = terms.compactMap { term -> GlossaryTerm? in
+            let source = term.source.lowercased()
+            let target = term.target.lowercased()
+            guard let reading = byWord[source], source != target, byWord[target] == nil else { return nil }
+            if !localKeys.contains(source), let entry = native[source] {
+                let alias = SpeechPronunciation(word: term.target, reading: entry.reading, accent: entry.accent, priority: entry.priority)
+                if alias.valid { native[target] = alias }
+            }
+            return GlossaryTerm(source: term.target, target: reading)
         }
-        guard includeCommon else { return userMatcher.replacing(text) }
-        if pageMatcher == nil { pageMatcher = PronunciationText.Matcher(commonReadings + pronunciationTerms) }
-        return pageMatcher?.replacing(text) ?? text
+        for key in localKeys { native.removeValue(forKey: key) }
+        nativeRows = native
+        let all = speechTerms + aliases
+        fallbackMatcher = PronunciationText.Matcher(all)
+        nativeMatcher = PronunciationText.Matcher(all.map {
+            GlossaryTerm(source: $0.source, target: native[$0.source.lowercased()]?.word ?? $0.target)
+        })
     }
 
-    private var pronunciationTerms: [GlossaryTerm] {
-        let direct = ListeningText.terms(readings)
-        let byWord = Dictionary(direct.map { ($0.source.lowercased(), $0.target) }, uniquingKeysWith: { _, last in last })
-        let aliases = terms.compactMap { term in
-            byWord[term.source.lowercased()].map { GlossaryTerm(source: term.target, target: $0) }
-        }
-        return aliases + direct
+    func spoken(_ text: String) -> String {
+        refreshMatchers()
+        return fallbackMatcher.replacing(text)
+    }
+
+    func voicevoxSpeech(_ text: String) -> (text: String, pronunciations: [SpeechPronunciation]) {
+        refreshMatchers()
+        let match = nativeMatcher.replacingAndMatching(text)
+        let rows = Set(match.matched).sorted().compactMap { nativeRows[$0] }
+        if rows.count > 24 { return (spoken(text), []) }
+        return (match.text, rows)
     }
     var terms: [GlossaryTerm] { Array(ListeningText.terms(glossary).prefix(100)) }
     var recognitionTerms: [String] { terms.map(\.source) + ["SOC", "Security Operations Center", "SIEM", "SOAR", "EDR", "XDR", "MDR"] }

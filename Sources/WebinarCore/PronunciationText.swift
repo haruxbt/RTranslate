@@ -23,18 +23,25 @@ public enum PronunciationText {
         }
 
         public func replacing(_ original: String) -> String {
-            guard let regex else { return original }
+            replacingAndMatching(original).text
+        }
+
+        public func replacingAndMatching(_ original: String) -> (text: String, matched: [String]) {
+            guard let regex else { return (original, []) }
+            var matched: [String] = []
             var result = ""
             var previous = original.startIndex
             for match in regex.matches(in: original, range: NSRange(original.startIndex..., in: original)) {
-                guard let range = Range(match.range, in: original),
-                      let value = lookup[original[range].lowercased()] else { continue }
+                guard let range = Range(match.range, in: original) else { continue }
+                let key = original[range].lowercased()
+                guard let value = lookup[key] else { continue }
+                matched.append(key)
                 result += original[previous..<range.lowerBound]
                 result += value
                 previous = range.upperBound
             }
             result += original[previous...]
-            return result
+            return (result, matched)
         }
     }
 

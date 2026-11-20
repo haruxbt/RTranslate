@@ -1,4 +1,4 @@
-import {NATIVE_APP, webURL, settings} from './protocol.mjs';
+import {NATIVE_APP, DEFAULT_SPEED, webURL, settings} from './protocol.mjs';
 const api = globalThis.browser || globalThis.chrome;
 let pageReader = null, pageStarting = false;
 let active = null, lastTarget = null, message = '', starting = false, controlError = '', storageNotice = '';
@@ -17,7 +17,7 @@ const readStore=keys=>stored(()=>api.storage.local.get(keys),{});
 const writeStore=value=>stored(()=>api.storage.local.set(value),undefined);
 const restored = readStore(['activeSession','lastTarget','settings','pacePolicy','pageReader']).then(async data => {
   pageReader=data.pageReader || null;active=data.activeSession || null;lastTarget=data.lastTarget || null;
-  if(data.pacePolicy!==2)await writeStore({pacePolicy:2,settings:settings({...data.settings,volume:data.settings?.volume ?? 60,speaker:data.settings?.speaker ?? 2,speed:1.25})});
+  if(data.pacePolicy!==3)await writeStore({pacePolicy:3,settings:settings({...data.settings,volume:data.settings?.volume ?? 60,speaker:data.settings?.speaker ?? 2})});
 });
 async function save() { await writeStore({activeSession:active,lastTarget}); }
 async function native(command, payload = {}) {
@@ -96,7 +96,7 @@ async function start() {
   try {
     const stored=await readStore('settings');
     const current=await native('playbackGet');
-    await native('start',{session,url:tab.url,title:tab.title || '',settings:settings(current.settings || stored.settings || {volume:60,speed:1.25,speaker:2})});
+    await native('start',{session,url:tab.url,title:tab.title || '',settings:settings(current.settings || stored.settings || {volume:60,speed:DEFAULT_SPEED,speaker:2})});
     // Keep this asynchronous task separate from the popup, which may close immediately.
     const target=active;
     prepareCapture(target).catch(async error => { if(active?.session!==target.session)return; controlError=error.message; message=error.message; await stop(); });
@@ -252,7 +252,7 @@ api.runtime.onMessage.addListener((request,sender) => (async()=>{
       case 'dictionarySave': return native('dictionarySave',{dictionary:request.dictionary});
       case 'preview': {
         const stored=await readStore('settings');
-        return native('preview',{settings:settings(stored.settings || {volume:60,speed:1.25,speaker:2})});
+        return native('preview',{settings:settings(stored.settings || {volume:60,speed:DEFAULT_SPEED,speaker:2})});
       }
       case 'settings': {
         const value=settings(request.value); await native('playbackSave',{settings:value});

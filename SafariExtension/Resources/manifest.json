@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "R翻訳",
-  "version": "0.4.0",
+  "version": "0.4.1",
   "description": "英語の動画とページを日本語で聴く。ページ本文の読み上げにも対応。",
   "permissions": [
     "activeTab",

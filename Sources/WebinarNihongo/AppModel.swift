@@ -108,7 +108,12 @@ final class AppModel: ObservableObject {
         AppLifecycle.model = self
         updateObservation = updates.objectWillChange.sink { [weak self] _ in self?.objectWillChange.send() }
         updates.check()
-        voice.speechText = { [weak self] text in self?.listening.spoken(text, includeCommon: self?.pageReading == true) ?? text }
+        voice.speechText = { [weak preferences = listening] text in preferences?.spoken(text) ?? text }
+        voice.localSpeech = { [weak preferences = listening] text, speaker in
+            guard let preferences else { return (text, []) }
+            return preferences.voicevoxSpeech(text)
+        }
+        Task { [weak self] in await self?.listening.shared.refresh() }
         let worker = localWorker
         plamo.endpointProvider = { [weak worker] in worker?.endpoint }
         termination = NotificationCenter.default.publisher(for: NSApplication.willTerminateNotification).sink { [weak self] _ in
@@ -150,6 +155,7 @@ final class AppModel: ObservableObject {
                 self.bufferingEnglish = self.assembler.snapshot != nil
             }
             self.historyTicks += 1
+            if self.historyTicks % 30 == 0 { self.listening.shared.refreshPersonal() }
             if self.historyTicks % 3600 == 0 { self.pruneHistory() }
             if self.historyTicks % 3 == 0 { self.persistHistory() }
             self.writeMeasurement("checkpoint", ["running": self.running, "busy": self.busy, "lines": self.lines.count, "translationQueue": self.pendingCount, "speechQueue": self.voice.waiting, "speechPrepared": self.voice.preparedCount, "speechPreparedBytes": self.voice.preparedBytes, "speechLag": self.voice.lag, "speechPaused": self.voice.pausedForLag, "thermal": ProcessInfo.processInfo.thermalState.rawValue, "audioRMS": self.audioLevel, "status": self.status, "backend": self.backend, "voiceEnabled": self.voice.enabled, "ocrEnabled": self.ocrEnabled])
@@ -724,7 +730,7 @@ final class AppModel: ObservableObject {
                 if selection["history"] == true {
                     historyWritable = false; lines = []; historyDirty = false
                     listening.glossary = ""; listening.readings = ""; listening.displayTerms = ""; listening.corrections = ""
-                    voice.speed = 1.25; voice.volume = 0.6; voice.speakerID = 2; voice.autoSpeed = true
+                    voice.speed = SpeechPacing.defaultSpeed; voice.volume = 0.6; voice.speakerID = 2; voice.autoSpeed = true
                     if let domain = Bundle.main.bundleIdentifier { UserDefaults.standard.removePersistentDomain(forName: domain) }
                 }
                 if selection["app"] == true { DispatchQueue.main.asyncAfter(deadline: .now() + 1) { NSApp.terminate(nil) } }
@@ -884,7 +890,7 @@ final class AppModel: ObservableObject {
         }
         if let smooth = values["smooth"] as? Bool { listening.smooth = smooth }
         if let volume = values["volume"] as? Double, volume.isFinite { voice.volume = Float(min(100, max(0, volume))) / 100 }
-        if let speed = values["speed"] as? Double, [0.75, 1, 1.25, 1.5, 1.75, 2].contains(speed) { voice.speed = speed }
+        if let speed = values["speed"] as? Double, speed.isFinite { voice.speed = SpeechPacing.normalized(speed) }
         if let speaker = values["speaker"] as? Int, [2, 3, 8, 10, 14, 52].contains(speaker) { voice.speakerID = speaker }
         if let automatic = values["autoSpeed"] as? Bool { voice.autoSpeed = automatic }
     }

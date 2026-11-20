@@ -1,11 +1,19 @@
 import Foundation
 
-/// The exact spoken text and speaker identify audio. Playback speed is applied later.
+/// Audio can only be reused for the same text, speaker and synthesis speed.
 public struct SpeechAudioRequest: Hashable, Sendable {
     public let id: UUID
     public let text: String
     public let speaker: Int
-    public init(id: UUID, text: String, speaker: Int) { self.id = id; self.text = text; self.speaker = speaker }
+    public let speed: Double
+    public let pronunciations: [SpeechPronunciation]
+    public init(id: UUID, text: String, speaker: Int, speed: Double, pronunciations: [SpeechPronunciation] = []) {
+        self.id = id
+        self.text = text
+        self.speaker = speaker
+        self.speed = speed
+        self.pronunciations = pronunciations
+    }
 }
 
 /// One synthesis at a time: the current sentence first, then up to five future sentences.

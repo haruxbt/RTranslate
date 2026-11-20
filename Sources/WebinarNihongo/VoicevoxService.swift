@@ -1,6 +1,7 @@
 import Foundation
 import AppKit
 import Combine
+import WebinarCore
 
 struct VoicevoxVoice: Codable, Identifiable {
     let id: Int
@@ -70,12 +71,18 @@ final class VoicevoxService: ObservableObject {
         if let process, process.isRunning { process.terminate() }
         process = nil; ready = false; state = "VOICEVOXを解放しました"
     }
-    func synthesize(_ text: String, speaker: Int, speed: Double) async throws -> Data {
+    func synthesize(_ text: String, speaker: Int, speed: Double, pronunciations: [SpeechPronunciation] = []) async throws -> Data {
         guard ready else { throw AppError.message("設定でVOICEVOXを準備してください") }
         var request = URLRequest(url: URL(string: "http://127.0.0.1:50022/tts")!)
         request.httpMethod = "POST"; request.timeoutInterval = 60
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-        request.httpBody = try JSONSerialization.data(withJSONObject: ["text": text, "speaker": speaker, "speed": speed])
+        struct Input: Encodable {
+            let text: String
+            let speaker: Int
+            let speed: Double
+            let pronunciations: [SpeechPronunciation]
+        }
+        request.httpBody = try JSONEncoder().encode(Input(text: text, speaker: speaker, speed: speed, pronunciations: pronunciations))
         let (data, response) = try await URLSession.shared.data(for: request)
         guard (response as? HTTPURLResponse)?.statusCode == 200 else { throw AppError.message("VOICEVOX音声合成に失敗しました") }
         return data

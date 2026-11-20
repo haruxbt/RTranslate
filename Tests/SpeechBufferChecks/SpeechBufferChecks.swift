@@ -22,8 +22,8 @@ struct CheckError: Error {}
         fatalError("Timed out waiting for buffer")
     }
     @MainActor static func main() async throws {
-        func request(_ n: Int, speaker: Int = 2, id: UUID = UUID()) -> SpeechAudioRequest {
-            SpeechAudioRequest(id: id, text: "sentence \(n)", speaker: speaker)
+        func request(_ n: Int, speaker: Int = 2, speed: Double = 1.2, id: UUID = UUID()) -> SpeechAudioRequest {
+            SpeechAudioRequest(id: id, text: "sentence \(n)", speaker: speaker, speed: speed)
         }
         // Fill all five future slots with a single synthesis worker, and replenish after consumption.
         do {
@@ -36,6 +36,17 @@ struct CheckError: Error {}
             buffer.updateAhead(Array(items.dropFirst(2))); try await wait { buffer.preparedCount == 5 }
             precondition(fake.calls.last == items[6]); buffer.cancelAll()
         }
+        // A queued sentence may have been synthesized before the speed was changed.
+        do {
+            let probe = FakeSynth(), buffer = SpeechAudioBuffer(synthesize: { try await probe.make($0) })
+            let id = UUID(), old = request(1, speed: 1.2, id: id), new = request(1, speed: 1.3, id: id)
+            buffer.updateAhead([old])
+            try await wait { buffer.preparedCount == 1 }
+            buffer.updateAhead([new])
+            _ = try await buffer.audio(for: new)
+            precondition(probe.calls == [old, new])
+        }
+
         // A reused timeline ID with different spoken text or speaker must never reuse old audio.
         do {
             let fake = FakeSynth(), buffer = SpeechAudioBuffer(synthesize: { try await fake.make($0) })
@@ -85,11 +96,11 @@ struct CheckError: Error {}
         // Background errors are not silent successes, and are reported when that sentence is due.
         do {
             let fake = FakeSynth(), buffer = SpeechAudioBuffer(synthesize: { try await fake.make($0) })
-            let bad = SpeechAudioRequest(id: UUID(), text: "fail", speaker: 2)
+            let bad = SpeechAudioRequest(id: UUID(), text: "fail", speaker: 2, speed: 1.2)
             buffer.updateAhead([bad]); try await wait { fake.calls.count == 1 && fake.active == 0 }
             var failed = false; do { _ = try await buffer.audio(for: bad) } catch { failed = true }
             precondition(failed && fake.calls.count == 1); buffer.cancelAll()
         }
-        print("PASS: 7 asynchronous speech buffer checks")
+        print("PASS: 8 asynchronous speech buffer checks")
     }
 }

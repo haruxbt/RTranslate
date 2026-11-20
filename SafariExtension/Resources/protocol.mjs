@@ -7,10 +7,12 @@ export function webURL(value) {
   try { const u = new URL(value); return ['https:', 'http:'].includes(u.protocol) ? u.href : null; }
   catch { return null; }
 }
+export const SPEEDS = [1, 1.1, 1.2, 1.3, 1.4];
+export const DEFAULT_SPEED = 1.2;
 export function settings(value = {}) {
   return {
     volume: Math.max(0, Math.min(100, Number(value.volume) || 0)),
-    speed: [.75, 1, 1.25, 1.5, 1.75, 2].includes(Number(value.speed)) ? Number(value.speed) : 1.25,
+    speed: SPEEDS.includes(Number(value.speed)) ? Number(value.speed) : DEFAULT_SPEED,
     speaker: VOICES.some(([id]) => id === Number(value.speaker)) ? Number(value.speaker) : 2,
     autoSpeed: value.autoSpeed !== false,
     backend: value.backend === "Apple" ? "Apple" : "PLaMo",

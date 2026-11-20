@@ -22,3 +22,5 @@ html,body{width:340px!important;min-width:340px!important;max-width:340px!import
 .accent-link{border-top:1px solid var(--line);margin-top:13px;color:var(--primary);font-weight:600;font-size:14px}
 .page-word-list{max-height:136px;overflow-y:auto;display:flex;flex-wrap:wrap;gap:6px}
 .page-word-list button{border:1px solid var(--line);border-radius:6px;background:var(--surface);padding:4px 7px;color:var(--primary)}
+
+.speed-slider{min-width:0}.speed-ticks{display:flex;justify-content:space-between;padding:0 7px;margin-top:1px}.speed-ticks i{width:1px;height:5px;background:var(--muted)}.speed-ticks i:nth-child(3){height:7px;background:var(--primary)}

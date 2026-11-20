@@ -3,7 +3,8 @@
 import argparse, json, os, threading, time
 from pathlib import Path
 from http.server import BaseHTTPRequestHandler, HTTPServer
-from voicevox_core.blocking import Onnxruntime, OpenJtalk, Synthesizer, VoiceModelFile
+from voicevox_core import UserDictWord
+from voicevox_core.blocking import Onnxruntime, OpenJtalk, Synthesizer, UserDict, VoiceModelFile
 
 p = argparse.ArgumentParser()
 p.add_argument('--root', type=Path, required=True)
@@ -13,7 +14,8 @@ a = p.parse_args()
 started = time.monotonic()
 runtime = next((a.runtime or a.root / 'onnxruntime/lib').glob('libvoicevox_onnxruntime*.dylib'))
 dictionary = next((a.root / 'dict').glob('open_jtalk_dic*'))
-synth = Synthesizer(Onnxruntime.load_once(filename=str(runtime)), OpenJtalk(str(dictionary)),
+jtalk = OpenJtalk(str(dictionary))
+synth = Synthesizer(Onnxruntime.load_once(filename=str(runtime)), jtalk,
                     acceleration_mode='CPU', cpu_num_threads=2)
 # Inspect metadata without loading inference models. Only the selected VVM is loaded.
 allowed_names = {'四国めたん', 'ずんだもん', '春日部つむぎ', '雨晴はう', '冥鳴ひまり', '雀松朱司'}
@@ -47,6 +49,25 @@ def ensure_model(style):
         synth.load_voice_model(model)
         loaded_id = model.id
         loaded_path = path
+
+active_pronunciations = []
+
+
+def configure_pronunciations(rows):
+    global active_pronunciations
+    if rows == active_pronunciations:
+        return
+    if not isinstance(rows, list) or len(rows) > 24:
+        raise ValueError('Invalid pronunciation dictionary')
+    user = UserDict()
+    for row in rows:
+        word, reading, accent, priority = (row[name] for name in ('word', 'reading', 'accent', 'priority'))
+        if not isinstance(word, str) or not isinstance(reading, str) or not 1 <= len(word) <= 64 or not 1 <= len(reading) <= 64:
+            raise ValueError('Invalid pronunciation entry')
+        user.add_word(UserDictWord(word, reading, accent, priority=priority))
+    jtalk.use_user_dict(user)
+    active_pronunciations = rows
+
 
 def watch_parent():
     while True:
@@ -90,6 +111,7 @@ class Handler(BaseHTTPRequestHandler):
             if not isinstance(text, str) or not 0 < len(text) <= 1200 or style not in ids or not .75 <= speed <= 2:
                 return self.reply(400, b'{}')
             ensure_model(style)
+            configure_pronunciations(request.get('pronunciations', []))
             query = synth.create_audio_query(text, style)
             query.speed_scale = speed
             wav = synth.synthesis(query, style)

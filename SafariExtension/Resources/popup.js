@@ -1,7 +1,7 @@
-import {VOICES,settings} from './protocol.mjs';
+import {VOICES,SPEEDS,DEFAULT_SPEED,settings} from './protocol.mjs';
 const api=globalThis.browser || globalThis.chrome,$=id=>document.getElementById(id);
 let interacted=false;globalThis.addEventListener?.('keydown',()=>interacted=true,{capture:true,once:true});globalThis.addEventListener?.('pointerdown',()=>interacted=true,{capture:true,once:true});
-const speeds=[.75,1,1.25,1.5,1.75,2];let state={},busy=false;
+const speeds=SPEEDS;let state={},busy=false;
 let tabMode='video',pageState={},pageBusy=false,pageError='';
 $('page-word-list').hidden=true;
 const playbackDetails=$('playback-details');
@@ -74,7 +74,7 @@ function display(value){state=value;const running=Boolean(value.running||value.p
 async function refresh(){if(tabMode==='page'){await refreshPage();return;}if(busy)return;try{display(await send('status'));}catch(e){display({...state,error:e.message});}}
 async function action(type,extra={}){if(busy)return;busy=true;$('translate').disabled=true;try{display(await send(type,extra));}catch(e){display({...state,error:e.message});}finally{busy=false;$('translate').disabled=!state.running&&!state.preparing&&state.assetReady===false;}}
 $('translate').onclick=()=>action(state.running||state.preparing?'stop':'start');$('voice').onclick=()=>action('voice',{enabled:!state.voiceEnabled});$('timeline').onclick=()=>action('timeline',{visible:!state.timelineVisible});
-function updateInputs(){$('volume-number').value=$('volume').value;$('speed-value').textContent=speeds[Number($('speed').value)].toFixed(2)+'×';$('voice-row').hidden=$('speech-engine').value!=='VOICEVOX';$('prepare-apple').hidden=$('backend').value!=='Apple';}
+function updateInputs(){$('volume-number').value=$('volume').value;$('speed-value').textContent=speeds[Number($('speed').value)].toFixed(1)+'×';$('voice-row').hidden=$('speech-engine').value!=='VOICEVOX';$('prepare-apple').hidden=$('backend').value!=='Apple';}
 function restore(value){const v=settings(value);$('backend').value=v.backend;$('speech-engine').value=v.speechEngine;$('speaker').value=v.speaker;$('volume').value=v.volume;$('speed').value=speeds.indexOf(v.speed);$('autoSpeed').checked=v.autoSpeed;$('smooth').checked=v.smooth;updateInputs();}
 async function saveSettings(){const value=settings({volume:$('volume').value,speed:speeds[Number($('speed').value)],speaker:$('speaker').value,autoSpeed:$('autoSpeed').checked,backend:$('backend').value,speechEngine:$('speech-engine').value,smooth:$('smooth').checked});try{await send('settings',{value});await refresh();}catch(e){$('preview-status').textContent=e.message;}}
 $('volume').oninput=updateInputs;$('speed').oninput=updateInputs;$('volume-number').oninput=()=>{$('volume').value=Math.max(0,Math.min(100,Number($('volume-number').value)||0));};$('volume-number').onchange=()=>{updateInputs();saveSettings();};for(const id of ['volume','speed','speaker','autoSpeed','backend','speech-engine','smooth'])$(id).onchange=()=>{updateInputs();saveSettings();};
@@ -89,5 +89,5 @@ $('settings-playback').onclick=()=>{
 };
 async function openSettings(page){try{await send('openAppSettings',{page});$('settings-status').textContent='アプリの設定を開きました';}catch(e){$('settings-status').textContent=e.message;}}
 for(const page of ['overview','dictionary','slides','models','history','support'])$('settings-'+page).onclick=()=>openSettings(page);$('prepare-apple').onclick=()=>openSettings('models');
-let stored={};try{stored=await api.storage.local.get(['settings','popupTab']);}catch{}let initial=stored.settings||{volume:60,speed:1.25,speaker:2};try{initial=(await send('playbackGet')).settings||initial;}catch{}restore(initial);$('page-mode').value='original';if(stored.popupTab==='page')showTab('page');await refresh();setInterval(refresh,1200);
+let stored={};try{stored=await api.storage.local.get(['settings','popupTab']);}catch{}let initial=stored.settings||{volume:60,speed:DEFAULT_SPEED,speaker:2};try{initial=(await send('playbackGet')).settings||initial;}catch{}restore(initial);$('page-mode').value='original';if(stored.popupTab==='page')showTab('page');await refresh();setInterval(refresh,1200);
 function neutralFocus(){if(!interacted)$('popup-root')?.focus?.({preventScroll:true});}neutralFocus();globalThis.requestAnimationFrame?.(neutralFocus);

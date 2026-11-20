@@ -7,9 +7,19 @@ final class VoiceQueue: NSObject, ObservableObject, AVSpeechSynthesizerDelegate,
     @Published var enabled = false { didSet { if !enabled { halt(mark: "読み上げOFF・履歴に保存") } } }
     @Published var volume: Float = 0.8 { didSet { UserDefaults.standard.set(volume, forKey: "voiceVolume"); player?.volume = volume } }
     @Published var rate: Float = 0.50
-    @Published var speed: Double = 1.25 { didSet { UserDefaults.standard.set(speed, forKey: "voiceSpeed") } }
-    @Published var autoSpeed = UserDefaults.standard.object(forKey: "voiceAutoSpeed") as? Bool ?? true { didSet { UserDefaults.standard.set(autoSpeed, forKey: "voiceAutoSpeed") } }
-    @Published var effectiveSpeed: Double = 1.5
+    @Published var speed: Double = SpeechPacing.defaultSpeed {
+        didSet {
+            UserDefaults.standard.set(speed, forKey: "voiceSpeed")
+            if speed != oldValue { prefetchNext() }
+        }
+    }
+    @Published var autoSpeed = UserDefaults.standard.object(forKey: "voiceAutoSpeed") as? Bool ?? true {
+        didSet {
+            UserDefaults.standard.set(autoSpeed, forKey: "voiceAutoSpeed")
+            if autoSpeed != oldValue { prefetchNext() }
+        }
+    }
+    @Published var effectiveSpeed = SpeechPacing.defaultSpeed
     @Published var engine = "VOICEVOX" { didSet { UserDefaults.standard.set(engine, forKey: "voiceEngine"); if engine != oldValue { invalidatePrefetch() } } }
     @Published var speakerID = 2 { didSet { UserDefaults.standard.set(speakerID, forKey: "voicevoxSpeaker"); if speakerID != oldValue { invalidatePrefetch() } } }
     @Published var voiceIdentifier = "" { didSet { UserDefaults.standard.set(voiceIdentifier, forKey: "voiceIdentifier") } }
@@ -28,9 +38,8 @@ final class VoiceQueue: NSObject, ObservableObject, AVSpeechSynthesizerDelegate,
     private var current: Job?
     private var currentUtterance: AVSpeechUtterance?
     private var synthesisTask: Task<Void, Never>?
-    private static let bufferedSynthesisSpeed = 1.5
     private lazy var audioBuffer = SpeechAudioBuffer { [voicevox] request in
-        try await voicevox.synthesize(request.text, speaker: request.speaker, speed: VoiceQueue.bufferedSynthesisSpeed)
+        try await voicevox.synthesize(request.text, speaker: request.speaker, speed: request.speed, pronunciations: request.pronunciations)
     }
     var preparedCount: Int { audioBuffer.preparedCount }
     var preparedBytes: Int { audioBuffer.preparedBytes }
@@ -40,6 +49,12 @@ final class VoiceQueue: NSObject, ObservableObject, AVSpeechSynthesizerDelegate,
     var onBacklogLimit: (() -> Void)?
     var onFailure: ((String) -> Void)?
     var speechText: (String) -> String = { $0 }
+    var localSpeech: (String, Int) -> (text: String, pronunciations: [SpeechPronunciation]) = { text, _ in (text, []) }
+    private func request(for job: Job, speed: Double) -> SpeechAudioRequest {
+        let speech = localSpeech(job.text, speakerID)
+        return SpeechAudioRequest(id: job.id, text: speech.text, speaker: speakerID, speed: speed,
+                                  pronunciations: speech.pronunciations)
+    }
     func invalidatePrefetch() { audioBuffer.invalidateAhead(); prefetchNext() }
     override init() {
         super.init(); synthesizer.delegate = self
@@ -47,7 +62,7 @@ final class VoiceQueue: NSObject, ObservableObject, AVSpeechSynthesizerDelegate,
         if defaults.object(forKey: "voiceVolume") != nil { volume = min(1, max(0, defaults.float(forKey: "voiceVolume"))) }
         if defaults.object(forKey: "voiceSpeed") != nil {
             let saved = defaults.double(forKey: "voiceSpeed")
-            speed = [0.75, 1, 1.25, 1.5, 1.75, 2].contains(saved) ? saved : 1.25
+            speed = SpeechPacing.normalized(saved)
         }
         voiceIdentifier = defaults.string(forKey: "voiceIdentifier") ?? ""
         engine = defaults.string(forKey: "voiceEngine") ?? "VOICEVOX"
@@ -114,13 +129,12 @@ final class VoiceQueue: NSObject, ObservableObject, AVSpeechSynthesizerDelegate,
         if engine == "VOICEVOX" {
             let token = generation
             synthesisTask?.cancel()
-            let request = SpeechAudioRequest(id: job.id, text: spoken, speaker: speakerID)
+            let request = request(for: job, speed: effectiveSpeed)
             synthesisTask = Task {
                 do {
                     let data = try await audioBuffer.audio(for: request)
                     guard !Task.isCancelled, generation == token else { return }
                     let audio = try AVAudioPlayer(data: data)
-                    audio.enableRate = true; audio.rate = Float(effectiveSpeed / Self.bufferedSynthesisSpeed)
                     audio.volume = volume; audio.delegate = self; player = audio
                     guard audio.play() else { throw AppError.message("VOICEVOX音声を再生できません") }
                     self.error = ""
@@ -145,9 +159,17 @@ final class VoiceQueue: NSObject, ObservableObject, AVSpeechSynthesizerDelegate,
     }
     private func prefetchNext() {
         guard engine == "VOICEVOX", enabled, current != nil else { return }
-        audioBuffer.updateAhead(queue.prefix(5).map {
-            SpeechAudioRequest(id: $0.id, text: speechText($0.text), speaker: speakerID)
-        })
+        var predictedAcceleration = accelerated
+        let spoken = queue.map { speechText($0.text) }
+        let durations = spoken.map { SpeechPacing.estimatedSeconds($0, base: speed) }
+        var remaining = durations.reduce(0, +)
+        let requests = queue.prefix(5).enumerated().map { index, job in
+            remaining -= durations[index]
+            let pace = SpeechPacing.speed(base: speed, queuedSeconds: remaining,
+                                          automatic: autoSpeed, accelerated: &predictedAcceleration)
+            return request(for: job, speed: pace)
+        }
+        audioBuffer.updateAhead(requests)
     }
     private func finished() {
         if let job = current { onState?(job.id, "読了", nil, job.manual) }

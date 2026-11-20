@@ -274,14 +274,46 @@ struct SpeechAdjustments: View {
                     .textFieldStyle(.roundedBorder).frame(width: 46).accessibilityLabel("日本語音量 0から100パーセント")
                 Text("%")
             }
-            Picker("速度", selection: $voice.speed) {
-                ForEach([0.75, 1.0, 1.25, 1.5, 1.75, 2.0], id: \.self) { value in
-                    Text(String(format: "×%g", value)).tag(value)
-                }
+            HStack {
+                Text("速度")
+                SpeechSpeedSlider(speed: $voice.speed)
+                Text(String(format: "×%.1f", voice.speed)).monospacedDigit().frame(width: 40)
             }
         }
     }
 }
+private struct SpeechSpeedSlider: NSViewRepresentable {
+    @Binding var speed: Double
+
+    func makeCoordinator() -> Coordinator { Coordinator(speed: $speed) }
+
+    func makeNSView(context: Context) -> NSSlider {
+        let slider = NSSlider(value: 2, minValue: 0, maxValue: 4, target: context.coordinator,
+                              action: #selector(Coordinator.change(_:)))
+        slider.numberOfTickMarks = SpeechPacing.options.count
+        slider.allowsTickMarkValuesOnly = true
+        slider.tickMarkPosition = .below
+        slider.setAccessibilityLabel("読み上げ速度")
+        return slider
+    }
+
+    func updateNSView(_ slider: NSSlider, context: Context) {
+        context.coordinator.speed = $speed
+        slider.doubleValue = Double(SpeechPacing.options.firstIndex(of: speed) ?? 2)
+        slider.setAccessibilityValueDescription(String(format: "%.1f倍", speed))
+    }
+
+    final class Coordinator: NSObject {
+        var speed: Binding<Double>
+        init(speed: Binding<Double>) { self.speed = speed }
+        @objc func change(_ sender: NSSlider) {
+            let selected = Int(sender.doubleValue.rounded())
+            guard SpeechPacing.options.indices.contains(selected) else { return }
+            speed.wrappedValue = SpeechPacing.options[selected]
+        }
+    }
+}
+
 struct VoiceSelection: View {
     @ObservedObject var voice: VoiceQueue
     var body: some View {
@@ -296,7 +328,7 @@ struct VoiceSelection: View {
                 ForEach(voice.japaneseVoices, id: \.identifier) { item in Text(item.name).tag(item.identifier) }
             }
         }
-        Toggle("読み上げ待ちの長さに応じて自動加速（最大×1.5）", isOn: $voice.autoSpeed)
+        Toggle("読み上げ待ちの長さに応じて自動加速（最大×1.4）", isOn: $voice.autoSpeed)
         Button("選んだ声を試聴") { voice.preview() }
         if !voice.previewStatus.isEmpty { Text(voice.previewStatus).font(.caption) }
         if !voice.error.isEmpty { Text(voice.error).foregroundStyle(.red) }

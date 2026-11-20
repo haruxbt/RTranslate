@@ -1,19 +1,29 @@
 import Foundation
 
 public enum SpeechPacing {
+    public static let options = [1.0, 1.1, 1.2, 1.3, 1.4]
+    public static let defaultSpeed = 1.2
+    public static let acceleratedSpeed = 1.4
+
+    public static func normalized(_ value: Double) -> Double {
+        options.min(by: { abs($0 - value) < abs($1 - value) }).flatMap {
+            abs($0 - value) < 0.000_001 ? $0 : nil
+        } ?? defaultSpeed
+    }
+
     /// Approximate seconds of Japanese speech at the selected base speed.
     /// This is queued content, not sentence count or time spent waiting for translation.
     public static func estimatedSeconds(_ text: String, base: Double) -> Double {
         let count = text.unicodeScalars.filter { !CharacterSet.whitespacesAndNewlines.contains($0) }.count
-        return Double(count) / (7 * min(2, max(0.75, base)))
+        return Double(count) / (7 * normalized(base))
     }
     public static func speed(base: Double, queuedSeconds: Double, automatic: Bool, accelerated: inout Bool) -> Double {
-        let base = min(2, max(0.75, base))
+        let base = normalized(base)
         guard automatic else { accelerated = false; return base }
         // Hysteresis prevents short / long sentence mixes from repeatedly toggling speed.
         if queuedSeconds >= 15 { accelerated = true }
         else if queuedSeconds <= 7.5 { accelerated = false }
-        return accelerated ? max(base, 1.5) : base
+        return accelerated ? max(base, acceleratedSpeed) : base
     }
 }
 

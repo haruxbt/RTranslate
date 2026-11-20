@@ -86,14 +86,14 @@ func XCTAssertEqual<T: Equatable>(_ a: T, _ b: T) { precondition(a == b) }
     }
     func testSpeechAccelerationWithoutSlowingUserChoice() {
         var accelerated = false
-        let short = Array(repeating: "短い文です。", count: 5).reduce(0.0) { $0 + SpeechPacing.estimatedSeconds($1, base: 1.25) }
-        XCTAssertEqual(SpeechPacing.speed(base: 1.25, queuedSeconds: short, automatic: true, accelerated: &accelerated), 1.25)
-        XCTAssertEqual(SpeechPacing.speed(base: 1.25, queuedSeconds: 16, automatic: true, accelerated: &accelerated), 1.5)
-        XCTAssertEqual(SpeechPacing.speed(base: 1.25, queuedSeconds: 10, automatic: true, accelerated: &accelerated), 1.5)
-        XCTAssertEqual(SpeechPacing.speed(base: 1.25, queuedSeconds: 7, automatic: true, accelerated: &accelerated), 1.25)
-        XCTAssertEqual(SpeechPacing.speed(base: 1.75, queuedSeconds: 30, automatic: true, accelerated: &accelerated), 1.75)
-        XCTAssertEqual(SpeechPacing.speed(base: 2, queuedSeconds: 30, automatic: true, accelerated: &accelerated), 2)
-        XCTAssertEqual(SpeechPacing.speed(base: 1.25, queuedSeconds: 100, automatic: false, accelerated: &accelerated), 1.25)
+        let short = Array(repeating: "短い文です。", count: 5).reduce(0.0) { $0 + SpeechPacing.estimatedSeconds($1, base: 1.2) }
+        XCTAssertEqual(SpeechPacing.speed(base: 1.2, queuedSeconds: short, automatic: true, accelerated: &accelerated), 1.2)
+        XCTAssertEqual(SpeechPacing.speed(base: 1.2, queuedSeconds: 16, automatic: true, accelerated: &accelerated), 1.4)
+        XCTAssertEqual(SpeechPacing.speed(base: 1.2, queuedSeconds: 10, automatic: true, accelerated: &accelerated), 1.4)
+        XCTAssertEqual(SpeechPacing.speed(base: 1.2, queuedSeconds: 7, automatic: true, accelerated: &accelerated), 1.2)
+        XCTAssertEqual(SpeechPacing.speed(base: 1.4, queuedSeconds: 30, automatic: true, accelerated: &accelerated), 1.4)
+        XCTAssertEqual(SpeechPacing.speed(base: 1.3, queuedSeconds: 30, automatic: false, accelerated: &accelerated), 1.3)
+        XCTAssertEqual(SpeechPacing.speed(base: 1.2, queuedSeconds: 100, automatic: false, accelerated: &accelerated), 1.2)
         XCTAssertFalse(accelerated)
     }
     func testShortSentenceGrouping() {
