@@ -2,7 +2,7 @@
 set -eu
 cd "${0:A:h:h}"
 app="$PWD/dist/SafariPreview/RTranslate.app"
-output="${1:-$PWD/dist/RTranslate-Safari-v0.4.9-Installer.pkg}"
+output="${1:-$PWD/dist/RTranslate-Safari-v0.4.10-Installer.pkg}"
 version=$(/usr/libexec/PlistBuddy -c 'Print :CFBundleShortVersionString' "$app/Contents/Info.plist")
 # Package the verified build, without rebuilding or launching an app on this Mac.
 codesign --verify --deep --strict "$app"

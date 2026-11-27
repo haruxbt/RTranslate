@@ -3,7 +3,12 @@
   const api = globalThis.browser || globalThis.chrome;
   const tracks = new WeakMap();
   const styledRoots = new WeakSet();
-  const cueStyle = 'video::cue(.rtranslate-caption) { font-size: 0.6em; }';
+  const captionID = 'rtranslate-caption';
+  // Safari lays out the line box using the cue itself, independently of the smaller text span.
+  const cueStyle = `
+    video::cue(#${captionID}) { line-height: 0.95; }
+    video::cue(.${captionID}) { font-size: 0.6em; }
+  `;
 
   function styleCaptions(media) {
     const root = media.getRootNode();
@@ -42,7 +47,7 @@
       if (!Number.isFinite(start) || start < 0 || !Number.isFinite(end) || end <= start ||
           typeof row.japanese !== 'string' || !row.japanese.trim()) return;
       if (lastCue && start < lastCue.startTime) return;
-      const text = `<c.rtranslate-caption>${escapeCueText(row.japanese)}</c>`;
+      const text = `<c.${captionID}>${escapeCueText(row.japanese)}</c>`;
       const until = Math.max(end, start + 1.5);
       if (lastCue && start === lastCue.startTime) {
         lastCue.text += '\n' + text;
@@ -51,6 +56,7 @@
       }
       if (lastCue && lastCue.endTime > start) lastCue.endTime = start;
       const cue = new VTTCue(start, until, text);
+      cue.id = captionID;
       track.addCue(cue);
       cues.push(cue);
       lastCue = cue;

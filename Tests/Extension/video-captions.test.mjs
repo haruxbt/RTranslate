@@ -43,13 +43,15 @@ test('Japanese cues are ready before playback and removed when the capture ends'
 
   const stop = context.__rTranslateVideoCaptions(selectedVideo, 'capture');
   assert.equal(track.mode, 'showing');
-  assert.equal(root.adoptedStyleSheets[0].text, 'video::cue(.rtranslate-caption) { font-size: 0.6em; }');
+  assert.match(root.adoptedStyleSheets[0].text, /video::cue\(#rtranslate-caption\) \{ line-height: 0\.95; \}/);
+  assert.match(root.adoptedStyleSheets[0].text, /video::cue\(\.rtranslate-caption\) \{ font-size: 0\.6em; \}/);
   resolveReply({ok:true, historySession:'live', cursor:2, rows:[
     {mediaStart:12, mediaEnd:12.5, japanese:'最初の字幕 <A>'},
     {mediaStart:13, mediaEnd:15, japanese:'次の字幕'}
   ]});
   await new Promise(resolve => setImmediate(resolve));
   assert.equal(selectedVideo.currentTime, 5);
+  assert.ok(cues.every(cue => cue.id === 'rtranslate-caption'));
   assert.deepEqual(cues.map(cue => [cue.startTime, cue.endTime, cue.text]), [
     [12, 13, '<c.rtranslate-caption>最初の字幕 &lt;A&gt;</c>'], [13, 15, '<c.rtranslate-caption>次の字幕</c>']
   ]);
