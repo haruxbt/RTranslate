@@ -1,6 +1,6 @@
 import test from 'node:test';import assert from 'node:assert/strict';import vm from 'node:vm';import fs from 'node:fs/promises';import {webcrypto} from 'node:crypto';
 async function fixture(nativeStatus={},restoreNeverFinishes=false,options={}){
- const calls=[],controls=[],listeners={},store={};let onMessage,timelineVisible=false,pageReading=false;
+ const calls=[],controls=[],listeners={},store={};let onMessage,timelineVisible=false,timelineReady=false,pageReading=false;
  const event=name=>({addListener:fn=>listeners[name]=fn});
  const api={storage:{local:{get:async()=>{if(options.storageFails)throw Error('invalid schema version');return restoreNeverFinishes?await new Promise(()=>{}):store;},set:async value=>{if(options.storageFails)throw Error('invalid schema version');return Object.assign(store,value);}}},runtime:{onMessage:{addListener:fn=>onMessage=fn},sendNativeMessage:async(app,request)=>{
   calls.push(request);
@@ -10,11 +10,21 @@ async function fixture(nativeStatus={},restoreNeverFinishes=false,options={}){
   if(request.command==='status')return {ok:true,running:true,voiceEnabled:true,...nativeStatus};
   if(request.command==='timelineForPage')return {ok:true,rows:[{id:'owned',japanese:'表示経路の試験'}],cursor:1,historySession:'native-session'};
   if(request.command==='timeline')return {ok:true,rows:[],cursor:0};return {ok:true};
- }},tabs:{get:async id=>({id,url:'https://example.test/webinar'}),query:async()=>[{id:7,url:'https://example.test/webinar',title:'Synthetic webinar'}],sendMessage:async(_id,r)=>{if(r.type.startsWith('capture'))throw Error('No message receiver');if(r.type==='timelineVisibility'){if(typeof r.visible==='boolean')timelineVisible=r.visible;return {ok:true,visible:timelineVisible};}return {ok:true};},onRemoved:event('removed'),onUpdated:event('updated'),onActivated:event('activated')},scripting:{executeScript:async request=>{if(options.scriptError)throw Error(options.scriptError);const control=request.args?.[0];
+ }},tabs:{get:async id=>({id,url:'https://example.test/webinar'}),query:async()=>[{id:7,url:'https://example.test/webinar',title:'Synthetic webinar'}],sendMessage:async()=>{throw Error('No message receiver');},onRemoved:event('removed'),onUpdated:event('updated'),onActivated:event('activated')},scripting:{executeScript:async request=>{if(options.scriptError)throw Error(options.scriptError);const control=request.args?.[0];
  if(control?.type==='captureStart' || control?.type==='captureStop'){
   const [frameId]=request.target.frameIds;
   controls.push({...control,frameId,tabId:request.target.tabId});
   return [{frameId,result:options.noController?undefined:{ok:true}}];
+ }
+ if(request.files?.includes('timeline.js')){
+  if(options.timelineUnavailable)throw Error('No permission');
+  timelineReady=true;
+  return [];
+ }
+ if(request.func?.toString().includes('__rTranslateTimelineV2')){
+  assert.deepEqual(Array.from(request.target.frameIds),[0]);
+  if(timelineReady && typeof control==='boolean')timelineVisible=control;
+  return [{frameId:0,result:{ready:timelineReady,visible:timelineVisible,fullscreen:options.fullscreen===true}}];
  }
  if(request.args)return [{frameId:0,result:{url:'https://example.test/webinar',text:'The system uses OAuth.'}}];return request.func?[{frameId:options.mediaFrame ?? 0,result:options.noMedia?[]:[{index:0,playing:true,area:100}]}]:[];}}};
  const context=vm.createContext({browser:api,URL,crypto:webcrypto,TextEncoder,setTimeout,clearTimeout,console});
@@ -72,6 +82,29 @@ test('one start opens the timeline; hiding it never stops native translation and
  await f.send({type:'stop'});await f.send({type:'start'});await new Promise(resolve=>setImmediate(resolve));
  assert.equal((await f.send({type:'status'})).timelineVisible,true);await f.send({type:'stop'});
 });
+test('a blocked timeline reports its own failure and preserves active capture',async()=>{
+ const options={timelineUnavailable:true};
+ const f=await fixture({},false,options);
+ const started=await f.send({type:'start',lookahead:true});
+ assert.equal(started.ok,true);
+ assert.equal(started.timelineVisible,false);
+ assert.match(started.error,/タイムラインを表示できませんでした/);
+ assert.equal((await f.send({type:'status'})).running,true);
+ assert.equal(f.calls.some(c=>c.command==='stop'),false);
+ options.timelineUnavailable=false;
+ const retry=await f.send({type:'timeline',visible:true});
+ assert.equal(retry.timelineVisible,true);
+ assert.equal((await f.send({type:'status'})).error,undefined);
+ await f.send({type:'stop'});
+});
+
+test('the sidebar reports that video fullscreen obscures it',async()=>{
+ const f=await fixture({},false,{fullscreen:true});
+ assert.equal((await f.send({type:'timeline',visible:true})).timelineFullscreen,true);
+ assert.equal((await f.send({type:'status'})).timelineFullscreen,true);
+ assert.equal((await f.send({type:'timeline',visible:false})).timelineFullscreen,false);
+});
+
 test('voice switch sends an explicit state, and preview is unavailable to page content',async()=>{
  const f=await fixture();await f.send({type:'start'});await new Promise(resolve=>setImmediate(resolve));
  await f.send({type:'voice',enabled:false});assert.equal(f.calls.find(c=>c.command==='voice').enabled,false);

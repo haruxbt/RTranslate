@@ -13,7 +13,9 @@ test('Japanese cues are ready before playback and removed when the capture ends'
     addCue(cue) { cues.push(cue); },
     removeCue(cue) { cues.splice(cues.indexOf(cue), 1); }
   };
+  const root = {adoptedStyleSheets:[]};
   const selectedVideo = {
+    getRootNode: () => root,
     tagName: 'VIDEO', currentTime: 5,
     addTextTrack(kind, label, language) {
       assert.equal(kind, 'subtitles');
@@ -24,6 +26,9 @@ test('Japanese cues are ready before playback and removed when the capture ends'
   let poll;
   let resolveReply;
   const context = {
+    CSSStyleSheet: class {
+      replaceSync(text) { this.text = text; }
+    },
     VTTCue: class {
       constructor(startTime, endTime, text) { Object.assign(this, {startTime, endTime, text}); }
     },
@@ -38,6 +43,7 @@ test('Japanese cues are ready before playback and removed when the capture ends'
 
   const stop = context.__rTranslateVideoCaptions(selectedVideo, 'capture');
   assert.equal(track.mode, 'showing');
+  assert.equal(root.adoptedStyleSheets[0].text, 'video::cue(.rtranslate-caption) { font-size: 0.6em; }');
   resolveReply({ok:true, historySession:'live', cursor:2, rows:[
     {mediaStart:12, mediaEnd:12.5, japanese:'最初の字幕 <A>'},
     {mediaStart:13, mediaEnd:15, japanese:'次の字幕'}
@@ -45,7 +51,7 @@ test('Japanese cues are ready before playback and removed when the capture ends'
   await new Promise(resolve => setImmediate(resolve));
   assert.equal(selectedVideo.currentTime, 5);
   assert.deepEqual(cues.map(cue => [cue.startTime, cue.endTime, cue.text]), [
-    [12, 13, '最初の字幕 &lt;A&gt;'], [13, 15, '次の字幕']
+    [12, 13, '<c.rtranslate-caption>最初の字幕 &lt;A&gt;</c>'], [13, 15, '<c.rtranslate-caption>次の字幕</c>']
   ]);
   const pending = poll();
   assert.equal(calls[1].cursor, 2);

@@ -1,6 +1,6 @@
 # R翻訳 / RTranslate のインストール
 
-[READMEへ戻る](../README.md) · [インストーラをダウンロード](https://github.com/haruxbt/RTranslate/releases/download/v0.4.8/RTranslate-v0.4.8-macOS-arm64.pkg) · [ほかのバージョン](https://github.com/haruxbt/RTranslate/releases)
+[READMEへ戻る](../README.md) · [インストーラをダウンロード](https://github.com/haruxbt/RTranslate/releases/download/v0.4.9/RTranslate-v0.4.9-macOS-arm64.pkg) · [ほかのバージョン](https://github.com/haruxbt/RTranslate/releases)
 
 Apple Silicon（Mシリーズ）・macOS 26以降が対象です。ソースのビルドやXcodeの導入は不要です。このページの画面例はv0.3.8です。macOS・Safariのバージョンにより、文言や配置が異なる場合があります。
 
@@ -8,7 +8,7 @@ Apple Silicon（Mシリーズ）・macOS 26以降が対象です。ソースの�
 
 ## 1. PKGを開き、警告は「完了」で閉じる
 
-ダウンロードした <strong>RTranslate-v0.4.8-macOS-arm64.pkg</strong> をダブルクリックします。
+ダウンロードした <strong>RTranslate-v0.4.9-macOS-arm64.pkg</strong> をダブルクリックします。
 
 「開いていません」「検証できませんでした」という警告が出たら、<strong>「完了」</strong>をクリックします。ここではまだインストールは始まっていません。<strong>「ゴミ箱に入れる」は選ばず、PKGを残してください。</strong>
 

@@ -10,10 +10,10 @@ async function fixture(){
   setAttribute(k,v){this.attributes[k]=v;}removeAttribute(k){delete this.attributes[k];}
   addEventListener(k,v){this.handlers[k]=v;}
  }
- const root=new Element('html');root.root=true;let listener,tick;const calls=[];let response={ok:true,rows:[{id:'a',japanese:'同じ訳を二重に表示しません。',receivedAt:1794567800}],cursor:1,historySession:'s',speakingID:'a',pending:true};
+ const root=new Element('html');root.root=true;let tick;const calls=[];let response={ok:true,rows:[{id:'a',japanese:'同じ訳を二重に表示しません。',receivedAt:1794567800}],cursor:1,historySession:'s',speakingID:'a',pending:true};
  const document={documentElement:root,createElement:tag=>new Element(tag),getElementById:id=>walk(root).find(x=>x.id===id)};
- const context=vm.createContext({document,console,Date,addEventListener(){},setTimeout(fn){tick=fn;return 1;},clearTimeout(){},browser:{runtime:{getURL:p=>p,onMessage:{addListener:fn=>listener=fn},sendMessage:async r=>{calls.push(r);return response;}}}});
- vm.runInContext(source,context);return {root,calls,next:async value=>{response=value;await tick();},send:r=>listener(r),inject:()=>vm.runInContext(source,context)};
+ const context=vm.createContext({document,console,Date,addEventListener(){},setTimeout(fn){tick=fn;return 1;},clearTimeout(){},browser:{runtime:{getURL:p=>p,sendMessage:async r=>{calls.push(r);return response;}}}});
+ vm.runInContext(source,context);return {root,calls,next:async value=>{response=value;await tick();},send:r=>context.__rTranslateTimelineV2(r.visible),inject:()=>vm.runInContext(source,context)};
 }
 function walk(node){return [node,...node.children.flatMap(walk)];}
 test('closing timeline reports OFF, retains history, and leaves translation untouched',async()=>{

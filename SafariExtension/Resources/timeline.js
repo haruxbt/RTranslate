@@ -1,6 +1,6 @@
 (() => {
  const api=globalThis.browser || globalThis.chrome,id='webinar-nihongo-timeline';
- if(globalThis.__rTranslateTimeline)return;
+ if(globalThis.__rTranslateTimelineV2)return;
  // Replace a panel from the previous extension build without reloading video.
  document.getElementById(id)?.remove();
  let host=null,history,empty,pending,follow,latest,timer,cursor=0,historySession='',following=true,polling=false,lastSpeaking='',anchorID='',expectedScroll=null;
@@ -33,7 +33,7 @@
   latest=document.createElement('button');latest.className='latest';latest.textContent='最新へ';latest.hidden=true;latest.onclick=()=>setFollowing(true);footer.append(pending,latest);
   aside.append(header,toolbar,history,footer);shadow.append(aside);document.documentElement.append(host);poll();
  }
- function setVisible(value){clearTimeout(timer);if(value){if(!host?.isConnected)mount();}else host?.remove();return {ok:true,visible:Boolean(host?.isConnected)};}
+ function setVisible(value){clearTimeout(timer);if(value){if(!host?.isConnected)mount();else void poll();}else host?.remove();return {ok:true,visible:Boolean(host?.isConnected)};}
  async function poll(){
   if(!host?.isConnected||polling)return;polling=true;
   try{
@@ -80,10 +80,10 @@
   }catch{if(pending)pending.textContent='接続を確認してください';if(!rows.size&&empty)empty.textContent='R翻訳との接続を確認してください。拡張から翻訳を開始し直すと再接続します。';}
   finally{polling=false;if(host?.isConnected)timer=setTimeout(poll,900);}
  }
- globalThis.__rTranslateTimeline={setVisible};
- api.runtime.onMessage.addListener(request=>{
-  if(request.type!=='timelineVisibility')return;
-  return Promise.resolve(typeof request.visible==='boolean'?setVisible(request.visible):{ok:true,visible:Boolean(host?.isConnected)});
- });
+ globalThis.__rTranslateTimelineV2=value=>{
+  if(typeof value==='boolean')setVisible(value);
+  return {ready:true,visible:Boolean(host?.isConnected),
+    fullscreen:Boolean(document.fullscreenElement || document.webkitFullscreenElement)};
+ };
  addEventListener('pagehide',()=>{clearTimeout(timer);host?.remove();});
 })();

@@ -51,25 +51,45 @@ async function mediaProfile() {
 }
 async function status() {
   await restored;
-  let host='',timelineVisible=false;
-  try{const tab=await currentTab();host=new URL(tab.url).hostname;timelineVisible=Boolean((await api.tabs.sendMessage(tab.id,{type:'timelineVisibility'},{frameId:0}))?.visible);}catch{}
+  let host='',timelineVisible=false,timelineFullscreen=false;
+  try {
+    const tab=await currentTab();
+    host=new URL(tab.url).hostname;
+    const panel=await timelineControl(tab.id);
+    timelineVisible=Boolean(panel?.visible);
+    timelineFullscreen=timelineVisible&&Boolean(panel?.fullscreen);
+  } catch {}
   if (!active) {
     let profile=null;try{profile=await mediaProfile();}catch{}
     let assets;try{assets=await native('assetsStatus');}catch(error){assets={ready:false,message:error.message};}
-    return {ok:true,running:false,message:assets.ready===false?assets.message:message,assetReady:assets.ready,profile,host,timelineVisible};
+    return {ok:true,running:false,message:assets.ready===false?assets.message:message,assetReady:assets.ready,profile,host,timelineVisible,timelineFullscreen};
   }
   try {
     const value = await native('status',{session:active.session});
     if (!value.running && !value.preparing) { message=value.message; await stop(false); }
     const noAudio=!starting && value.running && value.message?.includes('音声未検出');
-    return {...value,ok:true,host,timelineVisible,message:value.running&&value.lookahead&&!starting
+    return {...value,ok:true,host,timelineVisible,timelineFullscreen,message:value.running&&value.lookahead&&!starting
       ?`${value.paused?'一時停止中':'先読み同期中'}・音声準備済み ${value.preparedSpeech ?? 0} 件${Number.isFinite(value.inputLead)?`・取得 ${Math.round(value.inputLead)}秒先`:''}`
       :value.running&&value.paused?'動画の再生を待っています':noAudio?'動画の音声が届いていません。':message || value.message};
   } catch (error) { return {ok:true,running:false,message:error.message}; }
 }
-async function setTimeline(tabID,visible){
-  await api.scripting.executeScript({target:{tabId:tabID,frameIds:[0]},files:['timeline.js']});
-  return api.tabs.sendMessage(tabID,{type:'timelineVisibility',visible},{frameId:0});
+async function timelineControl(tabID, visible = null) {
+  const target = {tabId:tabID,frameIds:[0]};
+  let frame;
+  try {
+    if (visible !== null) await api.scripting.executeScript({target,files:['timeline.js']});
+    [frame] = await api.scripting.executeScript({
+      target,
+      func: value => globalThis.__rTranslateTimelineV2?.(value) ?? {visible:false,ready:false},
+      args: [visible]
+    });
+  } catch {
+    if (visible===null) return;
+  }
+  const result = frame?.result;
+  if (visible !== null && (!result?.ready || result.visible !== visible))
+    throw new Error('タイムラインを表示できませんでした。R翻訳のサイトへのアクセスを確認し、ページを再読み込みしてください。');
+  return result;
 }
 async function stop(notify = true) {
   const previous=active; if(previous)lastTarget=previous; active=null; starting=false; await save();
@@ -106,8 +126,12 @@ async function start(lookahead,captions) {
     // Keep this asynchronous task separate from the popup, which may close immediately.
     const target=active;
     prepareCapture(target).catch(async error => { if(active?.session!==target.session)return; controlError=error.message; message=error.message; await stop(); });
-    await setTimeline(tab.id,true);
-    return {ok:true,preparing:true,voiceEnabled:true,timelineVisible:true,host:new URL(tab.url).hostname,message};
+    const panel=await timelineControl(tab.id,true).catch(error=>{
+      if (active?.session===session && !controlError) controlError=error.message;
+      return null;
+    });
+    return {ok:true,preparing:true,voiceEnabled:true,timelineVisible:Boolean(panel?.visible),
+      host:new URL(tab.url).hostname,message,error:controlError || undefined};
   } catch(error) { await stop(); throw error; }
 }
 async function pageStatus() {
@@ -288,10 +312,11 @@ api.runtime.onMessage.addListener((request,sender) => (async()=>{
       case 'timeline': {
         const tab=await currentTab();
         if (active && tab.id!==active.tabID) throw new Error('翻訳しているタブを開いてください。');
-        let visible=request.visible;
-        if(typeof visible!=='boolean')visible=!Boolean((await api.tabs.sendMessage(tab.id,{type:'timelineVisibility'},{frameId:0}).catch(()=>null))?.visible);
-        await setTimeline(tab.id,visible);
-        return status();
+        const visible=typeof request.visible==='boolean'?request.visible:!Boolean((await timelineControl(tab.id).catch(()=>null))?.visible);
+        const panel=await timelineControl(tab.id,visible);
+        controlError='';
+        const state=await status();
+        return {...state,timelineVisible:panel.visible,timelineFullscreen:panel.visible&&panel.fullscreen};
       }
       default: throw new Error('不明な操作です。');
     }
