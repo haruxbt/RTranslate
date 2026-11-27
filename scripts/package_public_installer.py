@@ -18,7 +18,7 @@ for folder in list(r.rglob('__pycache__')):
 for f in r.rglob('*.pyc'):f.unlink()
 for name in ['LICENSE','THIRD_PARTY_NOTICES.md']:shutil.copy2(root/name,r/name)
 (r/'INSTALL.md').write_text('''# R翻訳 / RTranslate\n\nソースからのビルドやXcodeの導入は不要です。インストール後アプリを開き、初回のモデル取得完了を待ってください。macOS 26以降・Apple Siliconが必要です。Safari拡張を使う場合はSafari設定で有効にします。試験版は未公証・仮署名のため、通常の署名済みアプリとは起動条件が異なります。\n\nモデルはアプリ外のApplication Support/RTranslate/Assetsに保存します。翻訳履歴はこのMac内で3か月保持します。自動インストールによる更新は未実装で、通知後にインストーラで更新します。Air M2 8GBの性能は未実測です。\n\nBuilt with PLaMo. VOICEVOXの選択話者のクレジットは設定で表示します。各モデル・ランタイムの利用条件はPLaMo-LICENSE、VOICEVOX-LICENSE、Python内のlicensesおよびTHIRD_PARTY_NOTICES.mdをご確認ください。\n''')
-info=plistlib.loads((app/'Contents/Info.plist').read_bytes());info['RTranslateUpdateURL']='https://api.github.com/repos/haruketh/RTranslate/releases/latest';(app/'Contents/Info.plist').write_bytes(plistlib.dumps(info))
+info=plistlib.loads((app/'Contents/Info.plist').read_bytes());info['RTranslateUpdateURL']='https://api.github.com/repos/haruxbt/RTranslate/releases/latest';(app/'Contents/Info.plist').write_bytes(plistlib.dumps(info))
 for f in r.rglob('*'):
  if not f.is_file():continue
  assert f.name not in ['history.json','hosts.yml'] and not f.name.startswith('.env'),str(f)

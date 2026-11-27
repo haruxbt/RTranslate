@@ -1,5 +1,6 @@
 import Foundation
 import Combine
+import AppKit
 import WebinarCore
 
 @MainActor
@@ -9,6 +10,23 @@ final class SharedPronunciations: ObservableObject {
         let version: String
         let entries: [SpeechPronunciation]
     }
+
+    private struct PersonalEntry: Codable {
+        let id: UUID?
+        let word: String
+        let reading: String
+        let accent: Int?
+        let priority: Int?
+
+        var pronunciation: SpeechPronunciation {
+            SpeechPronunciation(word: word,
+                                reading: reading.applyingTransform(.hiraganaToKatakana, reverse: false) ?? reading,
+                                accent: accent ?? 0, priority: priority ?? 5)
+        }
+    }
+
+    private static let personalDomain = "local.flop.RSpeech"
+    private static let personalKey = "readingDictionaryV1"
 
     static let source = URL(string: "https://raw.githubusercontent.com/haruxbt/RSpeech/main/Dictionary/common-ja.json")!
     static let submissionTitle = "[R辞書] 共有読み方の追加"
@@ -32,18 +50,61 @@ final class SharedPronunciations: ObservableObject {
         refreshPersonal()
     }
 
+    var entries: [SpeechPronunciation] {
+        Array(Dictionary((common + personal).map { ($0.word.lowercased(), $0) },
+                         uniquingKeysWith: { _, personal in personal }).values)
+    }
+
+    private func personalEntries(in defaults: UserDefaults) throws -> [PersonalEntry] {
+        guard let saved = defaults.object(forKey: Self.personalKey) else { return [] }
+        guard let data = saved as? Data, data.count <= 1_048_576,
+              let entries = try? JSONDecoder().decode([PersonalEntry].self, from: data),
+              entries.count <= 1000 else {
+            throw AppError.message("RSpeechの個人辞書を読み込めませんでした。")
+        }
+        return entries
+    }
+
     func refreshPersonal() {
-        let data = UserDefaults(suiteName: "local.flop.RSpeech")?.data(forKey: "readingDictionaryV1")
-        let values = data.flatMap { bytes -> [SpeechPronunciation]? in
-            guard bytes.count <= 1_048_576 else { return nil }
-            return try? JSONDecoder().decode([SpeechPronunciation].self, from: bytes)
-        } ?? []
-        let next = Array(values.prefix(1000)).filter(\.valid)
+        guard let defaults = UserDefaults(suiteName: Self.personalDomain),
+              let rows = try? personalEntries(in: defaults) else { return }
+        let next = rows.map(\.pronunciation).filter(\.valid)
         if next != personal { personal = next; revision += 1 }
     }
 
-    func refresh() async {
-        guard !updating else { return }
+    func addPersonal(word: String, reading: String, accent: Int) throws {
+        guard let defaults = UserDefaults(suiteName: Self.personalDomain) else {
+            throw AppError.message("RSpeechの個人辞書を開けませんでした。")
+        }
+        // RSpeech keeps an editable copy while it runs and can save it back in full.
+        guard NSRunningApplication.runningApplications(withBundleIdentifier: Self.personalDomain).isEmpty else {
+            throw AppError.message("RSpeechのメニューバーから「終了」を選んでから追加してください。")
+        }
+        let kana = reading.trimmingCharacters(in: .whitespacesAndNewlines)
+        let term = word.trimmingCharacters(in: .whitespacesAndNewlines)
+        var rows = try personalEntries(in: defaults)
+        let index = rows.firstIndex { $0.word.caseInsensitiveCompare(term) == .orderedSame }
+        let previous = index.map { rows[$0] }
+        let entry = PersonalEntry(id: previous?.id ?? UUID(), word: term, reading: kana, accent: accent,
+                                  priority: previous?.priority ?? 5)
+        let pronunciation = entry.pronunciation
+        guard pronunciation.valid else {
+            throw AppError.message("単語と読み方を64文字以内で入力し、アクセントの値を確認してください。")
+        }
+        let normalized = PersonalEntry(id: entry.id, word: term, reading: pronunciation.reading,
+                                       accent: accent, priority: entry.priority)
+        if let index { rows[index] = normalized }
+        else {
+            guard rows.count < 1000 else { throw AppError.message("RSpeechの個人辞書は1000件まで登録できます。") }
+            rows.append(normalized)
+        }
+        defaults.set(try JSONEncoder().encode(rows), forKey: Self.personalKey)
+        refreshPersonal()
+    }
+
+    @discardableResult
+    func refresh() async -> Bool {
+        guard !updating else { return false }
         refreshPersonal()
         updating = true
         defer { updating = false }
@@ -71,8 +132,10 @@ final class SharedPronunciations: ObservableObject {
             try data.write(to: Self.cache, options: .atomic)
             apply(file)
             message = "共通辞書 \(version)・\(common.count)語"
+            return true
         } catch {
             message = "更新できませんでした。保存済みの共通辞書を使用します。"
+            return false
         }
     }
 
@@ -94,22 +157,25 @@ final class SharedPronunciations: ObservableObject {
         version = file.version
     }
 
-    static func issueURL(word: String, reading: String) -> URL? {
-        let word = word.trimmingCharacters(in: .whitespacesAndNewlines)
-        let reading = reading.trimmingCharacters(in: .whitespacesAndNewlines)
-        let kana = reading.applyingTransform(.hiraganaToKatakana, reverse: false) ?? reading
-        let entry = SpeechPronunciation(word: word, reading: kana)
-        guard entry.valid,
-              word.range(of: #"[\p{L}]"#, options: .regularExpression) != nil,
-              word.range(of: #"^[\p{L}\p{M}\p{N} ._+&@'-]+$"#, options: .regularExpression) != nil,
-              word.range(of: #"[\w.+-]+@[\w.-]+\.[a-z]{2,}|(?:sk-|gh[pousr]_)[A-Za-z0-9]{20,}"#,
-                         options: [.regularExpression, .caseInsensitive]) == nil,
-              let encoded = try? JSONEncoder().encode(entry) else { return nil }
-        var url = URLComponents(string: "https://github.com/haruxbt/RSpeech/issues/new")!
-        url.queryItems = [.init(name: "title", value: submissionTitle),
-                          .init(name: "body", value: String(decoding: encoded, as: UTF8.self))]
-        // A literal + in a product name must survive URL form decoding.
-        url.percentEncodedQuery = url.percentEncodedQuery?.replacingOccurrences(of: "+", with: "%2B")
-        return url.url
+    var unpublished: [SpeechPronunciation] {
+        let known = Set(common.map { $0.word.lowercased() })
+        return personal.filter { !known.contains($0.word.lowercased()) && Self.canShare($0) }
+            .sorted { $0.word.localizedStandardCompare($1.word) == .orderedAscending }
+    }
+
+    static let batchLimit = 8
+
+    private static func canShare(_ pronunciation: SpeechPronunciation) -> Bool {
+        pronunciation.valid && GitHubDraft.shareableTerm(pronunciation.word)
+    }
+
+    static func issueURL(for pronunciations: [SpeechPronunciation]) -> URL? {
+        guard let first = pronunciations.first, pronunciations.count <= batchLimit,
+              pronunciations.allSatisfy(canShare) else { return nil }
+        let encoder = JSONEncoder()
+        let body = try? (pronunciations.count == 1 ? encoder.encode(first) : encoder.encode(pronunciations))
+        guard let body else { return nil }
+        return GitHubDraft.issue(repository: "RSpeech", title: submissionTitle,
+                                body: String(decoding: body, as: UTF8.self))
     }
 }

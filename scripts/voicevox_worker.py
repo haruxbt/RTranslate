@@ -10,13 +10,14 @@ p = argparse.ArgumentParser()
 p.add_argument('--root', type=Path, required=True)
 p.add_argument('--parent-pid', type=int, required=True)
 p.add_argument('--runtime', type=Path)
+p.add_argument('--threads', type=int, choices=(2, 4), default=2)
 a = p.parse_args()
 started = time.monotonic()
 runtime = next((a.runtime or a.root / 'onnxruntime/lib').glob('libvoicevox_onnxruntime*.dylib'))
 dictionary = next((a.root / 'dict').glob('open_jtalk_dic*'))
 jtalk = OpenJtalk(str(dictionary))
 synth = Synthesizer(Onnxruntime.load_once(filename=str(runtime)), jtalk,
-                    acceleration_mode='CPU', cpu_num_threads=2)
+                    acceleration_mode='CPU', cpu_num_threads=a.threads)
 # Inspect metadata without loading inference models. Only the selected VVM is loaded.
 allowed_names = {'四国めたん', 'ずんだもん', '春日部つむぎ', '雨晴はう', '冥鳴ひまり', '雀松朱司'}
 voices = []
@@ -122,5 +123,5 @@ class Handler(BaseHTTPRequestHandler):
             self.reply(500, b'{"error":"VOICEVOX synthesis failed"}')
 
 server = HTTPServer(('127.0.0.1', 50022), Handler)
-print(json.dumps({'event': 'ready', 'load_seconds': time.monotonic() - started, 'voices': voices}, ensure_ascii=False), flush=True)
+print(json.dumps({'event': 'ready', 'load_seconds': time.monotonic() - started, 'threads': a.threads, 'voices': voices}, ensure_ascii=False), flush=True)
 server.serve_forever()

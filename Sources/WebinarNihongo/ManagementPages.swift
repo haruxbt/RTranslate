@@ -24,11 +24,25 @@ struct ModelManagementSettings: View {
     @ObservedObject var worker: LocalModelWorker
     @ObservedObject var voiceService: VoicevoxService
     @StateObject private var storage = ModelStorageState()
-    private var locked: Bool { model.running || model.busy || model.pendingCount > 0 || model.voice.reading }
+    private var locked: Bool { model.voiceManagementLocked }
     var body: some View { ScrollView { VStack(alignment: .leading, spacing: 18) {
         SettingsHeading(title: "モデル", subtitle: "Safari拡張と共有する翻訳・音声データを管理します。")
         modelCard("翻訳モデル", "PLaMo 3 Translate 0.8B / MLX 4bit", storage.translation, "plamo-3-translate-0.8b-MLX-4bit", worker.state)
         modelCard("音声モデル", "VOICEVOX / 日本語音声データ", storage.voice, "voicevox", voiceService.state)
+        SettingsCard {
+            VStack(alignment: .leading, spacing: 8) {
+                Picker("VOICEVOXの合成スレッド", selection: Binding(
+                    get: { voiceService.cpuThreads },
+                    set: { threads in Task { await model.changeVoicevoxThreads(threads) } }
+                )) {
+                    Text("2（標準）").tag(2)
+                    Text("4（比較用）").tag(4)
+                }.pickerStyle(.segmented)
+                    .disabled(locked || !assets.ready || voiceService.state.contains("読み込み中"))
+                Text("翻訳と読み上げを停止して切り替えます。")
+                    .font(.caption).foregroundStyle(.secondary)
+            }
+        }
         SettingsCard { VStack(alignment: .leading, spacing: 8) { Text("モデルはアプリの外に保存し、拡張と共用します。").font(.headline); Text("メモリ上の解放と、ディスク上のモデル削除は別です。保存済みの正常なデータは再確認で再利用します。").font(.caption).foregroundStyle(.secondary) } }
         Text(assets.message).font(.caption).foregroundStyle(.secondary)
         if model.backend == "Apple" { Button("Apple翻訳を準備") { model.prepareTranslation() }.disabled(locked) }
@@ -57,10 +71,12 @@ struct SupportSettings: View {
     @ObservedObject var model: AppModel
     @StateObject private var state = SupportState()
     @StateObject private var connection = OverviewState()
+    @State private var reportingRecognition = false
     var body: some View { ScrollView { VStack(alignment: .leading, spacing: 18) {
         SettingsHeading(title: "サポート", subtitle: "動作確認、導入手順、ライセンスを確認できます。")
         SettingsCard { VStack(alignment: .leading, spacing: 10) { Text("動作状態").font(.headline); Text(state.diagnostic).font(.callout).foregroundStyle(.secondary); Text(model.assets.ready ? "共通モデル：準備完了" : "共通モデル：準備が必要").font(.caption); Text("画面・音声の取得権限は翻訳開始時に確認します。").font(.caption).foregroundStyle(.secondary) } }
         HStack { Button(state.checking ? "確認中…" : "動作を確認") { diagnose() }.buttonStyle(.borderedProminent).disabled(state.checking); Button("導入手順") { NSWorkspace.shared.open(URL(string: "https://github.com/haruketh/RTranslate#readme")!) } }
+        Button("音声認識の誤りを報告…") { reportingRecognition = true }
         DisclosureGroup("ライセンス・クレジット") { VStack(alignment: .leading, spacing: 9) {
             Text("Built with PLaMo")
             Text(model.voice.credit)
@@ -72,7 +88,10 @@ struct SupportSettings: View {
         Divider()
         HStack { VStack(alignment: .leading, spacing: 6) { Text("アプリとデータの削除"); Text("対象と共有データへの影響を確認して削除します。").font(.caption).foregroundStyle(.secondary) }; Spacer(); Button("削除の管理", role: .destructive) { state.deletion = true } }
         SettingsCard { VStack(alignment: .leading, spacing: 8) { Text("アップデート時の終了").font(.headline); Text("インストーラがR翻訳の通常終了を要求します。ウィンドウを閉じるだけでは終了しません。応答しない場合はインストールを止めるので、SafariとR翻訳を終了して再実行してください。自動で強制終了はしません。").font(.caption).foregroundStyle(.secondary); Button("R翻訳を終了") { NSApp.terminate(nil) } } }
-    }.padding(24) }.sheet(isPresented: $state.deletion) { RemovalPanel(model: model) } }
+    }.padding(24) }
+        .sheet(isPresented: $state.deletion) { RemovalPanel(model: model) }
+        .sheet(isPresented: $reportingRecognition) { RecognitionReport() }
+    }
     private func diagnose() { state.checking = true; Task { await connection.refresh(model); state.diagnostic = "Safari拡張：\(model.safariRecentlyConnected ? "接続済み" : connection.extensionText)\n\(model.assets.message)\n\(model.status)"; state.checking = false } }
     private var advanced: some View { VStack(alignment: .leading, spacing: 14) {
         Text(model.status).font(.caption).textSelection(.enabled)

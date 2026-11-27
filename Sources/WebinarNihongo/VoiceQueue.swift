@@ -30,10 +30,12 @@ final class VoiceQueue: NSObject, ObservableObject, AVSpeechSynthesizerDelegate,
     @Published var previewStatus = ""
     let voicevox = VoicevoxService()
     var japaneseVoices: [AVSpeechSynthesisVoice] { AVSpeechSynthesisVoice.speechVoices().filter { $0.language.hasPrefix("ja") } }
-    private struct Job { let id: UUID; let text: String; let enqueuedAt: Double; let manual: Bool }
+    private struct Job { let id: UUID; let text: String; let enqueuedAt: Double; let manual: Bool; let mediaStart: Double? }
     private let synthesizer = AVSpeechSynthesizer()
     private let previewSynthesizer = AVSpeechSynthesizer()
     private var player: AVAudioPlayer?
+    private var videoPosition: Double?
+    private var announcedPlayback = false
     private var queue: [Job] = []
     private var current: Job?
     private var currentUtterance: AVSpeechUtterance?
@@ -68,10 +70,14 @@ final class VoiceQueue: NSObject, ObservableObject, AVSpeechSynthesizerDelegate,
         engine = defaults.string(forKey: "voiceEngine") ?? "VOICEVOX"
         if defaults.object(forKey: "voicevoxSpeaker") != nil {
             let saved = defaults.integer(forKey: "voicevoxSpeaker")
-            speakerID = [2, 3, 8, 10, 14, 52].contains(saved) ? saved : 2
+            speakerID = Self.canSelectSpeaker(saved) ? saved : 2
         }
     }
-    var credit: String { voicevox.voices.first(where: { $0.id == speakerID })?.credit ?? "VOICEVOX" }
+    static func canSelectSpeaker(_ id: Int) -> Bool {
+        [2, 3, 8, 10, 14, 52].contains(id)
+    }
+    var credit: String {
+        return voicevox.voices.first(where: { $0.id == speakerID })?.credit ?? "VOICEVOX" }
     var reading: Bool { current != nil }
     func preview() {
         guard current == nil else { return }
@@ -96,19 +102,45 @@ final class VoiceQueue: NSObject, ObservableObject, AVSpeechSynthesizerDelegate,
             previewSynthesizer.speak(utterance)
         }
     }
-    func enqueue(id: UUID, text: String, manual: Bool = false) {
+    func enqueue(id: UUID, text: String, manual: Bool = false, mediaStart: Double? = nil) {
         guard enabled else { onState?(id, "読み上げOFF・履歴に保存", nil, manual); return }
-        queue.append(Job(id: id, text: text, enqueuedAt: ProcessInfo.processInfo.systemUptime, manual: manual))
+        queue.append(Job(id: id, text: text, enqueuedAt: ProcessInfo.processInfo.systemUptime, manual: manual, mediaStart: mediaStart))
         waiting = queue.count
         if queue.count > 120 { onBacklogLimit?() }
         playNext()
         prefetchNext()
     }
     func updateLag() {
-        lag = queue.first.map { ProcessInfo.processInfo.systemUptime - $0.enqueuedAt } ?? 0
+        if let due = (announcedPlayback ? nil : current?.mediaStart) ?? queue.first?.mediaStart {
+            lag = max(0, (videoPosition ?? due) - due)
+        } else {
+            lag = queue.first.map { ProcessInfo.processInfo.systemUptime - $0.enqueuedAt } ?? 0
+        }
         pausedForLag = false
     }
     func resume() { playNext() }
+    func setVideoPosition(_ position: Double?) {
+        videoPosition = position
+        if let current, current.mediaStart != nil { syncPlayer(for: current) }
+        else { playNext() }
+    }
+    private func syncPlayer(for job: Job) {
+        guard let player else { return }
+        guard BrowserPlaybackClock.isDue(job.mediaStart, at: videoPosition) else {
+            player.pause()
+            return
+        }
+        guard !player.isPlaying else { return }
+        guard player.play() else {
+            onFailure?("VOICEVOX音声を再生できません")
+            return
+        }
+        if !announcedPlayback {
+            announcedPlayback = true
+            error = ""
+            onState?(job.id, "読み上げ中", ProcessInfo.processInfo.systemUptime, job.manual)
+        }
+    }
     func halt(mark: String = "停止：未読・履歴に保存") {
         generation = UUID(); synthesisTask?.cancel(); synthesisTask = nil
         audioBuffer.cancelAll()
@@ -119,10 +151,14 @@ final class VoiceQueue: NSObject, ObservableObject, AVSpeechSynthesizerDelegate,
         queue = []; current = nil; currentUtterance = nil; waiting = 0; lag = 0; pausedForLag = false; accelerated = false
     }
     private func playNext() {
-        guard enabled, current == nil, !queue.isEmpty else { return }
+        guard enabled, current == nil, let first = queue.first,
+              BrowserPlaybackClock.isDue(first.mediaStart, at: videoPosition) else { return }
         let job = queue.removeFirst(); current = job; waiting = queue.count
         let queuedSeconds = queue.reduce(0.0) { $0 + SpeechPacing.estimatedSeconds(speechText($1.text), base: speed) }
-        effectiveSpeed = SpeechPacing.speed(base: speed, queuedSeconds: queuedSeconds, automatic: autoSpeed, accelerated: &accelerated)
+        effectiveSpeed = job.mediaStart == nil
+            ? SpeechPacing.speed(base: speed, queuedSeconds: queuedSeconds, automatic: autoSpeed, accelerated: &accelerated)
+            : speed
+        announcedPlayback = false
         let spoken = speechText(job.text)
         player?.stop(); player = nil; previewSynthesizer.stopSpeaking(at: .immediate)
         onState?(job.id, "音声を準備中", nil, job.manual)
@@ -130,15 +166,17 @@ final class VoiceQueue: NSObject, ObservableObject, AVSpeechSynthesizerDelegate,
             let token = generation
             synthesisTask?.cancel()
             let request = request(for: job, speed: effectiveSpeed)
+            // Claim a prepared clip now, before an enqueue can replace the prefetch list.
+            let prepared = audioBuffer.takePreparedAudio(for: request)
             synthesisTask = Task {
                 do {
-                    let data = try await audioBuffer.audio(for: request)
+                    let data: Data
+                    if let prepared { data = prepared }
+                    else { data = try await audioBuffer.audio(for: request) }
                     guard !Task.isCancelled, generation == token else { return }
                     let audio = try AVAudioPlayer(data: data)
                     audio.volume = volume; audio.delegate = self; player = audio
-                    guard audio.play() else { throw AppError.message("VOICEVOX音声を再生できません") }
-                    self.error = ""
-                    onState?(job.id, "読み上げ中", ProcessInfo.processInfo.systemUptime, job.manual)
+                    syncPlayer(for: job)
                     prefetchNext()
                 } catch {
                     guard !Task.isCancelled, generation == token else { return }
@@ -158,15 +196,16 @@ final class VoiceQueue: NSObject, ObservableObject, AVSpeechSynthesizerDelegate,
         }
     }
     private func prefetchNext() {
-        guard engine == "VOICEVOX", enabled, current != nil else { return }
+        guard engine == "VOICEVOX", enabled, current != nil || queue.first?.mediaStart != nil else { return }
         var predictedAcceleration = accelerated
         let spoken = queue.map { speechText($0.text) }
         let durations = spoken.map { SpeechPacing.estimatedSeconds($0, base: speed) }
         var remaining = durations.reduce(0, +)
         let requests = queue.prefix(5).enumerated().map { index, job in
             remaining -= durations[index]
-            let pace = SpeechPacing.speed(base: speed, queuedSeconds: remaining,
-                                          automatic: autoSpeed, accelerated: &predictedAcceleration)
+            let pace = job.mediaStart == nil
+                ? SpeechPacing.speed(base: speed, queuedSeconds: remaining, automatic: autoSpeed, accelerated: &predictedAcceleration)
+                : speed
             return request(for: job, speed: pace)
         }
         audioBuffer.updateAhead(requests)

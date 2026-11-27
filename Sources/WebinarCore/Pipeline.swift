@@ -53,6 +53,8 @@ public struct TranscriptLine: Identifiable, Codable, Sendable {
     public var translationInput: String?
     public var originalJapanese: String?
     public var sessionID: UUID?
+    public var mediaStart: Double?
+    public var mediaEnd: Double?
     public var skipTranslation: Bool?
     public var createdAt: Date?
     public init(id: UUID = UUID(), english: String, audioEnd: Double?, finalAt: Double) {

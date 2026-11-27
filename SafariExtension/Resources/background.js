@@ -62,7 +62,9 @@ async function status() {
     const value = await native('status',{session:active.session});
     if (!value.running && !value.preparing) { message=value.message; await stop(false); }
     const noAudio=!starting && value.running && value.message?.includes('音声未検出');
-    return {...value,ok:true,host,timelineVisible,message:value.running&&value.paused?'動画の再生を待っています':noAudio?'動画の音声が届いていません。':message || value.message};
+    return {...value,ok:true,host,timelineVisible,message:value.running&&value.lookahead&&!starting
+      ?`${value.paused?'一時停止中':'先読み同期中'}・音声準備済み ${value.preparedSpeech ?? 0} 件${Number.isFinite(value.inputLead)?`・取得 ${Math.round(value.inputLead)}秒先`:''}`
+      :value.running&&value.paused?'動画の再生を待っています':noAudio?'動画の音声が届いていません。':message || value.message};
   } catch (error) { return {ok:true,running:false,message:error.message}; }
 }
 async function setTimeline(tabID,visible){
@@ -72,12 +74,14 @@ async function setTimeline(tabID,visible){
 async function stop(notify = true) {
   const previous=active; if(previous)lastTarget=previous; active=null; starting=false; await save();
   if (previous) {
-    try { await api.tabs.sendMessage(previous.tabID,{type:'captureStop',session:previous.session},{frameId:previous.frameID}); } catch {}
-    if (notify) { try { await native('stop',{session:previous.session}); } catch {} }
+    await Promise.allSettled([
+      captureControl(previous,'captureStop'),
+      ...(notify?[native('stop',{session:previous.session})]:[])
+    ]);
   }
   const value=await status();return {...value,running:false,preparing:false,voiceEnabled:false};
 }
-async function start() {
+async function start(lookahead,captions) {
   await restored;
   if (active) return status();
   if (pageStarting || (pageReader && (await pageStatus()).reading)) throw new Error('ページの読み上げを停止してから開始してください。');
@@ -91,12 +95,14 @@ async function start() {
   list.sort((a,b)=>Number(b.playing)-Number(a.playing)||b.area-a.area);
   if (!list.length) throw new Error('このタブで動画を見つけられません。動画のある教材を開いて再生してから、もう一度開始してください。埋め込み元へのアクセス許可が必要な場合もあります。');
   const picked=list[0], session=crypto.randomUUID();
-  active={tabID:tab.id,frameID:picked.frameID,index:picked.index,session,url:tab.url}; await save();
+  active={tabID:tab.id,frameID:picked.frameID,index:picked.index,session,url:tab.url,...(lookahead?{lookahead:true,...(captions?{captions:true}:{})}:{})}; await save();
   starting=true; message='音声認識と日本語音声を準備しています…';
   try {
     const stored=await readStore('settings');
     const current=await native('playbackGet');
-    await native('start',{session,url:tab.url,title:tab.title || '',settings:settings(current.settings || stored.settings || {volume:60,speed:DEFAULT_SPEED,speaker:2})});
+    const playback=settings(current.settings || stored.settings || {volume:60,speed:DEFAULT_SPEED,speaker:2});
+    if(lookahead && playback.speechEngine!=='VOICEVOX')throw new Error('先読み同期にはローカル音声を選んでください。');
+    await native('start',{session,url:tab.url,title:tab.title || '',settings:playback,lookahead});
     // Keep this asynchronous task separate from the popup, which may close immediately.
     const target=active;
     prepareCapture(target).catch(async error => { if(active?.session!==target.session)return; controlError=error.message; message=error.message; await stop(); });
@@ -162,6 +168,14 @@ function pageLeft(tabID) {
   writeStore({pageReader:null});
   native('pageStop',{session:target.session}).catch(()=>{});
 }
+async function captureControl(target,type) {
+  const [frame]=await api.scripting.executeScript({
+    target:{tabId:target.tabID,frameIds:[target.frameID]},
+    func:request=>globalThis.__rTranslateCaptureControlV3?.(request),
+    args:[{type,session:target.session,index:target.index,...(target.lookahead?{lookahead:true,...(target.captions?{captions:true}:{})}:{})}]
+  });
+  return frame?.result;
+}
 async function prepareCapture(target) {
   const deadline=Date.now()+180000;
   while (active?.session===target.session) {
@@ -172,9 +186,18 @@ async function prepareCapture(target) {
     await new Promise(resolve=>setTimeout(resolve,700));
   }
   if (active?.session!==target.session) return;
-  await api.scripting.executeScript({target:{tabId:target.tabID,frameIds:[target.frameID]},files:['media-discovery.js','hls.min.js','capture.js']});
-  const result=await api.tabs.sendMessage(target.tabID,{type:'captureStart',session:target.session,index:target.index},{frameId:target.frameID});
-  if (!result?.ok) throw new Error(result?.error || 'この動画の音声を取得できませんでした。');
+  try {
+    await api.scripting.executeScript({target:{tabId:target.tabID,frameIds:[target.frameID]},files:['media-discovery.js','hls.min.js','video-captions.js','capture.js']});
+  } catch {
+    throw new Error('動画のフレームに接続できませんでした。ページを再読み込みし、R翻訳のサイトへのアクセスを確認してください。');
+  }
+  if (active?.session!==target.session) return;
+  const result=await captureControl(target,'captureStart').catch(()=>null);
+  if (active?.session!==target.session) {
+    if(result?.ok)await captureControl(target,'captureStop').catch(()=>{});
+    return;
+  }
+  if (!result?.ok) throw new Error('動画フレームで音声取得を開始できませんでした。ページを再読み込みし、動画を再生してからもう一度お試しください。');
   // captureReady will confirm the audio route after any required page click.
 }
 api.runtime.onMessage.addListener((request,sender) => (async()=>{
@@ -199,15 +222,20 @@ api.runtime.onMessage.addListener((request,sender) => (async()=>{
       if (!target || sender.tab.id!==target.tabID) throw new Error('対象外のタブです。');
       if (request.type==='pcm') {
         if (!active || sender.frameId!==active.frameID || request.session!==active.session) throw new Error('対象外の動画です。');
-        return await native('pcm',{session:active.session,sequence:request.sequence,pcm:request.pcm});
+        return await native('pcm',{session:active.session,sequence:request.sequence,pcm:request.pcm,...(active.lookahead?{mediaStart:request.mediaStart}:{})});
       }
       if (request.type==='captureHeartbeat') {
         if (!active || sender.frameId!==active.frameID || request.session!==active.session || typeof request.paused!=='boolean') throw new Error('対象外の動画です。');
-        return await native('heartbeat',{session:active.session,paused:request.paused});
+        return await native('heartbeat',{session:active.session,paused:request.paused,...(active.lookahead?{clock:request.clock}:{})});
+      }
+      if (request.type==='captureCaptions') {
+        if (!active?.captions || sender.frameId!==active.frameID || request.session!==active.session) throw new Error('対象外の動画です。');
+        return await native('timeline',{session:active.session,cursor:Math.max(0,Number(request.cursor)||0),
+                                       historySession:request.historySession || ''});
       }
       if (request.type==='captureReady') {
         if (!active || sender.frameId!==active.frameID || request.session!==active.session) throw new Error('対象外の動画です。');
-        starting=false; message='このタブを翻訳しています'; return {ok:true};
+        starting=false; message=active.lookahead?'録画の先読みと同期を実行中':'通常翻訳中（先読みOFF）'; return {ok:true};
       }
       if (request.type==='captureAwaitGesture') {
         if (!active || sender.frameId!==active.frameID || request.session!==active.session) throw new Error('対象外の動画です。');
@@ -229,7 +257,7 @@ api.runtime.onMessage.addListener((request,sender) => (async()=>{
         return {ok:true,words:words.slice(0,24)};
       }
       case 'status': return {...await status(),...(controlError?{error:controlError}:{}),storageNotice};
-      case 'start': controlError=''; return await start();
+      case 'start': controlError=''; return await start(request.lookahead===true,request.captions===true);
       case 'stop': controlError=''; message='停止しました'; return await stop();
       case 'voice':
         if (!active) throw new Error('先に翻訳を開始してください。');
@@ -248,8 +276,6 @@ api.runtime.onMessage.addListener((request,sender) => (async()=>{
         if(request.selection?.history){active=null;lastTarget=null;message='';starting=false;await stored(()=>api.storage.local.remove(['settings','pacePolicy','activeSession','lastTarget']),undefined);}
         return result;
       }
-      case 'dictionaryGet': return native('dictionaryGet');
-      case 'dictionarySave': return native('dictionarySave',{dictionary:request.dictionary});
       case 'preview': {
         const stored=await readStore('settings');
         return native('preview',{settings:settings(stored.settings || {volume:60,speed:DEFAULT_SPEED,speaker:2})});
@@ -273,4 +299,3 @@ api.runtime.onMessage.addListener((request,sender) => (async()=>{
 })());
 api.tabs.onRemoved.addListener(id=>{ void restored.then(()=>pageLeft(id)); if(active?.tabID===id) { message='対象タブが閉じられたため停止しました'; stop(); } });
 api.tabs.onUpdated.addListener((id,change)=>{ if(change.status==='loading' || change.url)void restored.then(()=>pageLeft(id)); if(active?.tabID===id && change.status==='loading') { message='ページが移動したため停止しました'; stop(); } });
-api.tabs.onActivated.addListener(info=>{ if(active && active.tabID!==info.tabId) { message='対象タブが変わったため停止しました'; stop(); } });

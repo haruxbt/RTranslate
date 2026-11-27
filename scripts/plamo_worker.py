@@ -1,6 +1,9 @@
 #!/usr/bin/env python3
 """Optional development worker. No text leaves loopback; model downloads are a separate step."""
 import argparse
+import hashlib
+import importlib.util
+import tempfile
 import json
 import os
 import time
@@ -33,6 +36,34 @@ def prompt_for(text, context, glossary=None):
         [{'role': 'user', 'content': clean(text)}], source_lang='en', target_lang='ja',
         context=clean(context), glossary=glossary if glossary is not None else GLOSSARY, form='polite',
         add_generation_prompt=True, tokenize=False)
+
+# The pinned PFN tokenizer uses Numba for one function and a typed dictionary.
+# Keep the downloaded file intact so the asset verifier can validate and repair it.
+PINNED_TOKENIZER = '68b769d516541603857ce9d2813e48193efe41abb64c1091311b973d491724d9'
+
+def slim_model_view(model, scratch):
+    source = model / 'tokenization_plamo.py'
+    if not source.is_file():
+        return model
+    original = source.read_bytes()
+    if hashlib.sha256(original).hexdigest() != PINNED_TOKENIZER:
+        if b'from numba' in original:
+            raise ValueError('このPLaMoトークナイザーは軽量版で未対応です。同梱モデルを準備してください。')
+        return model
+    code = '\n'.join(line for line in original.decode().split('\n')
+                     if not line.startswith(('from numba ', 'from numba.', '    @njit')))
+    code = code.replace('Dict.empty(key_type=types.int64, value_type=types.int32)', '{}')
+    # Python/NumPy boolean addition differs from the compiled integer sum.
+    code = code.replace('(c >= 0x80) + (c >= 0x800) + (c >= 0x10000)',
+                        'int(c >= 0x80) + int(c >= 0x800) + int(c >= 0x10000)')
+    view = scratch / 'plamo_slim'
+    view.mkdir()
+    for item in model.iterdir():
+        if item == source:
+            (view / item.name).write_text(code, encoding='utf-8')
+        else:
+            (view / item.name).symlink_to(item, target_is_directory=item.is_dir())
+    return view
 
 class Handler(BaseHTTPRequestHandler):
     def log_message(self, *args):
@@ -92,13 +123,22 @@ if __name__ == '__main__':
                     os._exit(0)
         threading.Thread(target=parent_watch, daemon=True).start()
     started = time.monotonic()
+    scratch = tempfile.TemporaryDirectory(prefix='rtranslate-plamo-') if importlib.util.find_spec('numba') is None else None
+    if scratch:
+        os.environ['HF_MODULES_CACHE'] = str(Path(scratch.name) / 'modules')
     import mlx.core as mx
     from mlx_lm import load, stream_generate
     from mlx_lm.sample_utils import make_sampler
     mx.set_cache_limit(256 * 1024 * 1024)
-    model, tokenizer = load(str(args.model.resolve()), trust_remote_code=True,
-                            tokenizer_config={'trust_remote_code': True})
-    mx.eval(model.parameters())
+    try:
+        model_path = args.model.resolve()
+        if scratch:
+            model_path = slim_model_view(model_path, Path(scratch.name))
+        model, tokenizer = load(str(model_path), trust_remote_code=True,
+                                tokenizer_config={'trust_remote_code': True})
+        mx.eval(model.parameters())
+    finally:
+        if scratch: scratch.cleanup()
     server = HTTPServer(('127.0.0.1', args.port), Handler)
     print(json.dumps({'event': 'ready', 'port': server.server_port, 'load_seconds': time.monotonic()-started,
                        'peak_gb': mx.get_peak_memory()/1e9, 'attribution': 'Built with PLaMo'}), flush=True)

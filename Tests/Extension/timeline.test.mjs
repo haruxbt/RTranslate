@@ -62,3 +62,14 @@ test('a page without a matching capture clears the previous page rows',async()=>
  assert.equal(walk(f.root).filter(e=>e.tag==='article').length,0);
  assert.equal(walk(f.root).find(e=>e.className==='empty').textContent,'このページの翻訳はありません。');
 });
+
+test('ahead translations are visible with video timestamps before they are spoken',async()=>{
+ const f=await fixture();await f.send({type:'timelineVisibility',visible:true});await new Promise(resolve=>setImmediate(resolve));
+ await f.next({ok:true,historySession:'ahead',cursor:1,rows:[{id:'future',japanese:'準備した訳。',mediaStart:133}],speakingID:'',running:true,lookahead:true,inputLead:18,preparedSpeech:1});
+ const tree=walk(f.root);
+ assert.equal(tree.find(e=>e.tag==='time').textContent,'2:13');
+ assert.equal(tree.find(e=>e.className==='speaking-label').hidden,true);
+ assert.equal(tree.find(e=>e.className==='pending').textContent,'取得 18秒先 · 音声準備済み 1件');
+ await f.next({ok:true,historySession:'ahead',cursor:1,rows:[],speakingID:'future'});
+ assert.equal(tree.find(e=>e.className==='speaking-label').hidden,false);
+});

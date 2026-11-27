@@ -50,7 +50,14 @@
     if(!row.japanese)continue;let item=rows.get(row.id);
     if(!item){
      const element=document.createElement('article');element.className='row';const meta=document.createElement('div');meta.className='meta';
-     const time=document.createElement('time');time.title='訳文の記録時刻';if(row.receivedAt>0){const date=new Date(row.receivedAt*1000);time.dateTime=date.toISOString();time.textContent=date.toLocaleTimeString('ja-JP',{hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false});}
+     const time=document.createElement('time');
+     if(Number.isFinite(row.mediaStart)&&row.mediaStart>=0){
+      const seconds=Math.floor(row.mediaStart);
+      time.title='動画内の発話時刻';time.textContent=`${Math.floor(seconds/60)}:${String(seconds%60).padStart(2,'0')}`;
+     }else if(row.receivedAt>0){
+      const date=new Date(row.receivedAt*1000);time.title='訳文の記録時刻';time.dateTime=date.toISOString();
+      time.textContent=date.toLocaleTimeString('ja-JP',{hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false});
+     }
      const speaking=document.createElement('span');speaking.className='speaking-label';speaking.textContent='読み上げ中';speaking.hidden=true;const text=document.createElement('p');meta.append(time,speaking);element.append(meta,text);history.append(element);item={element,text,speaking};rows.set(row.id,item);
     }
     if(item.text.textContent!==row.japanese)item.text.textContent=row.japanese;
@@ -60,7 +67,15 @@
    if(lastSpeaking!==speaking){const old=rows.get(lastSpeaking);if(old){old.element.removeAttribute('aria-current');old.speaking.hidden=true;}lastSpeaking=speaking;}
    if(speaking)anchorID=speaking;else if(!anchorID&&rows.size)anchorID=rows.keys().next().value;
    const active=rows.get(speaking);if(active){active.element.setAttribute('aria-current','true');active.speaking.hidden=false;}
-   pending.textContent=result.pending?'…':'';
+   if(result.running&&result.lookahead){
+    const parts=[`音声準備済み ${result.preparedSpeech ?? 0}件`];
+    if(Number.isFinite(result.inputLead)){
+     const lead=Math.round(result.inputLead);
+     parts.unshift(lead>=0?`取得 ${lead}秒先`:`取得 ${-lead}秒遅れ`);
+    }
+    if(result.speechLag>=1)parts.push(`読み上げ待ち ${Math.round(result.speechLag)}秒`);
+    pending.textContent=parts.join(' · ');
+   }else pending.textContent=result.pending?'…':'';
    scrollToPosition();
   }catch{if(pending)pending.textContent='接続を確認してください';if(!rows.size&&empty)empty.textContent='R翻訳との接続を確認してください。拡張から翻訳を開始し直すと再接続します。';}
   finally{polling=false;if(host?.isConnected)timer=setTimeout(poll,900);}

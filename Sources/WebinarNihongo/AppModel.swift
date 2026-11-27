@@ -37,6 +37,22 @@ final class AppModel: ObservableObject {
     private var browserPageURL: String?
     private var browserAudio: AudioBridge?
     private var browserSequence = 0
+    private var browserLookahead = false
+    private var browserMediaStart: Double?
+    private var browserClock = BrowserPlaybackClock()
+    @Published private var browserVideoPosition: Double?
+
+    private func updateBrowserPlayback(at now: Double) {
+        let position = browserClock.position
+        if browserVideoPosition != position {
+            browserVideoPosition = position
+            if let latest = lines.last(where: {
+                $0.sessionID == sessionID && $0.japanese != nil &&
+                BrowserPlaybackClock.isDue($0.mediaStart, at: position)
+            })?.japanese, subtitle != latest { subtitle = latest }
+        }
+        voice.setVideoPosition(browserClock.playingPosition(at: now))
+    }
     private var browserWatchdog = BrowserInputWatchdog(now: ProcessInfo.processInfo.systemUptime)
 
     @Published var partial = ""
@@ -145,6 +161,10 @@ final class AppModel: ObservableObject {
             if let time {
                 if manual { self.lines[index].replayedAt = time }
                 else { self.lines[index].speechAt = time }
+                if !manual, let start = self.lines[index].mediaStart, let position = self.browserVideoPosition {
+                    self.writeMeasurement("video_speech_started", ["mediaStart": start, "videoPosition": position,
+                                                                  "lateBy": position - start])
+                }
                 self.logLine(manual ? "replay_started" : "speech_started", self.lines[index])
             }
         }
@@ -158,8 +178,9 @@ final class AppModel: ObservableObject {
             if self.historyTicks % 30 == 0 { self.listening.shared.refreshPersonal() }
             if self.historyTicks % 3600 == 0 { self.pruneHistory() }
             if self.historyTicks % 3 == 0 { self.persistHistory() }
-            self.writeMeasurement("checkpoint", ["running": self.running, "busy": self.busy, "lines": self.lines.count, "translationQueue": self.pendingCount, "speechQueue": self.voice.waiting, "speechPrepared": self.voice.preparedCount, "speechPreparedBytes": self.voice.preparedBytes, "speechLag": self.voice.lag, "speechPaused": self.voice.pausedForLag, "thermal": ProcessInfo.processInfo.thermalState.rawValue, "audioRMS": self.audioLevel, "status": self.status, "backend": self.backend, "voiceEnabled": self.voice.enabled, "ocrEnabled": self.ocrEnabled])
+            self.writeMeasurement("checkpoint", ["running": self.running, "busy": self.busy, "lines": self.lines.count, "translationQueue": self.pendingCount, "speechQueue": self.voice.waiting, "speechPrepared": self.voice.preparedCount, "voicevoxCPUThreads": self.voice.voicevox.cpuThreads, "speechPreparedBytes": self.voice.preparedBytes, "speechLag": self.voice.lag, "speechPaused": self.voice.pausedForLag, "thermal": ProcessInfo.processInfo.thermalState.rawValue, "audioRMS": self.audioLevel, "status": self.status, "backend": self.backend, "voiceEnabled": self.voice.enabled, "ocrEnabled": self.ocrEnabled])
             if self.pageReading && !self.voice.enabled { self.finishPage("読み上げを停止しました。") }
+            if self.browserLookahead && self.running { self.updateBrowserPlayback(at: ProcessInfo.processInfo.systemUptime) }
             self.voice.updateLag()
             if self.running, self.browserAudio != nil, self.browserWatchdog.timedOut(at: ProcessInfo.processInfo.systemUptime) {
                 self.stop(reason: "タブからの音声転送が止まったため停止しました")
@@ -264,7 +285,7 @@ final class AppModel: ObservableObject {
         else if let window = windows.first(where: { $0.windowID == selected }) { filter = SCContentFilter(desktopIndependentWindow: window) }
         else { return }
         voice.enabled = true
-        browserSession = nil; browserHistoryID = nil; browserPageURL = nil
+        browserSession = nil; browserHistoryID = nil; browserPageURL = nil; browserLookahead = false; browserMediaStart = nil
         busy = true; generation = UUID(); let token = generation
         gate = FinalRangeGate(); assembler = ListeningAssembler(); sessionID = UUID(); beginTimelineSession(); bufferingEnglish = false
         origin = nil; partial = ""; slides = []; slideGeneration = UUID()
@@ -326,6 +347,8 @@ final class AppModel: ObservableObject {
         translateTask?.cancel(); translateTask = nil; slideTask?.cancel(); slideTask = nil
         apple.cancel(); if !finishVoice { voice.enabled = false }
         activeSpeechID = nil
+        browserLookahead = false; browserMediaStart = nil; browserVideoPosition = nil; browserClock = BrowserPlaybackClock()
+        voice.setVideoPosition(nil)
         for id in pending {
             if let i = lines.firstIndex(where: { $0.id == id }), lines[i].japanese == nil { lines[i].note = "停止：未翻訳・履歴に保存" }
         }
@@ -360,13 +383,20 @@ final class AppModel: ObservableObject {
         let end = origin.map { $0 + result.start + result.duration }
         let now = ProcessInfo.processInfo.systemUptime
         writeMeasurement("english_fragment", ["english": result.text, "audioEnd": end ?? now, "recognizedAt": now])
-        for unit in assembler.append(result.text, audioEnd: end, at: now) { addUnit(unit) }
+        let mediaStart = browserMediaStart.map { $0 + result.start }
+        let mediaEnd = mediaStart.map { $0 + result.duration }
+        for unit in assembler.append(result.text, audioEnd: end, mediaStart: mediaStart, mediaEnd: mediaEnd, at: now) {
+            addUnit(unit)
+        }
         bufferingEnglish = assembler.snapshot != nil; historyDirty = true
     }
     private func makeLine(_ unit: ListeningUnit) -> TranscriptLine {
         var line = TranscriptLine(id: unit.id, english: unit.english, audioEnd: unit.audioEnd, finalAt: ProcessInfo.processInfo.systemUptime)
+        line.mediaStart = unit.mediaStart; line.mediaEnd = unit.mediaEnd
         line.recognizedAt = unit.recognizedAt; line.segmentationReason = unit.reason; line.sessionID = sessionID
-        line.translationInput = ListeningText.english(unit.english, smooth: listening.smooth, corrections: listening.parsedCorrections)
+        let recent = lines.suffix(2).filter { $0.sessionID == sessionID }.map(\.english).joined(separator: " ")
+        let corrected = ListeningText.correctSecurityTerms(unit.english, context: String(recent.suffix(600)))
+        line.translationInput = ListeningText.english(corrected, smooth: listening.smooth, corrections: [])
         line.skipTranslation = line.translationInput?.isEmpty == true
         return line
     }
@@ -405,19 +435,21 @@ final class AppModel: ObservableObject {
                 let translator: TextTranslator = backend == "Apple" ? apple : plamo
                 let recent = lines.prefix(index).filter { $0.sessionID == lines[index].sessionID }.suffix(2)
                 let context = "Cybersecurity webinar. " + String(recent.map { $0.translationInput ?? $0.english }.joined(separator: " ").suffix(1200))
-                let input = lines[index].translationInput ?? ListeningText.english(lines[index].english, smooth: listening.smooth, corrections: listening.parsedCorrections)
+                let input = lines[index].translationInput ?? ListeningText.english(ListeningText.correctSecurityTerms(lines[index].english), smooth: listening.smooth, corrections: [])
                 plamo.glossary = listening.activeTerms(for: input + " " + context)
                 do {
                     let rawJapanese = try await translator.translate(input, context: context)
                     guard generation == token, !Task.isCancelled else { return }
-                    let polished = listening.displayed(ListeningText.japanese(rawJapanese, smooth: listening.smooth))
+                    let polished = ListeningText.japanese(rawJapanese, smooth: listening.smooth)
                     let japanese = polished.isEmpty ? rawJapanese : polished
                     lines[index].originalJapanese = rawJapanese == japanese ? nil : rawJapanese
                     lines[index].japanese = japanese; lines[index].translatedAt = ProcessInfo.processInfo.systemUptime
-                    lines[index].note = "翻訳完了"; subtitle = japanese
+                    lines[index].note = "翻訳完了"
+                    let mediaStart = browserLookahead && lines[index].sessionID == sessionID ? lines[index].mediaStart : nil
+                    if BrowserPlaybackClock.isDue(mediaStart, at: browserVideoPosition) { subtitle = japanese }
                     logLine("japanese", lines[index])
                     pending.removeFirst(); pendingCount = pending.count
-                    voice.enqueue(id: id, text: japanese)
+                    voice.enqueue(id: id, text: japanese, mediaStart: mediaStart)
                 } catch {
                     guard generation == token, !Task.isCancelled else { return }
                     lines[index].note = "翻訳失敗：\(error.localizedDescription)"
@@ -561,6 +593,18 @@ final class AppModel: ObservableObject {
             status = "履歴と時刻を書き出しました（音声・映像は保存しません）"
         } catch { status = error.localizedDescription }
     }
+    var voiceManagementLocked: Bool {
+        running || busy || pageReading || pendingCount > 0 || voice.reading
+    }
+
+    func changeVoicevoxThreads(_ threads: Int) async {
+        guard !voiceManagementLocked, assets.ready, voice.waiting == 0, voice.voicevox.cpuThreads != threads else { return }
+        busy = true
+        defer { busy = false }
+        voice.halt()
+        await voice.voicevox.changeThreads(threads)
+    }
+
     private func loadPreparedAssets() {
         if let root = BundledModels.resolve("voicevox", marker: "models/vvms", savedKey: "voicevoxRoot", overrideKey: "voicevoxExternalModel") { voice.voicevox.load(root: root) }
         if let root = BundledModels.resolve("plamo-3-translate-0.8b-MLX-4bit", marker: "config.json", savedKey: "plamoModelRoot", overrideKey: "plamoExternalModel") { localWorker.load(model: root) }
@@ -640,7 +684,7 @@ final class AppModel: ObservableObject {
                         guard !PageReading.containsUntranslatedProse(japanese) else {
                             throw AppError.message("日本語に訳せなかった英文があるため停止しました。")
                         }
-                        spoken = self.listening.displayed(japanese)
+                        spoken = japanese
                     } else {
                         spoken = chunk
                     }
@@ -668,7 +712,7 @@ final class AppModel: ObservableObject {
             guard let command = request["command"] as? String else { throw AppError.message("操作が不明です") }
             if request["client"] as? String == "safari-extension" { browserLastSeen = Date() }
             if ["pageStart", "pageStop", "pageStatus"].contains(command) { return try handlePageRequest(command, request) }
-            if command == "playbackGet" { return ["ok": true, "settings": playbackSettings()] }
+            if command == "playbackGet" { return ["ok": true, "settings": playbackSettings(), "voicevoxCPUThreads": voice.voicevox.cpuThreads] }
             if command == "playbackSave" {
                 guard let values = request["settings"] as? [String: Any] else { throw AppError.message("設定を確認してください。") }
                 let changesEngine = (values["backend"] as? String ?? backend) != backend || (values["speechEngine"] as? String ?? voice.engine) != voice.engine
@@ -695,7 +739,7 @@ final class AppModel: ObservableObject {
                 assets.prepare(); return ["ok": true]
             }
             if command == "uninstallReview" || command == "uninstall" {
-                guard !pageReading, !running, !busy else { throw AppError.message("翻訳と読み上げを停止してから削除してください。") }
+                guard !pageReading, !running, !busy else { throw AppError.message("準備・翻訳・読み上げの完了をお待ちください。") }
                 guard let selection = request["selection"] as? [String: Bool] else { throw AppError.message("削除内容を確認してください。") }
                 let enabled = await safariExtensionEnabled()
                 if request["managementOrigin"] as? String == "app", selection["models"] == true || selection["app"] == true {
@@ -729,25 +773,11 @@ final class AppModel: ObservableObject {
                 }
                 if selection["history"] == true {
                     historyWritable = false; lines = []; historyDirty = false
-                    listening.glossary = ""; listening.readings = ""; listening.displayTerms = ""; listening.corrections = ""
                     voice.speed = SpeechPacing.defaultSpeed; voice.volume = 0.6; voice.speakerID = 2; voice.autoSpeed = true
                     if let domain = Bundle.main.bundleIdentifier { UserDefaults.standard.removePersistentDomain(forName: domain) }
                 }
                 if selection["app"] == true { DispatchQueue.main.asyncAfter(deadline: .now() + 1) { NSApp.terminate(nil) } }
                 return ["ok": true, "message": "選択した項目をゴミ箱へ移しました。必要ならゴミ箱から戻せます。"]
-            }
-            if command == "dictionaryGet" {
-                return ["ok": true, "dictionary": ["glossary": listening.glossary, "readings": listening.readings, "displayTerms": listening.displayTerms]]
-            }
-            if command == "dictionarySave" {
-                guard let values = request["dictionary"] as? [String: String], Set(values.keys) == Set(["glossary", "readings", "displayTerms"]) else { throw AppError.message("辞書の内容を確認してください。") }
-                for value in values.values {
-                    let rows = value.split(separator: "\n").filter { !$0.trimmingCharacters(in: .whitespaces).isEmpty }
-                    guard value.count <= 15_000, rows.count <= 100, ListeningText.terms(value).count == rows.count else { throw AppError.message("辞書は各100件まで、用語64文字・変換先96文字以内で登録してください。") }
-                }
-                listening.glossary = values["glossary"]!; listening.readings = values["readings"]!; listening.displayTerms = values["displayTerms"]!
-                voice.invalidatePrefetch()
-                return ["ok": true]
             }
             if command == "preview" {
                 guard !pageReading, !voice.reading else { throw AppError.message("読み上げ中です。読み上げをOFFにしてから試聴してください。") }
@@ -780,9 +810,16 @@ final class AppModel: ObservableObject {
                       ["http", "https"].contains(url.scheme?.lowercased() ?? "") else { throw AppError.message("対象タブを確認してください") }
                 sharingPicker.deactivate(); selectedFilter = nil; systemTargetSelected = false; selected = 0
                 browserSession = key; browserSequence = 0; lastStopReason = nil
+                origin = nil; browserMediaStart = nil; browserVideoPosition = nil; browserClock = BrowserPlaybackClock()
+                browserLookahead = request["lookahead"] as? Bool == true
+                voice.setVideoPosition(nil)
                 sessionID = UUID(); browserHistoryID = sessionID; browserPageURL = pageIdentity(url); beginTimelineSession()
                 targetName = String((request["title"] as? String ?? url.host ?? "Safari").prefix(300))
                 applyBrowserSettings(request["settings"] as? [String: Any] ?? [:])
+                if browserLookahead && voice.engine != "VOICEVOX" {
+                    browserLookahead = false; browserSession = nil
+                    throw AppError.message("先読み同期にはローカル音声を選んでください。")
+                }
                 voice.enabled = true
                 busy = true; generation = UUID(); let token = generation
                 gate = FinalRangeGate(); assembler = ListeningAssembler(); pending = []; pendingCount = 0; partial = ""; bufferingEnglish = false
@@ -837,7 +874,16 @@ final class AppModel: ObservableObject {
                 return browserState()
             case "heartbeat":
                 guard running, browserAudio != nil, let paused = request["paused"] as? Bool else { throw AppError.message("取得状態を確認してください") }
-                browserWatchdog.heartbeat(paused: paused, at: ProcessInfo.processInfo.systemUptime)
+                let now = ProcessInfo.processInfo.systemUptime
+                if browserLookahead {
+                    guard let clock = request["clock"] as? [String: Any], let serial = clock["serial"] as? Int,
+                          serial >= 0, let position = clock["position"] as? Double, position.isFinite, position >= 0 else {
+                        throw AppError.message("動画の再生時刻を確認できません。")
+                    }
+                    guard browserClock.update(serial: serial, position: position, paused: paused, at: now) else { return ["ok": true] }
+                    updateBrowserPlayback(at: now)
+                }
+                browserWatchdog.heartbeat(paused: paused, at: now)
                 if paused { status = "動画の再生を待っています" }
                 return ["ok": true]
             case "pcm":
@@ -849,6 +895,12 @@ final class AppModel: ObservableObject {
                       let data = Data(base64Encoded: encoded), data.count == 16000 else { throw AppError.message("音声データの形式・サイズが一致しません。アプリと拡張を同じ版に更新し、ページを再読み込みしてください。") }
                 if seq < browserSequence { return ["ok": true] } // acknowledged retry, not duplicated input
                 guard seq == browserSequence else { stop(reason: "音声区間が欠けたため停止しました"); throw AppError.message("音声転送の順序が一致しません") }
+                if browserLookahead && seq == 0 {
+                    guard let position = request["mediaStart"] as? Double, position.isFinite, position >= 0 else {
+                        throw AppError.message("先読み音声の開始位置を確認できません。")
+                    }
+                    browserMediaStart = position
+                }
                 browserSequence += 1; browserWatchdog.packet(at: ProcessInfo.processInfo.systemUptime)
                 browserAudio.consumePCM16(data)
                 return ["ok": true]
@@ -868,17 +920,33 @@ final class AppModel: ObservableObject {
         let cursor = request["historySession"] as? String == current ? min(entries.count, max(0, request["cursor"] as? Int ?? 0)) : 0
         let page = entries.dropFirst(cursor).prefix(40)
         var result = browserState()
-        result["rows"] = page.map { ["id": $0.id.uuidString, "japanese": $0.japanese ?? "", "receivedAt": $0.createdAt?.timeIntervalSince1970 ?? 0] as [String: Any] }
+        result["rows"] = page.map { line in
+            var row: [String: Any] = ["id": line.id.uuidString, "japanese": line.japanese ?? "",
+                                       "receivedAt": line.createdAt?.timeIntervalSince1970 ?? 0]
+            if let time = line.mediaStart { row["mediaStart"] = time }
+            if let time = line.mediaEnd { row["mediaEnd"] = time }
+            return row
+        }
         result["cursor"] = cursor + page.count; result["historySession"] = current
         result["pending"] = pendingCount > 0 || bufferingEnglish
         result["speakingID"] = entries.first(where: { $0.id == activeSpeechID })?.id.uuidString ?? ""
-        result["current"] = entries.first(where: { $0.id == activeSpeechID })?.japanese ?? entries.last?.japanese ?? ""
+        result["current"] = entries.first(where: { $0.id == activeSpeechID })?.japanese
+            ?? entries.last(where: { !browserLookahead || BrowserPlaybackClock.isDue($0.mediaStart, at: browserVideoPosition) })?.japanese ?? ""
         result["emptyMessage"] = busy ? "音声認識と翻訳を準備しています…" : running ? (browserSequence == 0 ? "動画の音声を待っています…" : "音声を認識・翻訳しています…") : "この回の翻訳は停止しています。"
         return result
     }
     private func browserState() -> [String: Any] {
-        ["ok": true, "running": running && browserAudio != nil, "preparing": busy && browserSession != nil && startTask != nil,
-         "voiceEnabled": voice.enabled, "effectiveSpeed": voice.reading ? voice.effectiveSpeed : voice.speed, "paused": browserWatchdog.paused, "message": status]
+        var result: [String: Any] = ["ok": true, "lookahead": browserLookahead, "preparedSpeech": voice.preparedCount,
+         "running": running && browserAudio != nil, "preparing": busy && browserSession != nil && startTask != nil,
+         "voiceEnabled": voice.enabled, "effectiveSpeed": voice.reading ? voice.effectiveSpeed : voice.speed,
+         "paused": browserWatchdog.paused, "message": status]
+        if browserLookahead {
+            result["speechLag"] = voice.lag
+            if let start = browserMediaStart, let position = browserVideoPosition {
+                result["inputLead"] = start + Double(browserSequence) * 0.5 - position
+            }
+        }
+        return result
     }
     private func playbackSettings() -> [String: Any] {
         ["volume": Int((voice.volume * 100).rounded()), "speed": voice.speed, "speaker": voice.speakerID, "autoSpeed": voice.autoSpeed, "backend": backend, "speechEngine": voice.engine, "smooth": listening.smooth]
@@ -891,7 +959,7 @@ final class AppModel: ObservableObject {
         if let smooth = values["smooth"] as? Bool { listening.smooth = smooth }
         if let volume = values["volume"] as? Double, volume.isFinite { voice.volume = Float(min(100, max(0, volume))) / 100 }
         if let speed = values["speed"] as? Double, speed.isFinite { voice.speed = SpeechPacing.normalized(speed) }
-        if let speaker = values["speaker"] as? Int, [2, 3, 8, 10, 14, 52].contains(speaker) { voice.speakerID = speaker }
+        if let speaker = values["speaker"] as? Int, VoiceQueue.canSelectSpeaker(speaker) { voice.speakerID = speaker }
         if let automatic = values["autoSpeed"] as? Bool { voice.autoSpeed = automatic }
     }
 

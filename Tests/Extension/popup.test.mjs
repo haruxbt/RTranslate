@@ -2,14 +2,12 @@ import test from 'node:test';import assert from 'node:assert/strict';import vm f
 async function fixture(options={}){
  class Element{constructor(){this.value='';this.checked=false;this.disabled=false;this.attributes={};this.children=[];this.textContent='';}focus(){this.focused=true;}append(...x){this.children.push(...x);}replaceChildren(){this.children=[];}setAttribute(k,v){this.attributes[k]=v;}}
  const html=await fs.readFile(new URL('../../SafariExtension/Resources/popup.html',import.meta.url),'utf8'),ids=new Set([...html.matchAll(/id="([^"]+)"/g)].map(x=>x[1]));
- const elements=new Map(),calls=[];let dictionary={glossary:'SOC = SOC',readings:'Square = スクエア',displayTerms:''};const get=id=>{assert.ok(ids.has(id),'Missing popup element: '+id);if(!elements.has(id))elements.set(id,new Element());return elements.get(id);};
+ const elements=new Map(),calls=[];const get=id=>{assert.ok(ids.has(id),'Missing popup element: '+id);if(!elements.has(id))elements.set(id,new Element());return elements.get(id);};
  let model={running:false,voiceEnabled:false,timelineVisible:false,host:'example.test',effectiveSpeed:1.75};
  const context=vm.createContext({document:{getElementById:get,createElement:()=>new Element(),body:{dataset:{}}},setInterval(){},console,browser:{storage:{local:{get:async()=>{if(options.storageFails)throw Error('invalid schema version');return {settings:{speaker:14,volume:80,speed:1.2,autoSpeed:false}};}}},runtime:{sendMessage:async request=>{
   calls.push(request);if(request.type==='start')Object.assign(model,{running:true,voiceEnabled:true,timelineVisible:true});
   if(request.type==='stop')Object.assign(model,{running:false,voiceEnabled:false});
   if(request.type==='voice')model.voiceEnabled=request.enabled;if(request.type==='timeline')model.timelineVisible=request.visible;
-  if(request.type==='dictionaryGet')return {ok:true,dictionary:{...dictionary}};
-  if(request.type==='dictionarySave'){dictionary={...request.dictionary};return {ok:true};}
   if(request.type==='pageStart')return {ok:true,reading:true};
   if(request.type==='pageStop')return {ok:true,reading:false};
   if(request.type==='preview')return {ok:true,message:'試聴しています'};
@@ -59,15 +57,18 @@ test('popup initializes controls even when Safari storage is unavailable',async(
  assert.ok(f.calls.some(x=>x.type==='playbackGet'));await f.get('translate').onclick();assert.equal(f.get('translate-label').textContent,'翻訳停止');
 });
 
-test('page mode sends the chosen translation option and exposes a stop control',async()=>{
+test('page mode defaults to Japanese translation and can still read original text',async()=>{
  const f=await fixture(),g=f.get;
  g('page-tab').onclick();await new Promise(resolve=>setImmediate(resolve));
  assert.equal(g('page-panel').hidden,false);
  assert.equal(g('video-panel').hidden,true);
- g('page-mode').value='translate';
+ assert.equal(g('page-mode').value,'translate');
  await g('page-read').onclick();
  assert.equal(f.calls.find(x=>x.type==='pageStart').mode,'translate');
  assert.equal(g('page-read-label').textContent,'読み上げ停止');
  await g('page-read').onclick();
  assert.equal(g('page-read-label').textContent,'読み上げ開始');
+ g('page-mode').value='original';
+ await g('page-read').onclick();
+ assert.equal(f.calls.filter(x=>x.type==='pageStart').at(-1).mode,'original');
 });

@@ -13,7 +13,7 @@
 </section>
 <section id="page-panel" aria-label="ページ" hidden>
 <p id="page-status-line" role="status"><span aria-hidden="true"></span><span id="page-status">読み上げを開始できます</span></p>
-<label class="reading-mode">読み方<select id="page-mode"><option value="original">表示中の本文を読む</option><option value="translate">日本語に訳して読む</option></select></label>
+<label class="reading-mode">読み方<select id="page-mode"><option value="translate" selected>日本語に翻訳して読む</option><option value="original">表示中の本文を読む</option></select></label>
 <button id="page-read" class="primary"><span id="page-read-label">読み上げ開始</span><span id="page-read-symbol" class="play" aria-hidden="true"></span></button>
 <p class="note">本文を選択した場合は、その位置から読みます。</p>
 <button id="page-add-word" class="page-link accent-link">＋ 読み方を登録 <span aria-hidden="true">›</span></button>
@@ -23,12 +23,14 @@
 <details id="playback-details"><summary>詳細設定<span class="chevron" aria-hidden="true"></span></summary><div class="settings">
 <label class="field choice-field"><span>翻訳方式</span><select id="backend"><option value="PLaMo">PLaMo（ローカル）</option><option value="Apple">Apple Translation</option></select></label>
 <button id="prepare-apple" class="settings-link" hidden>Apple翻訳を準備</button>
-<label class="field choice-field"><span>音声合成</span><select id="speech-engine"><option value="VOICEVOX">VOICEVOX</option><option value="Apple">macOS標準</option></select></label>
+<label class="field choice-field"><span>音声合成</span><select id="speech-engine"><option value="VOICEVOX">ローカル音声</option><option value="Apple">macOS標準</option></select></label>
 <label id="voice-row" class="field voice-field"><span>声</span><select id="speaker"></select><button id="preview" class="preview" aria-label="選んだ声を試聴" title="選んだ声を試聴"><span class="play" aria-hidden="true"></span></button></label>
 <p id="preview-status" class="note" role="status"></p>
 <label class="field"><span>音量</span><input id="volume" type="range" min="0" max="100" value="60"><span class="number"><input id="volume-number" type="number" min="0" max="100" value="60" aria-label="音量の数値">%</span></label>
 <label class="field"><span>基本速度</span><div class="speed-slider"><input id="speed" type="range" aria-label="読み上げ速度" min="0" max="4" step="1" value="2"><div class="speed-ticks" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></div></div><output id="speed-value" for="speed">1.2×</output></label>
 <div class="auto"><label><input id="autoSpeed" type="checkbox" checked><span>遅れに応じて自動加速（最大×1.4）</span></label></div>
+<div class="auto"><label><input id="lookahead" type="checkbox"><span>録画HLSを先読みして同期（試験）</span></label></div>
+<div class="auto"><label><input id="video-captions" type="checkbox" checked><span>動画に日本語字幕を表示（先読み同期）</span></label></div>
 <div class="auto"><label><input id="smooth" type="checkbox" checked><span>フィラー・相づち・重複を減らす</span></label></div>
 </div></details></section>
 <section id="settings-page" hidden><header><button id="close-settings" class="back" aria-label="戻る">‹</button><h1>設定</h1></header>

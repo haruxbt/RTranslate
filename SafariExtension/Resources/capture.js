@@ -1,6 +1,5 @@
 (() => {
-  if (globalThis.__webinarCaptureInstalled) return;
-  globalThis.__webinarCaptureInstalled=true;
+  if (typeof globalThis.__rTranslateCaptureControlV3==='function') return;
   const api=globalThis.browser || globalThis.chrome;
   const graphs=new WeakMap(); let current=null, pendingActivation=null, pendingSession=null, preparingSession=null, generation=0;
   function stop() {
@@ -10,6 +9,7 @@
     if (!current) return;
     current.stopped=true;
     current.stopHeartbeat?.();
+    current.stopCaptions?.();
     current.capture?.stop();
     if(current.processor){
       current.processor.port.postMessage({stop:true});
@@ -103,9 +103,10 @@
       const used=Math.floor(position/16000);samples.splice(0,used);position-=used*16000;return out;
     };
   }
-  function makePCMRun(session) {
+  function makePCMRun(session, lookahead=false) {
     const run={session,stopped:false,queue:[],buffer:[],sequence:0,sending:false,sourceSequence:0};current=run;
-    let convert,rate;
+    let convert,rate,mediaStart;
+    run.canAcceptAudio=()=>run.queue.length<8;
     async function fail(error){
       if(run.stopped)return;stop();
       try{await api.runtime.sendMessage({type:'captureError',session:run.session,error});}catch{}
@@ -124,16 +125,17 @@
       }catch(error){await fail(error.message);}finally{run.sending=false;}
     }
     run.fail=fail;
-    run.pushPCM=(mono,sampleRate)=>{
+    run.pushPCM=(mono,sampleRate,start)=>{
       if(run.stopped)return;
       if(rate&&rate!==sampleRate){fail('音声形式が変わりました。翻訳を再開してください。');return;}
-      if(!convert){rate=sampleRate;convert=resampler(rate);}
+      if(!convert){rate=sampleRate;convert=resampler(rate);mediaStart=start;}
       run.buffer.push(...convert(mono));
       while(run.buffer.length>=8000){
         const chunk=run.buffer.splice(0,8000), bytes=new Uint8Array(16000), view=new DataView(bytes.buffer);
         chunk.forEach((sample,i)=>{const v=Math.max(-1,Math.min(1,sample));view.setInt16(i*2,Math.round(v*(v<0?32768:32767)),true);});
         let binary='';for(const byte of bytes)binary+=String.fromCharCode(byte);
-        run.queue.push({sequence:run.sequence++,pcm:btoa(binary)});
+        run.queue.push({sequence:run.sequence,pcm:btoa(binary),...(lookahead&&run.sequence===0?{mediaStart}:{})});
+        run.sequence++;
       }
       // Half-second packets: absorb brief bridge stalls without dropping or reordering audio.
       if(run.queue.length>16){fail('音声の転送が8秒分以上滞ったため停止しました。翻訳を開始し直してください。');return;}
@@ -141,18 +143,33 @@
     };
     return run;
   }
-  function monitorPlayback(run,media) {
-    let sending=false;
+  function monitorPlayback(run,media,lookahead=false) {
+    let sending=false, pending=false, serial=0, waiting=false;
     async function beat(){
-      if(sending||run.stopped)return;sending=true;
+      if(run.stopped)return;
+      if(sending){pending=true;return;}
+      sending=true;
       try{
-        const reply=await api.runtime.sendMessage({type:'captureHeartbeat',session:run.session,paused:Boolean(media.paused||media.ended)});
+        const paused=Boolean(media.paused||media.ended||(lookahead&&(media.seeking||waiting||media.readyState<3)));
+        const clock=lookahead?{serial:serial++,position:media.currentTime}:undefined;
+        const reply=await api.runtime.sendMessage({type:'captureHeartbeat',session:run.session,paused,...(clock?{clock}:{})});
         if(!reply?.ok&&!run.stopped)run.fail(reply?.error || 'タブとの接続を確認できませんでした。');
-      }catch{if(!run.stopped)run.fail('タブとの接続が切れました。');}finally{sending=false;}
+      }catch{
+        // PCM can still be arriving during a brief messaging interruption.
+      }finally{
+        sending=false;
+        if(pending){pending=false;void beat();}
+      }
     }
-    const events=['play','pause','ended'];for(const name of events)media.addEventListener(name,beat);
-    const timer=setInterval(beat,2000);
-    run.stopHeartbeat=()=>{clearInterval(timer);for(const name of events)media.removeEventListener(name,beat);};
+    const handlers=new Map(['play','pause','ended'].map(name=>[name,beat]));
+    if(lookahead){
+      handlers.set('waiting',()=>{waiting=true;void beat();});
+      handlers.set('playing',()=>{waiting=false;void beat();});
+      handlers.set('seeking',()=>{waiting=true;void beat();});
+    }
+    for(const [name,handler] of handlers)media.addEventListener(name,handler);
+    const timer=setInterval(beat,lookahead?500:2000);
+    run.stopHeartbeat=()=>{clearInterval(timer);for(const [name,handler] of handlers)media.removeEventListener(name,handler);};
     beat();
   }
   async function start(request) {
@@ -162,15 +179,21 @@
     const sourceURL=media.currentSrc?new URL(media.currentSrc,location.href):null;
     if(sourceURL&&/\.m3u8$/i.test(sourceURL.pathname)){
       if(media.mediaKeys)throw new Error('保護された動画は取得できません。');
-      const run=makePCMRun(request.session);
-      monitorPlayback(run,media);
+      const lookahead=request.lookahead===true;
+      const run=makePCMRun(request.session,lookahead);
+      monitorPlayback(run,media,lookahead);
       const {createHLSCapture}=await import(api.runtime.getURL('hls-decoder.mjs'));
       if(token!==generation)throw new Error('音声取得を取り消しました');
-      const capture=await createHLSCapture({media,url:sourceURL.href,Hls:globalThis.Hls,onBlock:run.pushPCM,onError:run.fail,isActive:()=>token===generation&&!run.stopped});
+      const capture=await createHLSCapture({media,url:sourceURL.href,Hls:globalThis.Hls,onBlock:run.pushPCM,onError:run.fail,lookahead:lookahead?25:0,canAcceptAudio:lookahead?run.canAcceptAudio:undefined,isActive:()=>token===generation&&!run.stopped});
       if(token!==generation){capture.stop();throw new Error('音声取得を取り消しました');}
-      run.capture=capture;return {ok:true};
+      run.capture=capture;
+      if(lookahead&&request.captions){
+        run.stopCaptions=globalThis.__rTranslateVideoCaptions?.(media,request.session);
+      }
+      return {ok:true};
     }
 
+    if(request.lookahead)throw new Error('先読み同期は録画HLSに対応しています。詳細設定で解除すると通常の音声取得を試せます。');
     let graph=graphs.get(media);
     if(!graph){
       const reload=await needsCORSReload(media);
@@ -214,15 +237,15 @@
     graph.source.connect(processor);processor.connect(graph.context.destination);
     return {ok:true};
   }
-  api.runtime.onMessage.addListener(request=>{
+  globalThis.__rTranslateCaptureControlV3=request=>{
     if(request.type==='captureStart') {
-      // Do not hold a Safari message reply open across a page click or media
-      // reload. Completion is a separate, session-bound notification.
+      // Acknowledge synchronously in the selected frame. Audio readiness may
+      // require a page click and is reported separately for this session.
       start(request).then(()=>{if(preparingSession===request.session)preparingSession=null;return api.runtime.sendMessage({type:'captureReady',session:request.session});},
         error=>{if(current?.session===request.session||preparingSession===request.session)stop();return api.runtime.sendMessage({type:'captureError',session:request.session,error:error.message});}).catch(()=>{});
-      return Promise.resolve({ok:true,preparing:true});
+      return {ok:true,preparing:true};
     }
-    if(request.type==='captureStop'){if(current?.session===request.session || pendingSession===request.session || preparingSession===request.session)stop();return Promise.resolve({ok:true});}
-  });
+    if(request.type==='captureStop'){if(current?.session===request.session || pendingSession===request.session || preparingSession===request.session)stop();return {ok:true};}
+  };
   addEventListener('pagehide',stop);
 })();

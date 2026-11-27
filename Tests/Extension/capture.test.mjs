@@ -4,7 +4,7 @@ const discoverySource=await fs.readFile(new URL('../../SafariExtension/Resources
 const workletSource=await fs.readFile(new URL('../../SafariExtension/Resources/audio-worklet.js',import.meta.url),'utf8');
 function fixture(src='https://example.test/video.mp4',failModule=false,needsGesture=false,options={}){
  let held=true,releaseAck;
- const listeners=[],contexts=[],packets=[],modules=new Map(),timers=new Set();const events=new Map(),fetches=[];let cors=null;
+ const contexts=[],packets=[],modules=new Map(),timers=new Set();const events=new Map(),fetches=[];let cors=null;
  const media={currentSrc:src,currentTime:17,paused:true,loadCount:0,mediaKeys:options.protected?{}:null,
   getAttribute:()=>cors,setAttribute:(_key,value)=>{cors=value;},removeAttribute:()=>{cors=null;},
   addEventListener:(name,listener)=>{if(!events.has(name))events.set(name,new Set());events.get(name).add(listener);},
@@ -33,17 +33,18 @@ function fixture(src='https://example.test/video.mp4',failModule=false,needsGest
  }
  const shadow={querySelectorAll:selector=>selector==='video,audio'?[media]:[]};
  const context=vm.createContext({AudioContext,AudioWorkletNode,URL:ModuleURL,Blob:ModuleBlob,location:{href:'https://example.test/',origin:'https://example.test'},document:{querySelectorAll:selector=>options.shadow?(selector==='video,audio'?[]:[{shadowRoot:shadow}]):(selector==='video,audio'?[media]:[]),createElement:element,documentElement:{append(){}}},
-  browser:{runtime:{getURL:path=>'safari-web-extension://test/'+path,onMessage:{addListener:fn=>listeners.push(fn)},sendMessage:async packet=>{packets.push(packet);if(packet.type==='pcm'&&options.holdPCM&&held)await new Promise(resolve=>{releaseAck=resolve;});return {ok:true};}}},
+  browser:{runtime:{getURL:path=>'safari-web-extension://test/'+path,sendMessage:async packet=>{packets.push(packet);if(packet.type==='pcm'&&options.holdPCM&&held)await new Promise(resolve=>{releaseAck=resolve;});return {ok:true};}}},
   setTimeout,clearTimeout,setInterval:fn=>{timers.add(fn);return fn;},clearInterval:fn=>timers.delete(fn),AbortController,fetch:async(url,request)=>{fetches.push(request);if(!options.corsAllowed)throw Error('CORS denied');return {ok:true,type:'cors'};},addEventListener(){},btoa:value=>Buffer.from(value,'binary').toString('base64'),Float32Array,Uint8Array,DataView,console});
+ if(options.legacyCapture)context.__webinarCaptureInstalled=true;
  vm.runInContext(discoverySource,context);
  vm.runInContext(source,context,{importModuleDynamically:async specifier=>{
   assert.equal(specifier,'safari-web-extension://test/hls-decoder.mjs');
   const module=new vm.SyntheticModule(['createHLSCapture'],function(){this.setExport('createHLSCapture',async options=>{
-    assert.equal(options.media,media);options.onBlock(new Float32Array(24000).fill(.25),48000);
+    assert.equal(options.media,media);options.onBlock(new Float32Array(24000).fill(.25),48000,media.currentTime);
     return {stop:()=>{hlsStops++;},sampleRate:48000};
   });},{context});await module.link(()=>{});await module.evaluate();return module;
- }});return {releasePCM:()=>{held=false;releaseAck?.();},get hlsStops(){return hlsStops;},rawSend:request=>listeners[0](request),send:async request=>{
-  const result=await listeners[0](request);
+ }});return {releasePCM:()=>{held=false;releaseAck?.();},get hlsStops(){return hlsStops;},rawSend:request=>context.__rTranslateCaptureControlV3(request),send:async request=>{
+  const result=await context.__rTranslateCaptureControlV3(request);
   if(request.type!=='captureStart')return result;
   const deadline=Date.now()+3000;
   while(Date.now()<deadline){
@@ -169,4 +170,24 @@ test('sustained bridge stalls still stop at a bounded eight seconds instead of d
  const c=f.contexts[0];for(let i=0;i<3300;i++)c.processor.render([new Float32Array(128).fill(.25)]);
  await new Promise(resolve=>setImmediate(resolve));assert.ok(f.packets.some(p=>p.type==='captureError'&&p.error.includes('8秒')));
  f.releasePCM();
+});
+
+test('capture controller is available even if a previous extension left an installation flag',async()=>{
+ const f=fixture('https://cdn.test/video.m3u8',false,false,{legacyCapture:true});
+ assert.equal((await f.send({type:'captureStart',index:0,session:'new'})).ok,true);
+ await f.send({type:'captureStop',session:'new'});
+ assert.equal(f.hlsStops,1);
+});
+
+test('recording lookahead sends the first PCM timestamp and pauses the video clock on a stall',async()=>{
+ const f=fixture('https://cdn.test/video.m3u8');
+ assert.equal((await f.send({type:'captureStart',session:'future',index:0,lookahead:true})).ok,true);
+ assert.equal(f.packets.find(p=>p.type==='pcm').mediaStart,17);
+ assert.deepEqual({...f.packets.find(p=>p.type==='captureHeartbeat').clock},{serial:0,position:17});
+ f.media.currentTime=18;f.media.paused=false;await f.emit('playing');
+ assert.equal(f.packets.at(-1).paused,false);
+ await f.emit('waiting');
+ assert.equal(f.packets.at(-1).paused,true);
+ assert.equal(f.packets.at(-1).clock.position,18);
+ await f.send({type:'captureStop',session:'future'});
 });

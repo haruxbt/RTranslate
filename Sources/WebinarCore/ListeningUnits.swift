@@ -4,6 +4,8 @@ public struct ListeningUnit: Codable, Sendable {
     public var id: UUID
     public var english: String
     public var audioEnd: Double?
+    public var mediaStart: Double?
+    public var mediaEnd: Double?
     public var recognizedAt: Double
     public var reason: String
 }
@@ -15,7 +17,7 @@ public struct ListeningAssembler {
     public let maximumWait: Double
     public init(maximumWait: Double = 14) { self.maximumWait = maximumWait }
     public var snapshot: ListeningUnit? { pending }
-    public mutating func append(_ text: String, audioEnd: Double?, at now: Double) -> [ListeningUnit] {
+    public mutating func append(_ text: String, audioEnd: Double?, mediaStart: Double? = nil, mediaEnd: Double? = nil, at now: Double) -> [ListeningUnit] {
         let text = text.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !text.isEmpty else { return [] }
         var output: [ListeningUnit] = []
@@ -35,8 +37,8 @@ public struct ListeningAssembler {
         }
         if !words.isEmpty { pieces.append(words.joined(separator: " ")) }
         for (index, piece) in pieces.enumerated() {
-            if pending == nil { pending = ListeningUnit(id: UUID(), english: piece, audioEnd: audioEnd, recognizedAt: now, reason: "文のまとまり待ち") }
-            else { pending!.english += " " + piece; pending!.audioEnd = audioEnd }
+            if pending == nil { pending = ListeningUnit(id: UUID(), english: piece, audioEnd: audioEnd, mediaStart: mediaStart, mediaEnd: mediaEnd, recognizedAt: now, reason: "文のまとまり待ち") }
+            else { pending!.english += " " + piece; pending!.audioEnd = audioEnd; pending!.mediaEnd = mediaEnd }
             lastFinalAt = now
             if index < pieces.count - 1 { output += flush(reason: "長さ上限・途中の可能性あり") }
         }
@@ -99,6 +101,49 @@ public enum ListeningText {
     }
     private static func replace(_ text: String, _ pattern: String, _ replacement: String) -> String {
         text.replacingOccurrences(of: pattern, with: replacement, options: [.regularExpression, .caseInsensitive])
+    }
+    public static func normalizeZeroDay(_ text: String) -> String {
+        let compound = #"\b(?:zero|0)[-‐‑– ]day(?=\s+(?:vulnerabilit(?:y|ies)|exploits?|attacks?|flaws?|threats?)\b)"#
+        let standalone = #"\b(?:zero|0) day(?=\s*[.!?,;:]?\s*$)"#
+        let normalized = replace(replace(text, compound, "zero-day"), #"\bzero[-‐‑–]day(s?)\b"#, "zero-day$1")
+        if normalized.range(of: #"^\s*(?:zero|0) day[.!?]?\s*$|\b(?:an? |the |another |new )(?:zero|0) day[.!?]?\s*$"#,
+                            options: [.regularExpression, .caseInsensitive]) != nil {
+            return replace(normalized, standalone, "zero-day")
+        }
+        return normalized
+    }
+
+    public static func preserveZeroDay(_ japanese: String, source: String) -> String {
+        let term = #"\bzero-days?\b"#
+        guard source.range(of: term, options: [.regularExpression, .caseInsensitive]) != nil else { return japanese }
+        let adjacent = #"(?<![0-9０-９])[0０]\s*日\s*(?:の\s*)?(?=脆弱性|ぜい弱性|攻撃|エクスプロイト|脅威|欠陥)"#
+        let fixed = replace(japanese, adjacent, "ゼロデイ")
+        let otherWords = replace(source, term, "")
+        if otherWords.range(of: #"\b(?:days?|hours?|dates?)\b"#, options: [.regularExpression, .caseInsensitive]) != nil {
+            return fixed
+        }
+        return replace(fixed, #"(?<![0-9０-９])[0０]\s*日(?!\s*(?:間|目|後|前|以内|以上|以下|未満|分|毎))"#, "ゼロデイ")
+    }
+
+    public static func correctSecurityTerms(_ original: String, context: String = "") -> String {
+        let evidence = original + " " + context
+        func contains(_ pattern: String) -> Bool {
+            evidence.range(of: pattern, options: [.regularExpression, .caseInsensitive]) != nil
+        }
+        var text = original
+        if contains(#"\b(?:security operations|cybersecurity|SOC|SIEM|incident response|threat detection)\b"#) {
+            text = replace(text, #"\bsocks?\b(?=\s+(?:teams?|analysts?|operations|workflows?|work)\b)"#, "SOC")
+            text = replace(text, #"\bsocks\b(?=\s+(?:monitor|triage|investigate|handle|share)\s+(?:security\s+)?(?:alerts|threats|incidents)\b)"#, "SOCs")
+        }
+        if contains(#"\b(?:software bill of materials|software supply chain|software dependencies|SBOMs?)\b"#) {
+            text = replace(text, #"\bS[-– ]?bomb(s?)\b"#, "SBOM$1")
+            text = replace(text, #"\bS\s*爆弾"#, "SBOM")
+        }
+        if contains(#"\b(?:cryptography|cryptographic|cryptographic bill of materials|CBOMs?)\b"#) {
+            text = replace(text, #"\bC[-– ]?bomb(s?)\b"#, "CBOM$1")
+            text = replace(text, #"\bC\s*爆弾"#, "CBOM")
+        }
+        return text
     }
     public static func english(_ original: String, smooth: Bool, corrections: [GlossaryTerm]) -> String {
         var text = original

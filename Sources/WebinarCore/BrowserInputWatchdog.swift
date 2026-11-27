@@ -12,8 +12,7 @@ public struct BrowserInputWatchdog {
         paused = next; lastHeartbeat = now
     }
     public func timedOut(at now: Double) -> Bool {
-        if let lastHeartbeat, now - lastHeartbeat > 12 { return true }
-        if paused { return false }
+        if paused { return now - max(lastHeartbeat ?? lastPacket, lastPacket) > 12 }
         return now - lastPacket > (receivedPacket ? 12 : 90)
     }
 }

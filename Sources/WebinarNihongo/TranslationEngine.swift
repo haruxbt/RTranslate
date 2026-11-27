@@ -16,7 +16,9 @@ final class AppleTranslator: TextTranslator {
             throw AppError.message("「Apple翻訳を準備」で英日モデルをダウンロードしてください。")
         }
         if session == nil { session = TranslationSession(installedSource: source, target: target) }
-        return try await session!.translate(text).targetText
+        let input = ListeningText.normalizeZeroDay(text)
+        let output = try await session!.translate(input).targetText
+        return ListeningText.preserveZeroDay(output, source: input)
     }
     func cancel() { session?.cancel(); session = nil }
 }
@@ -31,7 +33,8 @@ final class PlamoTranslator: TextTranslator {
         var request = URLRequest(url: endpoint)
         request.httpMethod = "POST"; request.timeoutInterval = 60
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-        request.httpBody = try JSONSerialization.data(withJSONObject: ["text": text, "context": context,
+        let input = ListeningText.normalizeZeroDay(text)
+        request.httpBody = try JSONSerialization.data(withJSONObject: ["text": input, "context": context,
             "glossary": glossary.map { ["source": $0.source, "target": $0.target] }])
         let configuration = URLSessionConfiguration.ephemeral
         configuration.connectionProxyDictionary = [:]
@@ -43,7 +46,7 @@ final class PlamoTranslator: TextTranslator {
               let result = object["translation"] as? String else {
             throw AppError.message("ローカルPLaMoの応答を確認してください。")
         }
-        return result
+        return ListeningText.preserveZeroDay(result, source: input)
     }
 }
 final class NoRedirect: NSObject, URLSessionTaskDelegate {

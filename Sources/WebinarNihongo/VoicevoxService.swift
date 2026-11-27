@@ -13,7 +13,18 @@ final class VoicevoxService: ObservableObject {
     @Published var ready = false
     @Published var state = "VOICEVOX未準備"
     @Published var voices: [VoicevoxVoice] = []
+    @Published private(set) var cpuThreads = UserDefaults.standard.integer(forKey: "voicevoxCPUThreads") == 4 ? 4 : 2
     private var process: Process?
+    private var loadedRoot: URL?
+
+    func changeThreads(_ threads: Int) async {
+        guard [2, 4].contains(threads), cpuThreads != threads else { return }
+        let root = loadedRoot
+        await stopAndWait()
+        cpuThreads = threads
+        UserDefaults.standard.set(threads, forKey: "voicevoxCPUThreads")
+        if let root { load(root: root) }
+    }
     private var output = Data()
     func chooseAndLoad() {
         NSApp.activate(ignoringOtherApps: true)
@@ -31,10 +42,12 @@ final class VoicevoxService: ObservableObject {
         }
         guard let resources = Bundle.main.resourceURL else { return }
         stop()
+        loadedRoot = root
         let process = Process(); self.process = process
         process.executableURL = resources.appendingPathComponent("Python/bin/python3.13")
         process.arguments = ["-B", "-u", resources.appendingPathComponent("voicevox_worker.py").path,
-                             "--root", root.path, "--parent-pid", String(ProcessInfo.processInfo.processIdentifier)]
+                             "--root", root.path, "--parent-pid", String(ProcessInfo.processInfo.processIdentifier),
+                             "--threads", String(cpuThreads)]
         let runtime = AssetManager.root.appendingPathComponent("voicevox/onnxruntime/lib")
         if FileManager.default.fileExists(atPath: runtime.appendingPathComponent("libvoicevox_onnxruntime.1.17.3.dylib").path) {
             process.arguments! += ["--runtime", runtime.path]
@@ -52,10 +65,10 @@ final class VoicevoxService: ObservableObject {
                 guard let end = self.output.firstIndex(of: 10) else { return }
                 let line = self.output[..<end]
                 if let object = try? JSONSerialization.jsonObject(with: Data(line)) as? [String: Any],
-                   object["event"] as? String == "ready", let raw = object["voices"],
+                   object["event"] as? String == "ready", object["threads"] as? Int == self.cpuThreads, let raw = object["voices"],
                    let json = try? JSONSerialization.data(withJSONObject: raw),
                    let voices = try? JSONDecoder().decode([VoicevoxVoice].self, from: json) {
-                    self.voices = voices; self.ready = true; self.state = "VOICEVOX準備完了（CPU・ローカル）"
+                    self.voices = voices; self.ready = true; self.state = "VOICEVOX準備完了（CPU \(self.cpuThreads)スレッド）"
                     UserDefaults.standard.set(root.path, forKey: "voicevoxRoot")
                 }
                 self.output.removeSubrange(...end)
@@ -69,7 +82,14 @@ final class VoicevoxService: ObservableObject {
     }
     func stop() {
         if let process, process.isRunning { process.terminate() }
-        process = nil; ready = false; state = "VOICEVOXを解放しました"
+        process = nil; loadedRoot = nil; ready = false; state = "VOICEVOXを解放しました"
+    }
+    func stopAndWait() async {
+        let ending = process
+        stop()
+        while ending?.isRunning == true {
+            try? await Task.sleep(for: .milliseconds(40))
+        }
     }
     func synthesize(_ text: String, speaker: Int, speed: Double, pronunciations: [SpeechPronunciation] = []) async throws -> Data {
         guard ready else { throw AppError.message("設定でVOICEVOXを準備してください") }

@@ -17,18 +17,21 @@ func XCTAssertEqual<T: Equatable>(_ a: T, _ b: T) { precondition(a == b) }
         checks.testSnapshotAndLosslessStop()
         checks.testFillerCleanupPreservesMeaning()
         checks.testScopedDictionaryCorrection()
+        checks.testSecurityHomophonesRequireContext()
+        checks.testZeroDayTerminology()
         checks.testLegacyHistoryDecodes()
         checks.testJapanesePolish()
         checks.testHistoryCalendarExpiration()
         checks.testLegacyHistoryMigrationIsStable()
         checks.testHistoryRetentionRoundTrip()
         checks.testBrowserPauseWatchdog()
+        checks.testBrowserPlaybackClockAndGrouping()
         checks.testReadableJapanese()
         checks.testSpeechDictionary()
         checks.testGitHubReleaseUpdates()
         checks.testDictionaryRowEditing()
         checks.testPageReadingChunks()
-        print("PASS: 22 pipeline checks")
+        print("PASS: 25 pipeline checks")
     }
     func testPageReadingChunks() {
         let mixed = "OAuthを使います。 Confirm the grant before a review. 手順を確認します。"
@@ -41,6 +44,26 @@ func XCTAssertEqual<T: Equatable>(_ a: T, _ b: T) { precondition(a == b) }
         XCTAssertTrue(pieces.allSatisfy { $0.count <= 420 })
         XCTAssertTrue(PageReading.containsUntranslatedProse("設定を確認。 Review the settings before enabling this option."))
         XCTAssertFalse(PageReading.containsUntranslatedProse("OpenAI APIを使用します。"))
+    }
+    func testBrowserPlaybackClockAndGrouping() {
+        var assembler = ListeningAssembler()
+        XCTAssertTrue(assembler.append("We use multifactor authentication.", audioEnd: 10, mediaStart: 56, mediaEnd: 57, at: 100).isEmpty)
+        XCTAssertTrue(assembler.append("That is a requirement.", audioEnd: 11, mediaStart: 58, mediaEnd: 60, at: 101).isEmpty)
+        let unit = assembler.poll(at: 106).first!
+        XCTAssertEqual(unit.mediaStart, 56)
+        XCTAssertEqual(unit.mediaEnd, 60)
+        XCTAssertEqual(unit.audioEnd, 11)
+        var clock = BrowserPlaybackClock()
+        XCTAssertFalse(BrowserPlaybackClock.isDue(unit.mediaStart, at: clock.playingPosition(at: 0)))
+        XCTAssertTrue(BrowserPlaybackClock.isDue(nil, at: nil))
+        XCTAssertTrue(clock.update(serial: 0, position: 55.9, paused: false, at: 1))
+        XCTAssertFalse(BrowserPlaybackClock.isDue(unit.mediaStart, at: clock.playingPosition(at: 1)))
+        XCTAssertTrue(clock.update(serial: 1, position: 56, paused: true, at: 2))
+        XCTAssertFalse(BrowserPlaybackClock.isDue(unit.mediaStart, at: clock.playingPosition(at: 2)))
+        XCTAssertFalse(clock.update(serial: 0, position: 100, paused: false, at: 2))
+        XCTAssertTrue(clock.update(serial: 2, position: 56.1, paused: false, at: 3))
+        XCTAssertTrue(BrowserPlaybackClock.isDue(unit.mediaStart, at: clock.playingPosition(at: 3)))
+        XCTAssertFalse(BrowserPlaybackClock.isDue(unit.mediaStart, at: clock.playingPosition(at: 6)))
     }
     func testBrowserPauseWatchdog() {
         var watch = BrowserInputWatchdog(now: 0)
@@ -57,6 +80,8 @@ func XCTAssertEqual<T: Equatable>(_ a: T, _ b: T) { precondition(a == b) }
         watch.heartbeat(paused: true, at: 217); watch.heartbeat(paused: false, at: 500)
         XCTAssertFalse(watch.timedOut(at: 501)) // resume gets fresh packet deadline
         watch.packet(at: 502); XCTAssertFalse(watch.timedOut(at: 503))
+        watch.packet(at: 514); XCTAssertFalse(watch.timedOut(at: 515)) // PCM proves liveness
+        XCTAssertTrue(watch.timedOut(at: 527))
     }
     func testAudioIdentityPreservesRepeatedSpeech() {
         var gate = FinalRangeGate()
@@ -179,6 +204,28 @@ func XCTAssertEqual<T: Equatable>(_ a: T, _ b: T) { precondition(a == b) }
         let meaningful = "No, no access is allowed. Turn right at the next door."
         XCTAssertEqual(ListeningText.english(meaningful, smooth: true, corrections: []), meaningful)
         XCTAssertEqual(ListeningText.english(original, smooth: false, corrections: []), original)
+    }
+    func testSecurityHomophonesRequireContext() {
+        XCTAssertEqual(ListeningText.correctSecurityTerms("The Sock team uses SIEM."), "The SOC team uses SIEM.")
+        XCTAssertEqual(ListeningText.correctSecurityTerms("Socks share alerts.", context: "We discussed incident response."), "SOCs share alerts.")
+        XCTAssertEqual(ListeningText.correctSecurityTerms("We track S-bombs and S爆弾 in the software supply chain."), "We track SBOMs and SBOM in the software supply chain.")
+        XCTAssertEqual(ListeningText.correctSecurityTerms("Build a C-bomb and a C爆弾.", context: "Cryptographic inventory."), "Build a CBOM and a CBOM.")
+        let literal = "I bought socks and saw a C-bomb in a movie."
+        XCTAssertEqual(ListeningText.correctSecurityTerms(literal), literal)
+        XCTAssertEqual(ListeningText.correctSecurityTerms("I bought socks.", context: "We use SIEM."), "I bought socks.")
+    }
+    func testZeroDayTerminology() {
+        let source = ListeningText.normalizeZeroDay("A zero day attack was detected zero days later.")
+        XCTAssertEqual(source, "A zero-day attack was detected zero days later.")
+        XCTAssertEqual(ListeningText.preserveZeroDay("0日の攻撃が0日後に検出された。", source: source), "ゼロデイ攻撃が0日後に検出された。")
+        let bare = ListeningText.normalizeZeroDay("They found a zero day.")
+        XCTAssertEqual(bare, "They found a zero-day.")
+        XCTAssertEqual(ListeningText.preserveZeroDay("彼らは0日を発見した。", source: bare), "彼らはゼロデイを発見した。")
+        let duration = "They waited zero days."
+        XCTAssertEqual(ListeningText.normalizeZeroDay(duration), duration)
+        XCTAssertEqual(ListeningText.preserveZeroDay("0日待った。", source: duration), "0日待った。")
+        XCTAssertEqual(ListeningText.preserveZeroDay("140日後に0日脆弱性を修正。", source: source), "140日後にゼロデイ脆弱性を修正。")
+        XCTAssertEqual(ListeningText.normalizeZeroDay("A zero day waiting period applies."), "A zero day waiting period applies.")
     }
     func testScopedDictionaryCorrection() {
         let entries = ListeningText.terms("Sock work = SOC work\nbad line\n<|plamo:bad = bad\nprice = $1")

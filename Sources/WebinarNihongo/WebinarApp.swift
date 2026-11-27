@@ -344,7 +344,7 @@ struct VoicevoxControls: View {
         }.disabled(voice.enabled)
         Text(service.state).font(.caption)
         if !service.voices.isEmpty {
-            Picker("VOICEVOXの声", selection: $voice.speakerID) {
+            Picker("ローカル音声", selection: $voice.speakerID) {
                 ForEach(service.voices) { item in Text(item.name).tag(item.id) }
             }
         }

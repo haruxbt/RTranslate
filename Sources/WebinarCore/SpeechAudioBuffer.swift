@@ -49,10 +49,13 @@ public struct SpeechAudioRequest: Hashable, Sendable {
         if let blocked = capacityBlocked, !ahead.contains(blocked) { capacityBlocked = nil }
         startPump()
     }
+    public func takePreparedAudio(for request: SpeechAudioRequest) -> Data? {
+        guard let audio = ready[request] else { return nil }
+        cacheHits += 1; removeReady(request); ahead.removeAll { $0 == request }; startPump()
+        return audio
+    }
     public func audio(for request: SpeechAudioRequest) async throws -> Data {
-        if let audio = ready[request] {
-            cacheHits += 1; removeReady(request); ahead.removeAll { $0 == request }; startPump(); return audio
-        }
+        if let audio = takePreparedAudio(for: request) { return audio }
         if let error = failures.removeValue(forKey: request) { throw error }
         return try await withCheckedThrowingContinuation { continuation in
             waiters[request, default: []].append(continuation)

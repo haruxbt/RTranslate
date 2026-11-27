@@ -2,7 +2,7 @@ import {createFile} from './mp4box.all.mjs';
 
 // All stream requests remain browser CORS requests. No URL or encoded media is
 // sent to the native app. Only bounded mono PCM is emitted on the video clock.
-export async function createHLSCapture({media,url,Hls,onBlock,onError,isActive=()=>true}) {
+export async function createHLSCapture({media,url,Hls,onBlock,onError,isActive=()=>true,lookahead=0,canAcceptAudio=()=>true}) {
   if(typeof AudioDecoder==='undefined'||!Hls?.isSupported())throw new Error('このSafariではHLS音声の独立デコードを利用できません。');
   if(media.mediaKeys)throw new Error('保護された動画は取得できません。');
   const requestedStart=media.currentTime;
@@ -15,11 +15,12 @@ export async function createHLSCapture({media,url,Hls,onBlock,onError,isActive=(
   const host=document.createElement('div');host.attachShadow({mode:'closed'}).append(clone);document.documentElement.append(host);
   const file=createFile(true);
   const hls=new Hls({preferManagedMediaSource:false,enableWorker:false,startLevel:0,autoLevelCapping:0,
-    startPosition:requestedStart,maxBufferLength:10,maxMaxBufferLength:20,maxBufferSize:10*1024*1024,backBufferLength:0,debug:false});
+    startPosition:requestedStart,maxBufferLength:lookahead?30:10,maxMaxBufferLength:lookahead?40:20,maxBufferSize:10*1024*1024,backBufferLength:0,debug:false});
   hls.autoLevelCapping=0;
-  let timer,timeout;
+  let timer,timeout,previousEnd=null,lastPump=performance.now()-100;
   function stop() {
     if(!active)return;active=false;clearInterval(timer);clearTimeout(timeout);
+    media.removeEventListener('timeupdate',pump);
     media.removeEventListener('seeking',seek);media.removeEventListener('play',play);media.removeEventListener('pause',pause);media.removeEventListener('ratechange',speed);
     clone.pause();hls.destroy();file.stop();if(decoder&&decoder.state!=='closed')decoder.close();
     host.remove();queue=[];queuedFrames=0;
@@ -30,7 +31,7 @@ export async function createHLSCapture({media,url,Hls,onBlock,onError,isActive=(
   }
   function seek(){fail('再生位置が変わりました。新しい位置で翻訳開始を押してください。');}
   function play(){if(active)clone.play().catch(()=>fail('音声用の読み込みを再開できませんでした。'));}
-  function pause(){clone.pause();hls.stopLoad();stalled=true;}
+  function pause(){if(!lookahead){clone.pause();hls.stopLoad();stalled=true;}}
   function speed(){clone.playbackRate=media.playbackRate;}
   file.onError=()=>fail('HLS音声データを解析できませんでした。');
   file.onReady=info=>{
@@ -84,29 +85,36 @@ export async function createHLSCapture({media,url,Hls,onBlock,onError,isActive=(
   hls.on(Hls.Events.LEVEL_LOADED,(_event,data)=>{if(data.details.live)fail('ライブHLSの音声取得は現在未対応です。');});
   hls.on(Hls.Events.ERROR,(_event,data)=>{if(data.fatal)fail('HLS音声を取得できません。配信元のアクセス許可または音声形式を確認してください。');});
   media.addEventListener('seeking',seek);media.addEventListener('play',play);media.addEventListener('pause',pause);media.addEventListener('ratechange',speed);
-  speed();hls.loadSource(url);hls.attachMedia(clone);clone.play().catch(()=>fail('音声用の読み込みを開始できませんでした。'));
-  timeout=setTimeout(()=>fail('HLS音声を準備できませんでした。'),25000);
-  let previousEnd=null;
-  timer=setInterval(()=>{
+  function pump(){
     if(!active)return;
     if(!isActive()){fail('音声取得を取り消しました。');return;}
     if(media.currentSrc!==url){fail('対象動画が切り替わりました。翻訳を再開してください。');return;}
+    const now=performance.now();
+    const elapsed=Math.max(0,(now-lastPump)/1000);
+    lastPump=now;
     if(!rate)return;
-    if(media.paused&&!clone.paused)clone.pause();
+    if(!lookahead&&media.paused&&!clone.paused)clone.pause();
     const ahead=queuedFrames/rate;
-    if((ahead>15||media.paused)&&!stalled){hls.stopLoad();stalled=true;}
-    else if(ahead<6&&!media.paused&&stalled){hls.startLoad(-1);clone.play().catch(()=>{});stalled=false;}
-    // At most 2x realtime; native messages must not receive a burst on startup.
-    let budget=Math.ceil(rate*.2);
-    while(active&&queue.length&&budget>0){
+    const mayLoad=lookahead>0||!media.paused;
+    if((ahead>(lookahead?30:15)||!mayLoad)&&!stalled){hls.stopLoad();stalled=true;}
+    else if(ahead<6&&mayLoad&&stalled){hls.startLoad(-1);clone.play().catch(()=>{});stalled=false;}
+    // Safari can coalesce timers while playing behind another window. Budget
+    // for actual elapsed time, with a ceiling for the bridge's packet queue.
+    let budget=Math.floor(rate*Math.min(2,2*elapsed));
+    const horizon=media.currentTime+lookahead;
+    while(active&&queue.length&&budget>0&&canAcceptAudio()){
       const block=queue[0],start=block.start+block.used/rate;
-      const available=Math.min(block.samples.length-block.used,Math.floor((media.currentTime-start)*rate),budget);
+      const available=Math.min(block.samples.length-block.used,Math.floor((horizon-start)*rate),budget);
       if(available<=0)break;
       if(previousEnd!==null&&Math.abs(start-previousEnd)>.12){fail('HLS音声の区間が連続していないため停止しました。');return;}
-      onBlock(block.samples.subarray(block.used,block.used+available),rate);
+      onBlock(block.samples.subarray(block.used,block.used+available),rate,start);
       block.used+=available;queuedFrames-=available;budget-=available;previousEnd=start+available/rate;
       if(block.used===block.samples.length)queue.shift();
     }
-  },100);
+  }
+  media.addEventListener('timeupdate',pump);
+  timer=setInterval(pump,100);
+  timeout=setTimeout(()=>fail('HLS音声を準備できませんでした。'),25000);
+  speed();hls.loadSource(url);hls.attachMedia(clone);clone.play().catch(()=>fail('音声用の読み込みを開始できませんでした。'));
   return readiness;
 }

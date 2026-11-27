@@ -55,7 +55,7 @@ struct AppSettings: View {
             Group {
                 switch model.settingsPage {
                 case .overview: OverviewSettings(model: model, updates: model.updates, assets: model.assets)
-                case .dictionary: DictionarySettings(model: model, preferences: model.listening)
+                case .dictionary: DictionarySettings(model: model, shared: model.listening.shared)
                 case .slides: SlideSettings(model: model)
                 case .models: ModelManagementSettings(model: model, assets: model.assets, worker: model.localWorker, voiceService: model.voice.voicevox)
                 case .history: HistorySettings(model: model)

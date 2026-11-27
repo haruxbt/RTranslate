@@ -1,6 +1,6 @@
 import test from 'node:test';import assert from 'node:assert/strict';import vm from 'node:vm';import fs from 'node:fs/promises';import {webcrypto} from 'node:crypto';
 async function fixture(nativeStatus={},restoreNeverFinishes=false,options={}){
- const calls=[],listeners={},store={};let onMessage,timelineVisible=false,pageReading=false;
+ const calls=[],controls=[],listeners={},store={};let onMessage,timelineVisible=false,pageReading=false;
  const event=name=>({addListener:fn=>listeners[name]=fn});
  const api={storage:{local:{get:async()=>{if(options.storageFails)throw Error('invalid schema version');return restoreNeverFinishes?await new Promise(()=>{}):store;},set:async value=>{if(options.storageFails)throw Error('invalid schema version');return Object.assign(store,value);}}},runtime:{onMessage:{addListener:fn=>onMessage=fn},sendNativeMessage:async(app,request)=>{
   calls.push(request);
@@ -10,11 +10,17 @@ async function fixture(nativeStatus={},restoreNeverFinishes=false,options={}){
   if(request.command==='status')return {ok:true,running:true,voiceEnabled:true,...nativeStatus};
   if(request.command==='timelineForPage')return {ok:true,rows:[{id:'owned',japanese:'表示経路の試験'}],cursor:1,historySession:'native-session'};
   if(request.command==='timeline')return {ok:true,rows:[],cursor:0};return {ok:true};
- }},tabs:{get:async id=>({id,url:'https://example.test/webinar'}),query:async()=>[{id:7,url:'https://example.test/webinar',title:'Synthetic webinar'}],sendMessage:async(_id,r)=>{if(r.type==='timelineVisibility'){if(typeof r.visible==='boolean')timelineVisible=r.visible;return {ok:true,visible:timelineVisible};}return {ok:true};},onRemoved:event('removed'),onUpdated:event('updated'),onActivated:event('activated')},scripting:{executeScript:async request=>{if(options.scriptError)throw Error(options.scriptError);if(request.args)return [{frameId:0,result:{url:'https://example.test/webinar',text:'The system uses OAuth.'}}];return request.func?[{frameId:0,result:options.noMedia?[]:[{index:0,playing:true,area:100}]}]:[];}}};
+ }},tabs:{get:async id=>({id,url:'https://example.test/webinar'}),query:async()=>[{id:7,url:'https://example.test/webinar',title:'Synthetic webinar'}],sendMessage:async(_id,r)=>{if(r.type.startsWith('capture'))throw Error('No message receiver');if(r.type==='timelineVisibility'){if(typeof r.visible==='boolean')timelineVisible=r.visible;return {ok:true,visible:timelineVisible};}return {ok:true};},onRemoved:event('removed'),onUpdated:event('updated'),onActivated:event('activated')},scripting:{executeScript:async request=>{if(options.scriptError)throw Error(options.scriptError);const control=request.args?.[0];
+ if(control?.type==='captureStart' || control?.type==='captureStop'){
+  const [frameId]=request.target.frameIds;
+  controls.push({...control,frameId,tabId:request.target.tabId});
+  return [{frameId,result:options.noController?undefined:{ok:true}}];
+ }
+ if(request.args)return [{frameId:0,result:{url:'https://example.test/webinar',text:'The system uses OAuth.'}}];return request.func?[{frameId:options.mediaFrame ?? 0,result:options.noMedia?[]:[{index:0,playing:true,area:100}]}]:[];}}};
  const context=vm.createContext({browser:api,URL,crypto:webcrypto,TextEncoder,setTimeout,clearTimeout,console});
  const protocol=new vm.SourceTextModule(await fs.readFile(new URL('../../SafariExtension/Resources/protocol.mjs',import.meta.url),'utf8'),{context});await protocol.link(()=>{});await protocol.evaluate();
  const background=new vm.SourceTextModule(await fs.readFile(new URL('../../SafariExtension/Resources/background.js',import.meta.url),'utf8'),{context});await background.link(()=>protocol);await background.evaluate();
- return {send:(r,s={})=>onMessage(r,s),calls,listeners};
+ return {send:(r,s={})=>onMessage(r,s),calls,controls,listeners};
 }
 test('start binds current tab and enables native speech; foreign frames cannot send PCM',async()=>{
  const f=await fixture();assert.equal((await f.send({type:'start'})).ok,true);
@@ -26,10 +32,15 @@ test('start binds current tab and enables native speech; foreign frames cannot s
  assert.ok(f.calls.some(c=>c.command==='stop'));
  assert.equal((await f.send({type:'timelineData',cursor:0},{tab:{id:7},frameId:0})).ok,true);
 });
-test('content scripts cannot invoke user controls; changing tabs stops the old session',async()=>{
+test('changing tabs keeps the original capture bound until that tab closes',async()=>{
  const f=await fixture();await f.send({type:'start'});await new Promise(resolve=>setImmediate(resolve));
  assert.equal((await f.send({type:'voice'},{tab:{id:7},frameId:0})).ok,false);
- f.listeners.activated({tabId:8});await new Promise(resolve=>setImmediate(resolve));
+ f.listeners.activated?.({tabId:8});await new Promise(resolve=>setImmediate(resolve));
+ const session=f.calls.find(c=>c.command==='start').session;
+ assert.equal(f.calls.some(c=>c.command==='stop'),false);
+ assert.equal((await f.send({type:'pcm',session,sequence:1,pcm:'data'},{tab:{id:7},frameId:0})).ok,true);
+ assert.equal((await f.send({type:'pcm',session,sequence:1,pcm:'data'},{tab:{id:8},frameId:0})).ok,false);
+ f.listeners.removed(7);await new Promise(resolve=>setImmediate(resolve));
  assert.ok(f.calls.some(c=>c.command==='stop'));
 });
 
@@ -70,10 +81,10 @@ test('voice switch sends an explicit state, and preview is unavailable to page c
  const preview=f.calls.find(c=>c.command==='preview');assert.equal(preview.settings.speaker,2);assert.equal(preview.session,undefined);
 });
 
-test('page content cannot read or overwrite dictionaries',async()=>{
+test('legacy dictionary messages cannot read or overwrite pronunciation preferences',async()=>{
  const f=await fixture();await f.send({type:'start'});await new Promise(resolve=>setImmediate(resolve));
  for(const type of ['dictionaryGet','dictionarySave'])assert.equal((await f.send({type},{tab:{id:7},frameId:0})).ok,false);
- assert.equal(f.calls.filter(c=>c.command.startsWith('dictionary')).length,0);assert.equal((await f.send({type:'dictionaryGet'})).ok,true);await f.send({type:'stop'});
+ assert.equal(f.calls.filter(c=>c.command.startsWith('dictionary')).length,0);assert.equal((await f.send({type:'dictionaryGet'})).ok,false);await f.send({type:'stop'});
 });
 test('webpage cannot invoke asset management or uninstall',async()=>{
  const f=await fixture();await f.send({type:'start'});await new Promise(resolve=>setImmediate(resolve));
@@ -139,4 +150,45 @@ test('page translation does not start capture and stops when its source tab navi
  f.listeners.updated(7,{status:'loading'});
  await new Promise(resolve=>setImmediate(resolve));
  assert.equal(f.calls.find(x=>x.command==='pageStop').session,request.session);
+});
+
+test('capture starts and stops in the detected video frame without a tab-message receiver',async()=>{
+ const f=await fixture({},false,{mediaFrame:4});
+ assert.equal((await f.send({type:'start'})).ok,true);
+ await new Promise(resolve=>setImmediate(resolve));
+ const session=f.calls.find(c=>c.command==='start').session;
+ assert.deepEqual(f.controls[0],{type:'captureStart',session,index:0,frameId:4,tabId:7});
+ assert.equal((await f.send({type:'captureReady',session},{tab:{id:7},frameId:4})).ok,true);
+ await f.send({type:'stop'});
+ assert.deepEqual(f.controls[1],{type:'captureStop',session,index:0,frameId:4,tabId:7});
+});
+test('a missing capture controller stops the native session and explains how to retry',async()=>{
+ const f=await fixture({},false,{noController:true});
+ await f.send({type:'start'});
+ await new Promise(resolve=>setImmediate(resolve));
+ const state=await f.send({type:'status'});
+ assert.equal(state.running,false);
+ assert.match(state.error,/動画フレームで音声取得を開始できませんでした.*再読み込み/);
+ assert.equal(f.calls.filter(c=>c.command==='stop').length,1);
+});
+
+test('the lookahead clock and PCM origin travel only from the selected frame',async()=>{
+ const f=await fixture({},false,{mediaFrame:4});
+ assert.equal((await f.send({type:'start',lookahead:true,captions:true})).ok,true);
+ await new Promise(resolve=>setImmediate(resolve));
+ const start=f.calls.find(c=>c.command==='start');
+ assert.equal(start.lookahead,true);
+ assert.equal(f.controls[0].lookahead,true);
+ assert.equal(f.controls[0].captions,true);
+ const captions={type:'captureCaptions',session:start.session,cursor:2,historySession:'live'};
+ assert.equal((await f.send(captions,{tab:{id:7},frameId:0})).ok,false);
+ await f.send(captions,{tab:{id:7},frameId:4});
+ assert.equal(f.calls.find(c=>c.command==='timeline').cursor,2);
+ const beat={type:'captureHeartbeat',session:start.session,paused:true,clock:{position:45,serial:0}};
+ assert.equal((await f.send(beat,{tab:{id:7},frameId:0})).ok,false);
+ await f.send(beat,{tab:{id:7},frameId:4});
+ await f.send({type:'pcm',session:start.session,mediaStart:45.002,sequence:0,pcm:'data'},{tab:{id:7},frameId:4});
+ assert.equal(f.calls.find(c=>c.command==='heartbeat').clock.position,45);
+ assert.equal(f.calls.find(c=>c.command==='pcm').mediaStart,45.002);
+ await f.send({type:'stop'});
 });
