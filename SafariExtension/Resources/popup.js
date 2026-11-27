@@ -79,16 +79,18 @@ function restore(value){const v=settings(value);$('backend').value=v.backend;$('
 async function saveSettings(){const value=settings({volume:$('volume').value,speed:speeds[Number($('speed').value)],speaker:$('speaker').value,autoSpeed:$('autoSpeed').checked,backend:$('backend').value,speechEngine:$('speech-engine').value,smooth:$('smooth').checked});try{await send('settings',{value});await refresh();}catch(e){$('preview-status').textContent=e.message;}}
 $('volume').oninput=updateInputs;$('speed').oninput=updateInputs;$('volume-number').oninput=()=>{$('volume').value=Math.max(0,Math.min(100,Number($('volume-number').value)||0));};$('volume-number').onchange=()=>{updateInputs();saveSettings();};for(const id of ['volume','speed','speaker','autoSpeed','backend','speech-engine','smooth'])$(id).onchange=()=>{updateInputs();saveSettings();};
 $('preview').onclick=async()=>{$('preview').disabled=true;$('preview-status').textContent='試聴用の音声を準備しています…';try{await saveSettings();const r=await send('preview');$('preview-status').textContent=r.message||'試聴しています';}catch(e){$('preview-status').textContent=e.message;}finally{$('preview').disabled=false;}};
-$('open-settings').onclick=()=>{$('main-page').hidden=true;$('settings-page').hidden=false;};
-$('close-settings').onclick=()=>{
-  $('settings-page').hidden=true;$('main-page').hidden=false;
-  $('main-page').append(playbackDetails);playbackDetails.hidden=tabMode==='page';
-};
-$('settings-playback').onclick=()=>{
-  $('settings-page').append(playbackDetails);playbackDetails.hidden=false;playbackDetails.open=true;
-};
-async function openSettings(page){try{await send('openAppSettings',{page});$('settings-status').textContent='アプリの設定を開きました';}catch(e){$('settings-status').textContent=e.message;}}
-for(const page of ['overview','dictionary','slides','models','history','support'])$('settings-'+page).onclick=()=>openSettings(page);$('prepare-apple').onclick=()=>openSettings('models');
+async function openSettings(page) {
+  const status=$('settings-status');
+  status.textContent='';
+  try {
+    await send('openAppSettings',{page});
+    globalThis.close?.();
+  } catch(error) {
+    status.textContent=error.message;
+  }
+}
+$('open-settings').onclick=()=>openSettings('overview');
+$('prepare-apple').onclick=()=>openSettings('models');
 $('lookahead').onchange=()=>{display(state);api.storage.local.set?.({lookahead:$('lookahead').checked})?.catch?.(()=>{});};
 $('video-captions').onchange=()=>{api.storage.local.set?.({videoCaptions:$('video-captions').checked})?.catch?.(()=>{});};
 let stored={};try{stored=await api.storage.local.get(['settings','popupTab','lookahead','videoCaptions']);}catch{}let initial=stored.settings||{volume:60,speed:DEFAULT_SPEED,speaker:2};

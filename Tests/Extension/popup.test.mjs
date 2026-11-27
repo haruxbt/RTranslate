@@ -2,19 +2,20 @@ import test from 'node:test';import assert from 'node:assert/strict';import vm f
 async function fixture(options={}){
  class Element{constructor(){this.value='';this.checked=false;this.disabled=false;this.attributes={};this.children=[];this.textContent='';}focus(){this.focused=true;}append(...x){this.children.push(...x);}replaceChildren(){this.children=[];}setAttribute(k,v){this.attributes[k]=v;}}
  const html=await fs.readFile(new URL('../../SafariExtension/Resources/popup.html',import.meta.url),'utf8'),ids=new Set([...html.matchAll(/id="([^"]+)"/g)].map(x=>x[1]));
- const elements=new Map(),calls=[];const get=id=>{assert.ok(ids.has(id),'Missing popup element: '+id);if(!elements.has(id))elements.set(id,new Element());return elements.get(id);};
+ let closes=0;const elements=new Map(),calls=[];const get=id=>{assert.ok(ids.has(id),'Missing popup element: '+id);if(!elements.has(id))elements.set(id,new Element());return elements.get(id);};
  let model={running:false,voiceEnabled:false,timelineVisible:false,host:'example.test',effectiveSpeed:1.75};
- const context=vm.createContext({document:{getElementById:get,createElement:()=>new Element(),body:{dataset:{}}},setInterval(){},console,browser:{storage:{local:{get:async()=>{if(options.storageFails)throw Error('invalid schema version');return {settings:{speaker:14,volume:80,speed:1.2,autoSpeed:false}};}}},runtime:{sendMessage:async request=>{
+ const context=vm.createContext({document:{getElementById:get,createElement:()=>new Element(),body:{dataset:{}}},setInterval(){},close(){closes++;},console,browser:{storage:{local:{get:async()=>{if(options.storageFails)throw Error('invalid schema version');return {settings:{speaker:14,volume:80,speed:1.2,autoSpeed:false}};}}},runtime:{sendMessage:async request=>{
   calls.push(request);if(request.type==='start')Object.assign(model,{running:true,voiceEnabled:true,timelineVisible:true});
   if(request.type==='stop')Object.assign(model,{running:false,voiceEnabled:false});
   if(request.type==='voice')model.voiceEnabled=request.enabled;if(request.type==='timeline')model.timelineVisible=request.visible;
   if(request.type==='pageStart')return {ok:true,reading:true};
   if(request.type==='pageStop')return {ok:true,reading:false};
+  if(request.type==='openAppSettings'&&options.settingsFails)return {ok:false,error:'アプリへ接続できません。'};
   if(request.type==='preview')return {ok:true,message:'試聴しています'};
   return {ok:true,...model};
  }}}});
  const protocol=new vm.SourceTextModule(await fs.readFile(new URL('../../SafariExtension/Resources/protocol.mjs',import.meta.url),'utf8'),{context});await protocol.link(()=>{});await protocol.evaluate();
- const popup=new vm.SourceTextModule(await fs.readFile(new URL('../../SafariExtension/Resources/popup.js',import.meta.url),'utf8'),{context});await popup.link(()=>protocol);await popup.evaluate();return {get,calls};
+ const popup=new vm.SourceTextModule(await fs.readFile(new URL('../../SafariExtension/Resources/popup.js',import.meta.url),'utf8'),{context});await popup.link(()=>protocol);await popup.evaluate();return {get,calls,closes:()=>closes};
 }
 test('popup restores settings and one start enables speech and timeline independently',async()=>{
  const f=await fixture(),g=f.get;assert.equal(Number(g('speaker').value),14);assert.equal(g('speed-value').textContent,'1.2×');assert.equal(g('voice').disabled,true);
@@ -29,17 +30,24 @@ test('volume numeric entry and preset speed reach settings; preview uses the cur
  await g('preview').onclick();assert.equal(g('preview-status').textContent,'試聴しています');assert.ok(f.calls.some(x=>x.type==='preview'));
 });
 
-test('dictionary and slide buttons open the matching native settings page',async()=>{
+test('dictionary shortcuts and Apple setup open their matching native settings pages',async()=>{
  const f=await fixture(),g=f.get;
- await g('settings-dictionary').onclick();await g('settings-slides').onclick();
- assert.deepEqual(f.calls.filter(x=>x.type==='openAppSettings').map(x=>x.page),['dictionary','slides']);
- assert.equal(f.calls.filter(x=>x.type==='dictionarySave').length,0);
+ await g('video-add-word').onclick();await g('prepare-apple').onclick();
+ assert.deepEqual(f.calls.filter(x=>x.type==='openAppSettings').map(x=>x.page),['dictionary','models']);
 });
-test('gear opens separate settings and back restores the popup',async()=>{
- const f=await fixture(),g=f.get;g('open-settings').onclick();assert.equal(g('main-page').hidden,true);assert.equal(g('settings-page').hidden,false);
- await new Promise(resolve=>setImmediate(resolve));assert.ok(f.calls.some(x=>x.type==='playbackGet'));
- g('close-settings').onclick();assert.equal(g('settings-page').hidden,true);assert.equal(g('main-page').hidden,false);
- assert.equal(f.calls.filter(x=>x.type==='uninstall').length,0);
+test('gear opens native settings in one click from either mode',async()=>{
+ const f=await fixture(),g=f.get;
+ await g('open-settings').onclick();
+ g('page-tab').onclick();
+ await g('open-settings').onclick();
+ assert.deepEqual(f.calls.filter(x=>x.type==='openAppSettings').map(x=>x.page),['overview','overview']);
+ assert.equal(f.closes(),2);
+});
+test('gear keeps the popup open when native settings cannot be opened',async()=>{
+ const f=await fixture({settingsFails:true});
+ await f.get('open-settings').onclick();
+ assert.equal(f.get('settings-status').textContent,'アプリへ接続できません。');
+ assert.equal(f.closes(),0);
 });
 
 test('opening the popup uses a neutral root instead of focusing details',async()=>{
